@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TodayReservationsTab } from "@/components/cocina/today-reservations-tab"
 import { InventoryTab } from "@/components/cocina/inventory-tab"
 import { WeeklyMenuTab } from "@/components/cocina/weekly-menu-tab"
+import { GastroEventsTab } from "@/components/cocina/gastro-events-tab"
 
 export default function CocinaPage() {
   const { user, isLoading } = useAuth()
@@ -31,19 +32,20 @@ export default function CocinaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFFDF7] to-[#F2EFC2]/20">
       <Navbar />
       <main className="container mx-auto p-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold">Panel de Cocina</h1>
-          <p className="text-muted-foreground">Gestiona el menú semanal, inventario y reservas</p>
+          <h1 className="text-3xl font-bold text-[#5C5C5C]">Panel de <span className="text-[#F2594B]">Cocina</span></h1>
+          <p className="text-[#737373]">Gestiona el menú semanal, inventario y reservas</p>
         </div>
 
         <Tabs defaultValue="today" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto">
-            <TabsTrigger value="today">Reservas Hoy</TabsTrigger>
-            <TabsTrigger value="menu">Menú Semanal</TabsTrigger>
-            <TabsTrigger value="inventory">Inventario</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto bg-[#FFFEF9] border border-[#F2EDA2]">
+            <TabsTrigger value="today" className="data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373]">Reservas Hoy</TabsTrigger>
+            <TabsTrigger value="menu" className="data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373]">Menú Semanal</TabsTrigger>
+            <TabsTrigger value="events" className="data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373]">Eventos</TabsTrigger>
+            <TabsTrigger value="inventory" className="data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373]">Inventario</TabsTrigger>
           </TabsList>
 
           <TabsContent value="today">
@@ -52,6 +54,10 @@ export default function CocinaPage() {
 
           <TabsContent value="menu">
             <WeeklyMenuTab />
+          </TabsContent>
+
+          <TabsContent value="events">
+            <GastroEventsTab />
           </TabsContent>
 
           <TabsContent value="inventory">

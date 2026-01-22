@@ -30,11 +30,11 @@ export function UsersTab() {
 
   const getRoleBadge = (role: string) => {
     const variants = {
-      admin: "bg-purple-100 text-purple-700",
-      cocina: "bg-blue-100 text-blue-700",
-      maestro: "bg-green-100 text-green-700",
+      admin: "bg-[#F2594B]/10 text-[#F2594B]",
+      cocina: "bg-[#F2EDA2] text-[#737373]",
+      maestro: "bg-[#F2EFC2] text-[#737373]",
     }
-    return variants[role as keyof typeof variants] || "bg-gray-100 text-gray-700"
+    return variants[role as keyof typeof variants] || "bg-[#F0F1F2] text-[#737373]"
   }
 
   return (
@@ -45,7 +45,7 @@ export function UsersTab() {
             <CardTitle>Gestión de Usuarios</CardTitle>
             <CardDescription>Administra los usuarios del sistema</CardDescription>
           </div>
-          <Button className="bg-orange-600 hover:bg-orange-700">
+          <Button className="bg-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]">
             <UserPlus className="mr-2 h-4 w-4" />
             Añadir Usuario
           </Button>

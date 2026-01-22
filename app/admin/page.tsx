@@ -32,20 +32,20 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFFDF7] to-[#F2EFC2]/20">
       <Navbar />
       <main className="container mx-auto p-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold">Panel de Administración</h1>
-          <p className="text-muted-foreground">Gestiona todos los aspectos del sistema</p>
+          <h1 className="text-3xl font-bold text-[#5C5C5C]">Panel de <span className="text-[#F2594B]">Administración</span></h1>
+          <p className="text-[#737373]">Gestiona todos los aspectos del sistema</p>
         </div>
 
         <Tabs defaultValue="stats" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto">
-            <TabsTrigger value="stats">Estadísticas</TabsTrigger>
-            <TabsTrigger value="menus">Menús</TabsTrigger>
-            <TabsTrigger value="reservations">Reservas</TabsTrigger>
-            <TabsTrigger value="users">Usuarios</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto bg-[#FFFEF9] border border-[#F2EDA2]">
+            <TabsTrigger value="stats" className="data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373]">Estadísticas</TabsTrigger>
+            <TabsTrigger value="menus" className="data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373]">Menús</TabsTrigger>
+            <TabsTrigger value="reservations" className="data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373]">Reservas</TabsTrigger>
+            <TabsTrigger value="users" className="data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373]">Usuarios</TabsTrigger>
           </TabsList>
 
           <TabsContent value="stats">

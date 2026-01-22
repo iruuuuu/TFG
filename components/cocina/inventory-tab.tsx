@@ -29,12 +29,12 @@ export function InventoryTab() {
 
   const getStockStatus = (item: InventoryItem) => {
     if (item.quantity <= item.minStock) {
-      return { label: "Bajo", color: "bg-red-100 text-red-700", icon: true }
+      return { label: "Bajo", color: "bg-[#F2594B]/10 text-[#F2594B]", icon: true }
     }
     if (item.quantity <= item.minStock * 1.5) {
-      return { label: "Medio", color: "bg-yellow-100 text-yellow-700", icon: true }
+      return { label: "Medio", color: "bg-[#F2EDA2] text-[#737373]", icon: true }
     }
-    return { label: "Óptimo", color: "bg-green-100 text-green-700", icon: false }
+    return { label: "Óptimo", color: "bg-[#F2EFC2] text-[#737373]", icon: false }
   }
 
   const lowStockItems = inventory.filter((item) => item.quantity <= item.minStock)
@@ -42,27 +42,27 @@ export function InventoryTab() {
   return (
     <div className="space-y-6">
       {lowStockItems.length > 0 && (
-        <Card className="border-orange-200 bg-orange-50">
+        <Card className="border-[#F2EDA2] bg-[#FFFEF9] shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-orange-600" />
-              <CardTitle className="text-orange-900">Alertas de Stock</CardTitle>
+              <AlertCircle className="h-5 w-5 text-[#5C5C5C]" />
+              <CardTitle className="text-[#5C5C5C]">Alertas de <span className="text-[#F2594B]">Stock</span></CardTitle>
             </div>
-            <CardDescription className="text-orange-700">
-              Hay {lowStockItems.length} producto(s) con stock bajo
+            <CardDescription className="text-[#737373]">
+              Hay <span className="text-[#F2594B] font-semibold">{lowStockItems.length}</span> producto(s) con stock bajo
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {lowStockItems.map((item) => (
-                <div key={item.id} className="flex items-center justify-between rounded-md bg-white p-3">
+                <div key={item.id} className="flex items-center justify-between rounded-md bg-[#F2EFC2]/30 border border-[#F2EDA2] p-3">
                   <div>
-                    <p className="font-medium">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Stock actual: {item.quantity} {item.unit} (Mínimo: {item.minStock} {item.unit})
+                    <p className="font-medium text-[#5C5C5C]">{item.name}</p>
+                    <p className="text-sm text-[#737373]">
+                      Stock actual: <span className="text-[#F2594B] font-medium">{item.quantity} {item.unit}</span> (Mínimo: {item.minStock} {item.unit})
                     </p>
                   </div>
-                  <Badge className="bg-red-100 text-red-700">Reponer</Badge>
+                  <Badge className="bg-[#FFF5F4] text-[#F2594B] font-semibold">Reponer</Badge>
                 </div>
               ))}
             </div>
@@ -72,12 +72,12 @@ export function InventoryTab() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Inventario</h2>
-          <p className="text-muted-foreground">Gestiona el stock de ingredientes</p>
+          <h2 className="text-2xl font-bold text-[#5C5C5C]"><span className="text-[#F2594B]">Inventario</span></h2>
+          <p className="text-[#737373]">Gestiona el stock de ingredientes</p>
         </div>
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="bg-orange-600 hover:bg-orange-700">
+            <Button className="bg-[#F2EDA2] text-[#5C5C5C] font-semibold hover:bg-[#E8E398] shadow-sm">
               <Package className="mr-2 h-4 w-4" />
               Añadir Producto
             </Button>
@@ -116,7 +116,7 @@ export function InventoryTab() {
                 <Button type="button" variant="outline">
                   Cancelar
                 </Button>
-                <Button type="submit" className="bg-orange-600 hover:bg-orange-700">
+                <Button type="submit" className="bg-[#F2EDA2] text-[#5C5C5C] font-semibold hover:bg-[#E8E398] shadow-sm">
                   Guardar
                 </Button>
               </div>
@@ -129,12 +129,12 @@ export function InventoryTab() {
         {inventory.map((item) => {
           const status = getStockStatus(item)
           return (
-            <Card key={item.id}>
+            <Card key={item.id} className="border-[#F2EDA2] bg-[#FFFEF9]">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-lg">{item.name}</CardTitle>
-                    <CardDescription>{item.category}</CardDescription>
+                    <CardTitle className="text-lg text-[#5C5C5C]">{item.name}</CardTitle>
+                    <CardDescription className="text-[#737373]">{item.category}</CardDescription>
                   </div>
                   <Badge className={status.color}>
                     {status.icon && <AlertCircle className="mr-1 h-3 w-3" />}
@@ -145,14 +145,14 @@ export function InventoryTab() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Cantidad actual:</span>
-                    <span className="font-semibold">
+                    <span className="text-[#737373]">Cantidad actual:</span>
+                    <span className="font-semibold text-[#5C5C5C]">
                       {item.quantity} {item.unit}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Stock mínimo:</span>
-                    <span>
+                    <span className="text-[#737373]">Stock mínimo:</span>
+                    <span className="text-[#5C5C5C]">
                       {item.minStock} {item.unit}
                     </span>
                   </div>

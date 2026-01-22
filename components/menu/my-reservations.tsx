@@ -69,11 +69,11 @@ export function MyReservations() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmada":
-        return "bg-green-100 text-green-700"
+        return "bg-[#F2EFC2] text-[#737373]"
       case "cancelada":
-        return "bg-red-100 text-red-700"
+        return "bg-[#F2594B]/10 text-[#F2594B]"
       default:
-        return "bg-yellow-100 text-yellow-700"
+        return "bg-[#F2EDA2] text-[#737373]"
     }
   }
 
@@ -82,31 +82,31 @@ export function MyReservations() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50">
+      <Card className="border-[#F2EDA2] bg-[#FFFEF9] shadow-sm">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <UtensilsCrossed className="h-5 w-5 text-orange-600" />
-            <CardTitle>Mis Reservas</CardTitle>
+            <UtensilsCrossed className="h-5 w-5 text-[#5C5C5C]" />
+            <CardTitle className="text-[#5C5C5C]">Mis <span className="text-[#F2594B]">Reservas</span></CardTitle>
           </div>
-          <CardDescription>Gestiona tus reservas de comida</CardDescription>
+          <CardDescription className="text-[#737373]">Gestiona tus reservas de comida</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-lg bg-white p-4">
-              <div className="text-2xl font-bold text-orange-600">{upcomingReservations.length}</div>
-              <p className="text-sm text-muted-foreground">Reservas activas</p>
+            <div className="rounded-lg bg-[#F2EDA2]/50 border border-[#F2EDA2] p-4">
+              <div className="text-2xl font-bold text-[#F2594B]">{upcomingReservations.length}</div>
+              <p className="text-sm text-[#737373]">Reservas activas</p>
             </div>
-            <div className="rounded-lg bg-white p-4">
-              <div className="text-2xl font-bold text-green-600">
+            <div className="rounded-lg bg-[#F2EFC2]/50 border border-[#F2EDA2] p-4">
+              <div className="text-2xl font-bold text-[#5C5C5C]">
                 {reservations.filter((r) => r.status === "confirmada").length}
               </div>
-              <p className="text-sm text-muted-foreground">Confirmadas</p>
+              <p className="text-sm text-[#737373]">Confirmadas</p>
             </div>
-            <div className="rounded-lg bg-white p-4">
-              <div className="text-2xl font-bold text-yellow-600">
+            <div className="rounded-lg bg-[#FFFEF9] border border-[#F2EDA2] p-4">
+              <div className="text-2xl font-bold text-[#F2594B]">
                 {reservations.filter((r) => r.status === "pendiente").length}
               </div>
-              <p className="text-sm text-muted-foreground">Pendientes</p>
+              <p className="text-sm text-[#737373]"><span className="text-[#F2594B]">Pendientes</span></p>
             </div>
           </div>
         </CardContent>
@@ -114,20 +114,20 @@ export function MyReservations() {
 
       {upcomingReservations.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Próximas Reservas</h2>
+          <h2 className="text-xl font-semibold text-[#5C5C5C]">Próximas <span className="text-[#F2594B]">Reservas</span></h2>
           <div className="grid gap-4">
             {upcomingReservations.map((reservation) => (
-              <Card key={reservation.id}>
+              <Card key={reservation.id} className="border-[#F2EDA2] bg-[#FFFEF9]">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
-                      <CardTitle className="flex items-center gap-2">
-                        <Calendar className="h-5 w-5 text-orange-600" />
+                      <CardTitle className="flex items-center gap-2 text-[#5C5C5C]">
+                        <Calendar className="h-5 w-5 text-[#5C5C5C]" />
                         {reservation.day}, {new Date(reservation.date).toLocaleDateString("es-ES")}
                       </CardTitle>
-                      <CardDescription className="flex items-center gap-2">
+                      <CardDescription className="flex items-center gap-2 text-[#737373]">
                         <Clock className="h-4 w-4" />
-                        Hora: {reservation.time}
+                        Hora: <span className="text-[#F2594B] font-medium">{reservation.time}</span>
                       </CardDescription>
                     </div>
                     <Badge className={getStatusColor(reservation.status)}>
@@ -138,11 +138,11 @@ export function MyReservations() {
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <p className="mb-2 text-sm font-medium text-muted-foreground">Platos seleccionados:</p>
+                      <p className="mb-2 text-sm font-medium text-[#F2594B]">Platos seleccionados:</p>
                       <ul className="space-y-1">
                         {reservation.items.map((item, idx) => (
-                          <li key={idx} className="flex items-center gap-2 text-sm">
-                            <div className="h-1.5 w-1.5 rounded-full bg-orange-600" />
+                          <li key={idx} className="flex items-center gap-2 text-sm text-[#5C5C5C]">
+                            <div className="h-1.5 w-1.5 rounded-full bg-[#F2EDA2]" />
                             {item}
                           </li>
                         ))}
@@ -153,7 +153,7 @@ export function MyReservations() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 bg-transparent"
+                        className="flex-1 border-[#F2EDA2] bg-[#F2EFC2]/50 text-[#5C5C5C] hover:bg-[#F2EDA2]"
                         onClick={() => {
                           // Switch to ratings tab
                           const tabsList = document.querySelector('[role="tablist"]')
@@ -167,7 +167,7 @@ export function MyReservations() {
 
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-destructive bg-transparent">
+                          <Button variant="outline" size="sm" className="text-[#F2594B] border-[#F2EDA2] bg-transparent hover:bg-[#FFF5F4]">
                             <Trash2 className="mr-1 h-3 w-3" />
                             Cancelar
                           </Button>

@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,41 +19,119 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, Pencil, Trash2 } from "lucide-react"
-import { mockMenuItems } from "@/lib/mock-data"
+import { useData } from "@/lib/data-context"
+import { useToast } from "@/hooks/use-toast"
 import type { MenuItem } from "@/lib/types"
 
 export function MenusTab() {
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(mockMenuItems)
+  const { menuItems, addMenuItem, updateMenuItem, deleteMenuItem } = useData()
+  const { toast } = useToast()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null)
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    category: "entrante" as "entrante" | "principal" | "postre" | "bebida",
+    allergens: "",
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    const itemData = {
+      name: formData.name,
+      description: formData.description,
+      category: formData.category,
+      allergens: formData.allergens
+        .split(",")
+        .map((a) => a.trim())
+        .filter(Boolean),
+      available: true,
+    }
+
+    if (editingItem) {
+      updateMenuItem(editingItem.id, itemData)
+      toast({
+        title: "Plato actualizado",
+        description: `${formData.name} ha sido actualizado correctamente.`,
+      })
+    } else {
+      addMenuItem(itemData)
+      toast({
+        title: "Plato añadido",
+        description: `${formData.name} ha sido añadido al menú.`,
+      })
+    }
+
+    setIsDialogOpen(false)
+    setEditingItem(null)
+    setFormData({ name: "", description: "", category: "entrante", allergens: "" })
+  }
+
+  const handleEdit = (item: MenuItem) => {
+    setEditingItem(item)
+    setFormData({
+      name: item.name,
+      description: item.description,
+      category: item.category,
+      allergens: item.allergens.join(", "),
+    })
+    setIsDialogOpen(true)
+  }
+
+  const handleDelete = (item: MenuItem) => {
+    if (confirm(`¿Estás seguro de que quieres eliminar "${item.name}"?`)) {
+      deleteMenuItem(item.id)
+      toast({
+        title: "Plato eliminado",
+        description: `${item.name} ha sido eliminado del menú.`,
+      })
+    }
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Gestión de Platos</h2>
-          <p className="text-muted-foreground">Añade, edita o elimina platos del menú</p>
+          <h2 className="text-2xl font-bold text-[#5C5C5C]">Gestión de <span className="text-[#F2594B]">Platos</span></h2>
+          <p className="text-[#737373]">Añade, edita o elimina platos del menú</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-orange-600 hover:bg-orange-700">
+            <Button
+              className="bg-[#F2EDA2] text-[#5C5C5C] font-semibold hover:bg-[#E8E398] shadow-sm"
+              onClick={() => {
+                setEditingItem(null)
+                setFormData({ name: "", description: "", category: "entrante", allergens: "" })
+              }}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Añadir Plato
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl border-[#F2EDA2] bg-[#FFFEF9]">
             <DialogHeader>
-              <DialogTitle>Añadir Nuevo Plato</DialogTitle>
-              <DialogDescription>Completa la información del plato</DialogDescription>
+              <DialogTitle className="text-[#5C5C5C]">{editingItem ? "Editar Plato" : "Añadir Nuevo Plato"}</DialogTitle>
+              <DialogDescription className="text-[#737373]">Completa la información del plato</DialogDescription>
             </DialogHeader>
-            <form className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nombre del plato</Label>
-                  <Input id="name" placeholder="Ej: Paella valenciana" />
+                  <Input
+                    id="name"
+                    placeholder="Ej: Paella valenciana"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="category">Categoría</Label>
-                  <Select>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(value) => setFormData({ ...formData, category: value as any })}
+                  >
                     <SelectTrigger id="category">
                       <SelectValue placeholder="Selecciona categoría" />
                     </SelectTrigger>
@@ -66,18 +146,30 @@ export function MenusTab() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Descripción</Label>
-                <Textarea id="description" placeholder="Describe el plato..." rows={3} />
+                <Textarea
+                  id="description"
+                  placeholder="Describe el plato..."
+                  rows={3}
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="allergens">Alérgenos</Label>
-                <Input id="allergens" placeholder="Ej: gluten, lácteos (separados por comas)" />
+                <Input
+                  id="allergens"
+                  placeholder="Ej: gluten, lácteos (separados por comas)"
+                  value={formData.allergens}
+                  onChange={(e) => setFormData({ ...formData, allergens: e.target.value })}
+                />
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit" className="bg-orange-600 hover:bg-orange-700">
-                  Guardar Plato
+                <Button type="submit" className="bg-[#F2EDA2] text-[#5C5C5C] font-semibold hover:bg-[#E8E398] shadow-sm">
+                  {editingItem ? "Actualizar Plato" : "Guardar Plato"}
                 </Button>
               </div>
             </form>
@@ -87,14 +179,14 @@ export function MenusTab() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {menuItems.map((item) => (
-          <Card key={item.id}>
+          <Card key={item.id} className="border-[#F2EDA2] bg-[#FFFEF9]">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-lg">{item.name}</CardTitle>
-                  <CardDescription className="mt-1">{item.description}</CardDescription>
+                  <CardTitle className="text-lg text-[#5C5C5C]">{item.name}</CardTitle>
+                  <CardDescription className="mt-1 text-[#737373]">{item.description}</CardDescription>
                 </div>
-                <Badge variant={item.available ? "default" : "secondary"} className="ml-2">
+                <Badge variant={item.available ? "default" : "secondary"} className={`ml-2 ${item.available ? "bg-[#F2EDA2] text-[#5C5C5C]" : "bg-[#F0F1F2] text-[#737373]"}`}>
                   {item.available ? "Disponible" : "No disponible"}
                 </Badge>
               </div>
@@ -102,15 +194,15 @@ export function MenusTab() {
             <CardContent>
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs font-medium text-muted-foreground">Categoría</p>
-                  <p className="text-sm capitalize">{item.category}</p>
+                  <p className="text-xs font-medium text-[#737373]">Categoría</p>
+                  <p className="text-sm capitalize text-[#5C5C5C]">{item.category}</p>
                 </div>
                 {item.allergens.length > 0 && (
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground">Alérgenos</p>
+                    <p className="text-xs font-medium text-[#F2594B]">Alérgenos</p>
                     <div className="mt-1 flex flex-wrap gap-1">
                       {item.allergens.map((allergen) => (
-                        <Badge key={allergen} variant="outline" className="text-xs">
+                        <Badge key={allergen} variant="outline" className="text-xs border-[#F2EDA2] text-[#737373]">
                           {allergen}
                         </Badge>
                       ))}
@@ -118,11 +210,21 @@ export function MenusTab() {
                   </div>
                 )}
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1 bg-transparent">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 bg-[#F2EFC2]/50 border-[#F2EDA2] text-[#5C5C5C] hover:bg-[#F2EDA2]"
+                    onClick={() => handleEdit(item)}
+                  >
                     <Pencil className="mr-1 h-3 w-3" />
                     Editar
                   </Button>
-                  <Button variant="outline" size="sm" className="text-destructive bg-transparent">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-[#F2594B] border-[#F2EDA2] bg-transparent hover:bg-[#FFF5F4]"
+                    onClick={() => handleDelete(item)}
+                  >
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>

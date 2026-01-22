@@ -93,4 +93,3 @@ REACT_APP_API_URL=http://localhost:8000/api
 - Admin: admin@iesmendoza.es / admin123
 - Cocina: cocina@iesmendoza.es / cocina123
 - Maestro: maestro@iesmendoza.es / maestro123
-# TFG

@@ -23,11 +23,10 @@ export interface WeeklyMenu {
   weekStart: Date
   weekEnd: Date
   days: {
-    [key: string]: {
-      entrantes: MenuItem[]
-      principales: MenuItem[]
-      postres: MenuItem[]
-      bebidas: MenuItem[]
+    [day: string]: {
+      entrante: string
+      principal: string
+      postre: string
     }
   }
 }
@@ -37,8 +36,8 @@ export interface Reservation {
   userId: string
   userName: string
   date: Date
-  menuItemIds: string[]
-  status: "pendiente" | "confirmada" | "cancelada"
+  menuItems: string[]
+  status: "pending" | "confirmed" | "cancelled"
   createdAt: Date
 }
 
@@ -60,4 +59,27 @@ export interface InventoryItem {
   minStock: number
   category: string
   lastUpdated: Date
+}
+
+export interface GastroEvent {
+  id: string
+  name: string
+  description: string
+  date: Date
+  maxCapacity: number
+  currentAttendees: number
+  dishes: string[] // Array of dish descriptions
+  status: "active" | "modified" | "cancelled" | "full"
+  createdBy: string
+  createdAt: Date
+  lastModified?: Date
+}
+
+export interface EventReservation {
+  id: string
+  eventId: string
+  userId: string
+  userName: string
+  reservedAt: Date
+  status: "confirmed" | "cancelled"
 }

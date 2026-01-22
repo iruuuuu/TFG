@@ -87,7 +87,7 @@ export function RatingsView() {
           <Star
             key={star}
             className={`h-5 w-5 ${interactive ? "cursor-pointer" : ""} ${
-              star <= (interactive ? hover || rating : rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+              star <= (interactive ? hover || rating : rating) ? "fill-[#F2EDA2] text-[#F2EDA2]" : "text-[#E5E5E5]"
             }`}
             onClick={() => interactive && onRatingChange?.(star)}
             onMouseEnter={() => interactive && setHover(star)}
@@ -100,19 +100,19 @@ export function RatingsView() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50">
+      <Card className="border-[#F2EDA2] bg-[#F2EFC2]/30">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Star className="h-5 w-5 text-orange-600" />
-                <CardTitle>Valoraciones y Opiniones</CardTitle>
+                <Star className="h-5 w-5 text-[#F2594B]" />
+                <CardTitle className="text-[#737373]">Valoraciones y Opiniones</CardTitle>
               </div>
-              <CardDescription>Comparte tu experiencia y lee opiniones de otros usuarios</CardDescription>
+              <CardDescription className="text-[#737373]/70">Comparte tu experiencia y lee opiniones de otros usuarios</CardDescription>
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-orange-600 hover:bg-orange-700">
+                <Button className="bg-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]">
                   <Plus className="mr-2 h-4 w-4" />
                   Nueva Valoración
                 </Button>
@@ -166,7 +166,7 @@ export function RatingsView() {
                     <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                       Cancelar
                     </Button>
-                    <Button type="submit" className="bg-orange-600 hover:bg-orange-700">
+                    <Button type="submit" className="bg-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]">
                       Enviar Valoración
                     </Button>
                   </div>
@@ -226,10 +226,10 @@ export function RatingsView() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-orange-600" />
-            <CardTitle>Todas las Valoraciones</CardTitle>
+            <MessageSquare className="h-5 w-5 text-[#F2594B]" />
+            <CardTitle className="text-[#737373]">Todas las Valoraciones</CardTitle>
           </div>
-          <CardDescription>Historial completo de opiniones</CardDescription>
+          <CardDescription className="text-[#737373]/70">Historial completo de opiniones</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -248,7 +248,7 @@ export function RatingsView() {
                         <div className="flex items-center gap-2">
                           <span className="font-semibold">{rating.userName}</span>
                           <span className="text-sm text-muted-foreground">valoró</span>
-                          <span className="font-medium text-orange-600">{menuItem?.name}</span>
+                          <span className="font-medium text-[#F2594B]">{menuItem?.name}</span>
                         </div>
                         <StarRating rating={rating.rating} />
                         {rating.comment && <p className="text-sm text-muted-foreground">{rating.comment}</p>}

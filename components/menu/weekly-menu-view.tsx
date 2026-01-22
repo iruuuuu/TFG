@@ -109,23 +109,23 @@ export function WeeklyMenuView() {
 
     return (
       <Card
-        className={`cursor-pointer transition-all ${
-          selected ? "border-orange-500 bg-orange-50 ring-2 ring-orange-500" : "hover:border-orange-300"
+        className={`cursor-pointer transition-all border-[#F2EDA2] bg-[#FFFEF9] ${
+          selected ? "ring-2 ring-[#F2EDA2] bg-[#F2EFC2]/50" : "hover:bg-[#F2EFC2]/30"
         }`}
         onClick={() => toggleItem(day, category, item.id)}
       >
         <CardContent className="p-4">
           <div className="space-y-2">
             <div className="flex items-start justify-between">
-              <h4 className="font-semibold">{item.name}</h4>
-              {selected && <Badge className="bg-orange-600">Seleccionado</Badge>}
+              <h4 className="font-semibold text-[#5C5C5C]">{item.name}</h4>
+              {selected && <Badge className="bg-[#F2EDA2] text-[#5C5C5C] font-semibold">Seleccionado</Badge>}
             </div>
-            <p className="text-sm text-muted-foreground">{item.description}</p>
+            <p className="text-sm text-[#737373]">{item.description}</p>
             {item.allergens.length > 0 && (
               <div className="flex flex-wrap gap-1 pt-2">
-                <AlertCircle className="h-4 w-4 text-yellow-600" />
+                <span className="text-xs text-[#F2594B] font-medium">Alérgenos:</span>
                 {item.allergens.map((allergen) => (
-                  <Badge key={allergen} variant="outline" className="text-xs">
+                  <Badge key={allergen} variant="outline" className="text-xs border-[#F2EDA2] text-[#737373]">
                     {allergen}
                   </Badge>
                 ))}
@@ -139,22 +139,22 @@ export function WeeklyMenuView() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50">
+      <Card className="border-[#F2EDA2] bg-[#FFFEF9] shadow-sm">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-orange-600" />
-            <CardTitle>Semana del 15 al 19 de Enero</CardTitle>
+            <Calendar className="h-5 w-5 text-[#5C5C5C]" />
+            <CardTitle className="text-[#5C5C5C]">Semana del <span className="text-[#F2594B]">15 al 19 de Enero</span></CardTitle>
           </div>
-          <CardDescription>Selecciona tus platos favoritos para cada día y haz tu reserva</CardDescription>
+          <CardDescription className="text-[#737373]">Selecciona tus platos favoritos para cada día y haz tu reserva</CardDescription>
         </CardHeader>
       </Card>
 
       <Tabs value={selectedDay} onValueChange={setSelectedDay} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-5 bg-[#FFFEF9] border border-[#F2EDA2]">
           {daysOfWeek.map((day) => (
-            <TabsTrigger key={day.key} value={day.key} className="flex flex-col gap-1">
+            <TabsTrigger key={day.key} value={day.key} className="flex flex-col gap-1 data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C]">
               <span className="font-medium">{day.label}</span>
-              <span className="text-xs text-muted-foreground">{day.date}</span>
+              <span className="text-xs">{day.date}</span>
             </TabsTrigger>
           ))}
         </TabsList>
@@ -163,7 +163,7 @@ export function WeeklyMenuView() {
           <TabsContent key={day.key} value={day.key} className="space-y-6">
             <div className="space-y-4">
               <div>
-                <h3 className="mb-3 text-lg font-semibold">Entrantes</h3>
+                <h3 className="mb-3 text-lg font-semibold text-[#5C5C5C]"><span className="text-[#F2594B]">Entrantes</span></h3>
                 <div className="grid gap-4 md:grid-cols-2">
                   {weeklyMenu[day.key as keyof typeof weeklyMenu]?.entrantes.map((item) => (
                     <MenuItemCard key={item.id} item={item} day={day.key} category="entrantes" />
@@ -172,7 +172,7 @@ export function WeeklyMenuView() {
               </div>
 
               <div>
-                <h3 className="mb-3 text-lg font-semibold">Platos Principales</h3>
+                <h3 className="mb-3 text-lg font-semibold text-[#5C5C5C]">Platos <span className="text-[#F2594B]">Principales</span></h3>
                 <div className="grid gap-4 md:grid-cols-2">
                   {weeklyMenu[day.key as keyof typeof weeklyMenu]?.principales.map((item) => (
                     <MenuItemCard key={item.id} item={item} day={day.key} category="principales" />
@@ -181,7 +181,7 @@ export function WeeklyMenuView() {
               </div>
 
               <div>
-                <h3 className="mb-3 text-lg font-semibold">Postres</h3>
+                <h3 className="mb-3 text-lg font-semibold text-[#5C5C5C]"><span className="text-[#F2594B]">Postres</span></h3>
                 <div className="grid gap-4 md:grid-cols-2">
                   {weeklyMenu[day.key as keyof typeof weeklyMenu]?.postres.map((item) => (
                     <MenuItemCard key={item.id} item={item} day={day.key} category="postres" />
@@ -192,6 +192,7 @@ export function WeeklyMenuView() {
               <div className="flex justify-end gap-2 pt-4">
                 <Button
                   variant="outline"
+                  className="border-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]/50 bg-transparent"
                   onClick={() => {
                     setSelectedItems((prev) => {
                       const newState = { ...prev }
@@ -204,7 +205,7 @@ export function WeeklyMenuView() {
                 >
                   Limpiar Selección
                 </Button>
-                <Button onClick={makeReservation} className="bg-orange-600 hover:bg-orange-700">
+                <Button onClick={makeReservation} className="bg-[#F2EDA2] text-[#5C5C5C] font-semibold hover:bg-[#E8E398] shadow-sm">
                   <Calendar className="mr-2 h-4 w-4" />
                   Hacer Reserva
                 </Button>
