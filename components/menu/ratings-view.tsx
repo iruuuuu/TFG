@@ -19,14 +19,14 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/lib/auth-context"
+import { useData } from "@/lib/data-context"
 import { Star, MessageSquare, Plus } from "lucide-react"
-import { mockMenuItems, mockRatings } from "@/lib/mock-data"
 import type { Rating } from "@/lib/types"
 
 export function RatingsView() {
   const { toast } = useToast()
   const { user } = useAuth()
-  const [ratings, setRatings] = useState<Rating[]>(mockRatings)
+  const { ratings, menuItems, addRating } = useData()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [newRating, setNewRating] = useState({
     menuItemId: "",
@@ -46,19 +46,17 @@ export function RatingsView() {
       return
     }
 
-    const menuItem = mockMenuItems.find((item) => item.id === newRating.menuItemId)
+    const menuItem = menuItems.find((item) => item.id === newRating.menuItemId)
 
-    const rating: Rating = {
-      id: String(ratings.length + 1),
+    const rating: Omit<Rating, "id" | "date"> = {
       userId: user?.id || "",
       userName: user?.name || "",
       menuItemId: newRating.menuItemId,
       rating: newRating.rating,
       comment: newRating.comment,
-      date: new Date(),
     }
 
-    setRatings([rating, ...ratings])
+    addRating(rating)
     setIsDialogOpen(false)
     setNewRating({ menuItemId: "", rating: 0, comment: "" })
 
@@ -102,7 +100,7 @@ export function RatingsView() {
     <div className="space-y-6">
       <Card className="border-[#F2EDA2] bg-[#F2EFC2]/30">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
                 <Star className="h-5 w-5 text-[#F2594B]" />
@@ -112,7 +110,7 @@ export function RatingsView() {
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]">
+                <Button className="w-full sm:w-auto bg-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]">
                   <Plus className="mr-2 h-4 w-4" />
                   Nueva Valoración
                 </Button>
@@ -133,7 +131,7 @@ export function RatingsView() {
                         <SelectValue placeholder="Selecciona un plato" />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockMenuItems.map((item) => (
+                        {menuItems.map((item) => (
                           <SelectItem key={item.id} value={item.id}>
                             {item.name}
                           </SelectItem>
@@ -178,7 +176,7 @@ export function RatingsView() {
       </Card>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {mockMenuItems.map((item) => {
+        {menuItems.map((item) => {
           const itemRatings = ratings.filter((r) => r.menuItemId === item.id)
           const avgRating = getAverageRating(item.id)
 
@@ -240,7 +238,7 @@ export function RatingsView() {
               </div>
             ) : (
               ratings.map((rating) => {
-                const menuItem = mockMenuItems.find((item) => item.id === rating.menuItemId)
+                const menuItem = menuItems.find((item) => item.id === rating.menuItemId)
                 return (
                   <div key={rating.id} className="rounded-lg border bg-background p-4">
                     <div className="flex items-start justify-between">

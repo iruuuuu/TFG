@@ -126,12 +126,12 @@ export function GastroEventsView() {
             return (
               <Card key={event.id} className={hasReserved ? "border-[#F2594B] border-2" : ""}>
                 <CardHeader>
-                  <div className="flex items-start justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="space-y-1 flex-1">
                       <CardTitle className="text-xl text-[#737373]">{event.name}</CardTitle>
                       <CardDescription className="text-[#737373]/70">{event.description}</CardDescription>
                     </div>
-                    <div className="flex flex-col gap-2 items-end">
+                    <div className="flex flex-row sm:flex-col gap-2 items-center sm:items-end flex-wrap">
                       {getStatusBadge(event.status)}
                       {hasReserved && (
                         <Badge className="bg-[#F2EDA2] text-[#737373]">

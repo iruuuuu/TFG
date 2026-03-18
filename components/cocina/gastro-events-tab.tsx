@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useData } from "@/lib/data-context"
+import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -22,7 +23,8 @@ import { useToast } from "@/hooks/use-toast"
 import type { GastroEvent } from "@/lib/types"
 
 export function GastroEventsTab() {
-  const { gastroEvents, addGastroEvent, updateGastroEvent, cancelGastroEvent, getEventAttendees } = useData()
+  const { gastroEvents, addGastroEvent, updateGastroEvent, cancelGastroEvent, getEventAttendees, logActivity } = useData()
+  const { user } = useAuth()
   const { toast } = useToast()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -59,6 +61,10 @@ export function GastroEventsTab() {
       status: "active",
       createdBy: "cocina@iesmendoza.es",
     })
+
+    if (user) {
+      logActivity("Publicó Nuevo Evento", `Evento: ${formData.name}`, user.name, user.role)
+    }
 
     toast({
       title: "Evento creado",
@@ -116,6 +122,9 @@ export function GastroEventsTab() {
   const handleCancelEvent = (eventId: string, eventName: string) => {
     if (confirm(`¿Estás seguro de cancelar el evento "${eventName}"?`)) {
       cancelGastroEvent(eventId)
+      if (user) {
+        logActivity("Canceló Evento", `Evento: ${eventName}`, user.name, user.role)
+      }
       toast({
         title: "Evento cancelado",
         description: "Los usuarios reservados serán notificados",
@@ -146,102 +155,104 @@ export function GastroEventsTab() {
           <h2 className="text-2xl font-bold">Eventos Gastronómicos</h2>
           <p className="text-muted-foreground">Gestiona menús degustación y experiencias especiales</p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]">
-              <Plus className="mr-2 h-4 w-4" />
-              Crear Evento
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Crear Menú Degustación</DialogTitle>
-              <DialogDescription>Publica un nuevo evento gastronómico con aforo limitado</DialogDescription>
-            </DialogHeader>
+        {(user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]">
+                <Plus className="mr-2 h-4 w-4" />
+                Crear Evento
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Crear Menú Degustación</DialogTitle>
+                <DialogDescription>Publica un nuevo evento gastronómico con aforo limitado</DialogDescription>
+              </DialogHeader>
 
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nombre del Evento *</Label>
-                <Input
-                  id="name"
-                  placeholder="Ej: Menú Degustación Mediterráneo"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Descripción</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Describe la experiencia gastronómica..."
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="date">Fecha *</Label>
+                  <Label htmlFor="name">Nombre del Evento *</Label>
                   <Input
-                    id="date"
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    id="name"
+                    placeholder="Ej: Menú Degustación Mediterráneo"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <Label htmlFor="time">Hora *</Label>
-                  <Input
-                    id="time"
-                    type="time"
-                    value={formData.time}
-                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                  <Label htmlFor="description">Descripción</Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Describe la experiencia gastronómica..."
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows={3}
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="date">Fecha *</Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      value={formData.date}
+                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="time">Hora *</Label>
+                    <Input
+                      id="time"
+                      type="time"
+                      value={formData.time}
+                      onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="capacity">Aforo Máximo</Label>
+                  <Input
+                    id="capacity"
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={formData.maxCapacity}
+                    onChange={(e) => setFormData({ ...formData, maxCapacity: Number.parseInt(e.target.value) })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Platos del Menú</Label>
+                  <p className="text-sm text-muted-foreground">Añade hasta 5 platos para el menú degustación</p>
+                  {formData.dishes.map((dish, index) => (
+                    <Input
+                      key={index}
+                      placeholder={`Plato ${index + 1}`}
+                      value={dish}
+                      onChange={(e) => {
+                        const newDishes = [...formData.dishes]
+                        newDishes[index] = e.target.value
+                        setFormData({ ...formData, dishes: newDishes })
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="capacity">Aforo Máximo</Label>
-                <Input
-                  id="capacity"
-                  type="number"
-                  min="1"
-                  max="100"
-                  value={formData.maxCapacity}
-                  onChange={(e) => setFormData({ ...formData, maxCapacity: Number.parseInt(e.target.value) })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Platos del Menú</Label>
-                <p className="text-sm text-muted-foreground">Añade hasta 5 platos para el menú degustación</p>
-                {formData.dishes.map((dish, index) => (
-                  <Input
-                    key={index}
-                    placeholder={`Plato ${index + 1}`}
-                    value={dish}
-                    onChange={(e) => {
-                      const newDishes = [...formData.dishes]
-                      newDishes[index] = e.target.value
-                      setFormData({ ...formData, dishes: newDishes })
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleAddEvent} className="bg-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]">
-                Publicar Evento
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleAddEvent} className="bg-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]">
+                  Publicar Evento
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -301,7 +312,7 @@ export function GastroEventsTab() {
 
                 <div className="text-xs text-muted-foreground">{attendees.length} reservas confirmadas</div>
 
-                {event.status !== "cancelled" && (
+                {event.status !== "cancelled" && (user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
                   <div className="flex gap-2 pt-2">
                     <Button variant="outline" size="sm" onClick={() => openEditDialog(event)} className="flex-1">
                       <Edit className="mr-2 h-3 w-3" />

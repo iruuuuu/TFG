@@ -5,53 +5,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Calendar, Users, UtensilsCrossed } from "lucide-react"
-
-interface Reservation {
-  id: string
-  userName: string
-  time: string
-  items: string[]
-  prepared: boolean
-}
+import { useData } from "@/lib/data-context"
 
 export function TodayReservationsTab() {
-  const [reservations, setReservations] = useState<Reservation[]>([
-    {
-      id: "1",
-      userName: "Profesor García",
-      time: "13:00",
-      items: ["Pollo al Horno con Patatas", "Ensalada Mediterránea", "Flan Casero"],
-      prepared: false,
-    },
-    {
-      id: "2",
-      userName: "Profesor Martínez",
-      time: "13:15",
-      items: ["Paella de Verduras", "Gazpacho Andaluz", "Fruta de Temporada"],
-      prepared: false,
-    },
-    {
-      id: "3",
-      userName: "Profesor López",
-      time: "13:30",
-      items: ["Pollo al Horno con Patatas", "Ensalada Mediterránea", "Fruta de Temporada"],
-      prepared: true,
-    },
-    {
-      id: "4",
-      userName: "Profesor Sánchez",
-      time: "13:45",
-      items: ["Paella de Verduras", "Flan Casero"],
-      prepared: false,
-    },
-  ])
+  const { reservations, menuItems } = useData()
 
-  const togglePrepared = (id: string) => {
-    setReservations((prev) => prev.map((res) => (res.id === id ? { ...res, prepared: !res.prepared } : res)))
-  }
+  // Filter reservations for today. In a real app we'd compare dates properly
+  const todayReservations = reservations.map(res => {
+    return {
+      id: res.id,
+      userName: res.userName,
+      time: new Date(res.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      items: res.menuItems.map(itemId => menuItems.find(m => m.id === itemId)?.name || "Plato desconocido"),
+      prepared: res.kitchenStatus === "completed",
+    }
+  })
 
-  const preparedCount = reservations.filter((r) => r.prepared).length
-  const totalCount = reservations.length
+  const preparedCount = todayReservations.filter((r) => r.prepared).length
+  const totalCount = todayReservations.length
 
   return (
     <div className="space-y-6">
@@ -93,20 +64,20 @@ export function TodayReservationsTab() {
       <Card>
         <CardHeader>
           <CardTitle>Reservas del Día</CardTitle>
-          <CardDescription>Marca las reservas como preparadas una vez completadas</CardDescription>
+          <CardDescription>Visualiza el estado de las reservas (se actualiza desde la To Do List)</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {reservations.map((reservation) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            {todayReservations.map((reservation) => (
               <div
                 key={reservation.id}
-                className={`flex items-start gap-4 rounded-lg border p-4 transition-colors ${
-                  reservation.prepared ? "border-green-200 bg-green-50" : "bg-background"
+                className={`flex items-start gap-4 rounded-lg border p-4 transition-colors h-fit ${
+                  reservation.prepared ? "border-green-200 bg-green-50 opacity-70" : "bg-background"
                 }`}
               >
                 <Checkbox
                   checked={reservation.prepared}
-                  onCheckedChange={() => togglePrepared(reservation.id)}
+                  disabled
                   className="mt-1"
                 />
                 <div className="flex-1 space-y-2">

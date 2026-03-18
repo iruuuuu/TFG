@@ -24,6 +24,9 @@ class Reservation
     #[ORM\JoinColumn(nullable: false)]
     private Dish $dish;
 
+    #[ORM\Column(type: 'integer')]
+    private int $quantity = 1;
+
     #[ORM\Column(type: 'string', length: 20)]
     private string $status = 'pending';
 
@@ -100,6 +103,20 @@ class Reservation
     public function setNotes(?string $notes): self
     {
         $this->notes = $notes;
+        return $this;
+    }
+
+    public function getQuantity(): int
+    {
+        return $this->quantity;
+    }
+
+    public function setQuantity(int $quantity): self
+    {
+        if ($quantity < 1) {
+            throw new \InvalidArgumentException('La cantidad debe ser al menos 1');
+        }
+        $this->quantity = $quantity;
         return $this;
     }
 }

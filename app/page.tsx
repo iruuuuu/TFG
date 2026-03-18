@@ -19,6 +19,8 @@ export default function HomePage() {
             router.push("/admin")
             break
           case "cocina":
+          case "alumno-cocina":
+          case "alumno-cocina-titular":
             router.push("/cocina")
             break
           case "maestro":

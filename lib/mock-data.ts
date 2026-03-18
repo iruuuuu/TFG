@@ -55,22 +55,6 @@ export const mockMenuItems: MenuItem[] = [
     imageUrl: "/placeholder.svg?height=200&width=300",
     available: true,
   },
-  {
-    id: "7",
-    name: "Agua Mineral",
-    description: "Agua mineral natural",
-    category: "bebida",
-    allergens: [],
-    available: true,
-  },
-  {
-    id: "8",
-    name: "Zumo Natural",
-    description: "Zumo de naranja recién exprimido",
-    category: "bebida",
-    allergens: [],
-    available: true,
-  },
 ]
 
 export const mockInventory: InventoryItem[] = [

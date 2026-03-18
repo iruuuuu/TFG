@@ -17,35 +17,33 @@ CREATE TABLE users (
     INDEX idx_email (email)
 ) ENGINE=InnoDB;
 
--- Tabla de Platos
+-- Tabla de Platos (Sistema de Stock Individual)
 CREATE TABLE dishes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     description TEXT,
-    category ENUM('starter', 'main', 'dessert') NOT NULL,
+    category VARCHAR(20) NULL COMMENT 'Opcional: solo informativo (starter, main, dessert)',
     allergens JSON,
     nutritional_info JSON,
     price DECIMAL(5,2) NOT NULL DEFAULT 0.00,
     image_url VARCHAR(255),
     is_active BOOLEAN DEFAULT TRUE,
+    -- NUEVOS CAMPOS: Gestión de Stock y Disponibilidad
+    available_date DATE NOT NULL COMMENT 'Fecha específica de disponibilidad del plato',
+    stock_total INT NOT NULL DEFAULT 10 COMMENT 'Stock total disponible para esa fecha',
+    stock_reserved INT NOT NULL DEFAULT 0 COMMENT 'Unidades ya reservadas',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_category (category),
-    INDEX idx_active (is_active)
+    INDEX idx_active (is_active),
+    INDEX idx_available_date (available_date),
+    INDEX idx_stock (stock_total, stock_reserved),
+    CHECK (stock_reserved >= 0),
+    CHECK (stock_total >= stock_reserved)
 ) ENGINE=InnoDB;
 
--- Tabla de Menús Semanales
-CREATE TABLE weekly_menus (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    week_number INT NOT NULL,
-    year INT NOT NULL,
-    day_of_week ENUM('monday', 'tuesday', 'wednesday', 'thursday', 'friday') NOT NULL,
-    dish_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (dish_id) REFERENCES dishes(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_menu (week_number, year, day_of_week, dish_id),
-    INDEX idx_week (week_number, year)
-) ENGINE=InnoDB;
+-- TABLA ELIMINADA: weekly_menus
+-- Ya no es necesaria en el modelo de platos individuales
+-- Los platos se gestionan por available_date en la tabla dishes
 
 -- Tabla de Reservas
 CREATE TABLE reservations (
@@ -53,6 +51,7 @@ CREATE TABLE reservations (
     user_id INT NOT NULL,
     reservation_date DATE NOT NULL,
     dish_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 1 COMMENT 'Cantidad de unidades reservadas',
     status ENUM('pending', 'confirmed', 'cancelled', 'completed') DEFAULT 'pending',
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -61,7 +60,8 @@ CREATE TABLE reservations (
     FOREIGN KEY (dish_id) REFERENCES dishes(id) ON DELETE CASCADE,
     INDEX idx_user (user_id),
     INDEX idx_date (reservation_date),
-    INDEX idx_status (status)
+    INDEX idx_status (status),
+    CHECK (quantity >= 1)
 ) ENGINE=InnoDB;
 
 -- Tabla de Valoraciones

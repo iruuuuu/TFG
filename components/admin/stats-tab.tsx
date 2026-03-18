@@ -65,7 +65,7 @@ export function StatsTab() {
         })}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-1">
         <Card className="border-[#F2EDA2] bg-[#FFFEF9]">
           <CardHeader>
             <CardTitle className="text-[#5C5C5C]">Platos Más <span className="text-[#F2594B]">Populares</span></CardTitle>
@@ -81,35 +81,6 @@ export function StatsTab() {
                 <div key={item.name} className="flex items-center justify-between">
                   <span className="text-sm text-[#5C5C5C]">{item.name}</span>
                   <span className={`text-sm font-semibold ${idx === 0 ? "text-[#F2594B]" : "text-[#737373]"}`}>{item.orders} pedidos</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-[#F2EDA2] bg-[#FFFEF9]">
-          <CardHeader>
-            <CardTitle className="text-[#5C5C5C]">Alertas de <span className="text-[#F2594B]">Inventario</span></CardTitle>
-            <CardDescription className="text-[#737373]">Productos con stock bajo</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { name: "Arroz", stock: "5 kg", status: "Bajo" },
-                { name: "Aceite de Oliva", stock: "8 litros", status: "Medio" },
-              ].map((item) => (
-                <div key={item.name} className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-[#5C5C5C]">{item.name}</p>
-                    <p className="text-xs text-[#737373]">{item.stock}</p>
-                  </div>
-                  <span
-                    className={`rounded-full px-2 py-1 text-xs font-medium ${
-                      item.status === "Bajo" ? "bg-[#FFF5F4] text-[#F2594B] font-semibold" : "bg-[#F2EDA2] text-[#5C5C5C]"
-                    }`}
-                  >
-                    {item.status}
-                  </span>
                 </div>
               ))}
             </div>

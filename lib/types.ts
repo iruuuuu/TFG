@@ -1,4 +1,4 @@
-export type UserRole = "admin" | "cocina" | "maestro"
+export type UserRole = "admin" | "cocina" | "maestro" | "alumno-cocina" | "alumno-cocina-titular"
 
 export interface User {
   id: string
@@ -12,22 +12,19 @@ export interface MenuItem {
   id: string
   name: string
   description: string
-  category: "entrante" | "principal" | "postre" | "bebida"
+  category: "entrante" | "principal" | "postre"
   allergens: string[]
   imageUrl?: string
+  authorId?: string
+  authorName?: string
   available: boolean
 }
 
 export interface WeeklyMenu {
-  id: string
-  weekStart: Date
-  weekEnd: Date
-  days: {
-    [day: string]: {
-      entrante: string
-      principal: string
-      postre: string
-    }
+  [day: string]: {
+    entrante: string[]
+    principal: string[]
+    postre: string[]
   }
 }
 
@@ -38,6 +35,7 @@ export interface Reservation {
   date: Date
   menuItems: string[]
   status: "pending" | "confirmed" | "cancelled"
+  kitchenStatus?: "pending" | "preparing" | "completed"
   createdAt: Date
 }
 
@@ -82,4 +80,13 @@ export interface EventReservation {
   userName: string
   reservedAt: Date
   status: "confirmed" | "cancelled"
+}
+
+export interface ActivityLog {
+  id: string
+  action: string
+  details: string
+  userName: string
+  userRole: string
+  timestamp: Date
 }

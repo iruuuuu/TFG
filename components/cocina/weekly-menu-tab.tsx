@@ -1,14 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Calendar, Plus } from "lucide-react"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { Calendar, Plus, ChevronLeft, ChevronRight } from "lucide-react"
 import { useData } from "@/lib/data-context"
+import { useAuth } from "@/lib/auth-context"
 import { useToast } from "@/hooks/use-toast"
+import { CreateDishDialog } from "./create-dish-dialog"
 
 const daysOfWeek = [
   { key: "Lunes", label: "Lunes" },
@@ -21,22 +24,40 @@ const daysOfWeek = [
 type Category = "entrante" | "principal" | "postre"
 
 export function WeeklyMenuTab() {
-  const { menuItems, weeklyMenu, updateWeeklyMenu } = useData()
+  const { menuItems, weeklyMenu, toggleWeeklyMenuItem, clearWeeklyMenu, logActivity } = useData()
+  const { user } = useAuth()
   const { toast } = useToast()
   const [openDialog, setOpenDialog] = useState<{ day: string; category: Category } | null>(null)
+  
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -150, behavior: "smooth" })
+    }
+  }
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 150, behavior: "smooth" })
+    }
+  }
 
   const getItemsByCategory = (category: string) => {
     return menuItems.filter((item) => item.category === category)
   }
 
-  const getCurrentItem = (day: string, category: Category) => {
-    const itemId = weeklyMenu[day]?.[category]
-    return menuItems.find((item) => item.id === itemId)
+  const getCurrentItems = (day: string, category: Category) => {
+    const itemIds = weeklyMenu[day]?.[category] || []
+    return menuItems.filter((item) => itemIds.includes(item.id))
+  }
+
+  const isItemSelected = (day: string, category: Category, itemId: string) => {
+    return weeklyMenu[day]?.[category]?.includes(itemId) || false
   }
 
   const handleSelectItem = (day: string, category: Category, itemId: string) => {
-    updateWeeklyMenu(day, category, itemId)
-    setOpenDialog(null)
+    toggleWeeklyMenuItem(day, category, itemId)
     toast({
       title: "Menú actualizado",
       description: `Se ha actualizado el ${category} del ${day}`,
@@ -45,25 +66,86 @@ export function WeeklyMenuTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Menú Semanal</h2>
-          <p className="text-muted-foreground">Planifica el menú de la semana</p>
+          <h2 className="text-2xl font-bold text-[#5C5C5C]">Menú Semanal</h2>
+          <p className="text-[#737373]">Planifica el menú de la semana y gestiona los platos</p>
         </div>
-        <Button className="bg-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]">
-          <Calendar className="mr-2 h-4 w-4" />
-          Nueva Semana
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          {(user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
+            <>
+              <CreateDishDialog />
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="border-[#F2EDA2] text-[#5C5C5C] hover:bg-[#F2EDA2]/50 shadow-sm bg-[#FFFEF9]">
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Nueva Semana
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Comenzar nueva semana?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esto eliminará todos los platos planificados para la semana actual **y limpiará el catálogo de platos disponibles**. Esta acción no se puede deshacer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => {
+                      clearWeeklyMenu()
+                      if (user) {
+                        logActivity("Vació el Menú Semanal", "Se reinició el menú completo", user.name, user.role)
+                      }
+                      toast({
+                        title: "Semana reiniciada",
+                        description: "El menú semanal ha sido limpiado con éxito.",
+                      })
+                    }} className="bg-[#F2594B] text-white hover:bg-[#D94C3F]">
+                      Sí, vaciar menú
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
+          )}
+        </div>
       </div>
 
       <Tabs defaultValue="Lunes" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
-          {daysOfWeek.map((day) => (
-            <TabsTrigger key={day.key} value={day.key}>
-              {day.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="relative flex items-center w-full">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={scrollLeft}
+            className="absolute left-1 z-10 h-8 w-8 bg-[#FFFEF9] border-[#F2EDA2] text-[#5C5C5C] shadow-sm hover:bg-[#F2EDA2]/50 md:hidden"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+
+          <TabsList 
+            ref={scrollContainerRef}
+            className="flex w-full overflow-x-auto justify-start h-fit min-h-[48px] items-stretch bg-[#FFFEF9] border border-[#F2EDA2] p-1 gap-1 rounded-lg px-10 md:px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          >
+            {daysOfWeek.map((day) => (
+              <TabsTrigger 
+                key={day.key} 
+                value={day.key}
+                className="flex-1 min-w-[110px] h-full data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373] hover:bg-[#F2EDA2]/50 hover:text-[#5C5C5C] transition-colors py-2 rounded-md font-medium whitespace-nowrap"
+              >
+                {day.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={scrollRight}
+            className="absolute right-1 z-10 h-8 w-8 bg-[#FFFEF9] border-[#F2EDA2] text-[#5C5C5C] shadow-sm hover:bg-[#F2EDA2]/50 md:hidden"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
 
         {daysOfWeek.map((day) => (
           <TabsContent key={day.key} value={day.key} className="space-y-4">
@@ -78,66 +160,73 @@ export function WeeklyMenuTab() {
                 <div>
                   <div className="mb-3 flex items-center justify-between">
                     <h3 className="font-semibold">Entrantes</h3>
-                    <Dialog
-                      open={openDialog?.day === day.key && openDialog?.category === "entrante"}
-                      onOpenChange={(open) => {
-                        if (open) {
-                          setOpenDialog({ day: day.key, category: "entrante" })
-                        } else {
-                          setOpenDialog(null)
-                        }
-                      }}
-                    >
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <Plus className="mr-1 h-3 w-3" />
-                          {getCurrentItem(day.key, "entrante") ? "Cambiar" : "Añadir"}
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Seleccionar Entrante para {day.label}</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-2 max-h-96 overflow-y-auto">
-                          {getItemsByCategory("entrante").map((item) => (
-                            <Button
-                              key={item.id}
-                              variant="outline"
-                              className="w-full justify-start h-auto p-3 bg-transparent"
-                              onClick={() => handleSelectItem(day.key, "entrante", item.id)}
-                            >
-                              <div className="text-left">
-                                <p className="font-medium">{item.name}</p>
-                                <p className="text-xs text-muted-foreground">{item.description}</p>
-                              </div>
-                            </Button>
-                          ))}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    {(user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
+                      <Dialog
+                        open={openDialog?.day === day.key && openDialog?.category === "entrante"}
+                        onOpenChange={(open) => {
+                          if (open) {
+                            setOpenDialog({ day: day.key, category: "entrante" })
+                          } else {
+                            setOpenDialog(null)
+                          }
+                        }}
+                      >
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Plus className="mr-1 h-3 w-3" />
+                            Gestionar
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Seleccionar Entrante para {day.label}</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-2 max-h-96 overflow-y-auto">
+                            {getItemsByCategory("entrante").map((item) => {
+                              const selected = isItemSelected(day.key, "entrante", item.id);
+                              return (
+                                <Button
+                                  key={item.id}
+                                  variant="outline"
+                                  className={`w-full justify-start h-auto p-3 ${selected ? 'bg-[#F2EDA2]/50 ring-2 ring-[#F2EDA2]' : 'bg-transparent'}`}
+                                  onClick={() => handleSelectItem(day.key, "entrante", item.id)}
+                                >
+                                  <div className="text-left w-full flex justify-between items-center">
+                                    <div>
+                                      <p className="font-medium text-[#5C5C5C]">{item.name}</p>
+                                      <p className="text-xs text-[#737373]">{item.description}</p>
+                                    </div>
+                                    {selected && <Badge className="bg-[#F2EDA2] text-[#5C5C5C] font-semibold hover:bg-[#F2EDA2]">Añadido</Badge>}
+                                  </div>
+                                </Button>
+                              )
+                            })}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
                   </div>
                   <div className="space-y-2">
-                    {getCurrentItem(day.key, "entrante") ? (
-                      <div className="flex items-center justify-between rounded-lg border bg-background p-3">
-                        <div>
-                          <p className="font-medium">{getCurrentItem(day.key, "entrante")?.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {getCurrentItem(day.key, "entrante")?.description}
-                          </p>
-                        </div>
-                        {getCurrentItem(day.key, "entrante")?.allergens &&
-                          getCurrentItem(day.key, "entrante")!.allergens.length > 0 && (
+                    {getCurrentItems(day.key, "entrante").length > 0 ? (
+                      getCurrentItems(day.key, "entrante").map((item) => (
+                        <div key={item.id} className="flex items-center justify-between rounded-lg border bg-background p-3">
+                          <div>
+                            <p className="font-medium">{item.name}</p>
+                            <p className="text-sm text-muted-foreground">{item.description}</p>
+                          </div>
+                          {item.allergens && item.allergens.length > 0 && (
                             <div className="flex gap-1">
-                              {getCurrentItem(day.key, "entrante")!.allergens.map((allergen) => (
+                              {item.allergens.map((allergen) => (
                                 <Badge key={allergen} variant="outline" className="text-xs">
                                   {allergen}
                                 </Badge>
                               ))}
                             </div>
                           )}
-                      </div>
+                        </div>
+                      ))
                     ) : (
-                      <p className="text-sm text-muted-foreground text-center py-4">No hay entrante seleccionado</p>
+                      <p className="text-sm text-muted-foreground text-center py-4">No hay entrantes seleccionados</p>
                     )}
                   </div>
                 </div>
@@ -145,67 +234,74 @@ export function WeeklyMenuTab() {
                 <div>
                   <div className="mb-3 flex items-center justify-between">
                     <h3 className="font-semibold">Principales</h3>
-                    <Dialog
-                      open={openDialog?.day === day.key && openDialog?.category === "principal"}
-                      onOpenChange={(open) => {
-                        if (open) {
-                          setOpenDialog({ day: day.key, category: "principal" })
-                        } else {
-                          setOpenDialog(null)
-                        }
-                      }}
-                    >
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <Plus className="mr-1 h-3 w-3" />
-                          {getCurrentItem(day.key, "principal") ? "Cambiar" : "Añadir"}
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Seleccionar Principal para {day.label}</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-2 max-h-96 overflow-y-auto">
-                          {getItemsByCategory("principal").map((item) => (
-                            <Button
-                              key={item.id}
-                              variant="outline"
-                              className="w-full justify-start h-auto p-3 bg-transparent"
-                              onClick={() => handleSelectItem(day.key, "principal", item.id)}
-                            >
-                              <div className="text-left">
-                                <p className="font-medium">{item.name}</p>
-                                <p className="text-xs text-muted-foreground">{item.description}</p>
-                              </div>
-                            </Button>
-                          ))}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    {(user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
+                      <Dialog
+                        open={openDialog?.day === day.key && openDialog?.category === "principal"}
+                        onOpenChange={(open) => {
+                          if (open) {
+                            setOpenDialog({ day: day.key, category: "principal" })
+                          } else {
+                            setOpenDialog(null)
+                          }
+                        }}
+                      >
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Plus className="mr-1 h-3 w-3" />
+                            Gestionar
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Seleccionar Principal para {day.label}</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-2 max-h-96 overflow-y-auto">
+                            {getItemsByCategory("principal").map((item) => {
+                              const selected = isItemSelected(day.key, "principal", item.id);
+                              return (
+                                <Button
+                                  key={item.id}
+                                  variant="outline"
+                                  className={`w-full justify-start h-auto p-3 ${selected ? 'bg-[#F2EDA2]/50 ring-2 ring-[#F2EDA2]' : 'bg-transparent'}`}
+                                  onClick={() => handleSelectItem(day.key, "principal", item.id)}
+                                >
+                                  <div className="text-left w-full flex justify-between items-center">
+                                    <div>
+                                      <p className="font-medium text-[#5C5C5C]">{item.name}</p>
+                                      <p className="text-xs text-[#737373]">{item.description}</p>
+                                    </div>
+                                    {selected && <Badge className="bg-[#F2EDA2] text-[#5C5C5C] font-semibold hover:bg-[#F2EDA2]">Añadido</Badge>}
+                                  </div>
+                                </Button>
+                              )
+                            })}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
                   </div>
                   <div className="space-y-2">
-                    {getCurrentItem(day.key, "principal") ? (
-                      <div className="flex items-center justify-between rounded-lg border bg-background p-3">
-                        <div>
-                          <p className="font-medium">{getCurrentItem(day.key, "principal")?.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {getCurrentItem(day.key, "principal")?.description}
-                          </p>
-                        </div>
-                        {getCurrentItem(day.key, "principal")?.allergens &&
-                          getCurrentItem(day.key, "principal")!.allergens.length > 0 && (
+                    {getCurrentItems(day.key, "principal").length > 0 ? (
+                      getCurrentItems(day.key, "principal").map((item) => (
+                        <div key={item.id} className="flex items-center justify-between rounded-lg border bg-background p-3">
+                          <div>
+                            <p className="font-medium">{item.name}</p>
+                            <p className="text-sm text-muted-foreground">{item.description}</p>
+                          </div>
+                          {item.allergens && item.allergens.length > 0 && (
                             <div className="flex gap-1">
-                              {getCurrentItem(day.key, "principal")!.allergens.map((allergen) => (
+                              {item.allergens.map((allergen) => (
                                 <Badge key={allergen} variant="outline" className="text-xs">
                                   {allergen}
                                 </Badge>
                               ))}
                             </div>
                           )}
-                      </div>
+                        </div>
+                      ))
                     ) : (
                       <p className="text-sm text-muted-foreground text-center py-4">
-                        No hay plato principal seleccionado
+                        No hay platos principales seleccionados
                       </p>
                     )}
                   </div>
@@ -214,66 +310,73 @@ export function WeeklyMenuTab() {
                 <div>
                   <div className="mb-3 flex items-center justify-between">
                     <h3 className="font-semibold">Postres</h3>
-                    <Dialog
-                      open={openDialog?.day === day.key && openDialog?.category === "postre"}
-                      onOpenChange={(open) => {
-                        if (open) {
-                          setOpenDialog({ day: day.key, category: "postre" })
-                        } else {
-                          setOpenDialog(null)
-                        }
-                      }}
-                    >
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <Plus className="mr-1 h-3 w-3" />
-                          {getCurrentItem(day.key, "postre") ? "Cambiar" : "Añadir"}
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Seleccionar Postre para {day.label}</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-2 max-h-96 overflow-y-auto">
-                          {getItemsByCategory("postre").map((item) => (
-                            <Button
-                              key={item.id}
-                              variant="outline"
-                              className="w-full justify-start h-auto p-3 bg-transparent"
-                              onClick={() => handleSelectItem(day.key, "postre", item.id)}
-                            >
-                              <div className="text-left">
-                                <p className="font-medium">{item.name}</p>
-                                <p className="text-xs text-muted-foreground">{item.description}</p>
-                              </div>
-                            </Button>
-                          ))}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    {(user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
+                      <Dialog
+                        open={openDialog?.day === day.key && openDialog?.category === "postre"}
+                        onOpenChange={(open) => {
+                          if (open) {
+                            setOpenDialog({ day: day.key, category: "postre" })
+                          } else {
+                            setOpenDialog(null)
+                          }
+                        }}
+                      >
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Plus className="mr-1 h-3 w-3" />
+                            Gestionar
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Seleccionar Postre para {day.label}</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-2 max-h-96 overflow-y-auto">
+                            {getItemsByCategory("postre").map((item) => {
+                              const selected = isItemSelected(day.key, "postre", item.id);
+                              return (
+                                <Button
+                                  key={item.id}
+                                  variant="outline"
+                                  className={`w-full justify-start h-auto p-3 ${selected ? 'bg-[#F2EDA2]/50 ring-2 ring-[#F2EDA2]' : 'bg-transparent'}`}
+                                  onClick={() => handleSelectItem(day.key, "postre", item.id)}
+                                >
+                                  <div className="text-left w-full flex justify-between items-center">
+                                    <div>
+                                      <p className="font-medium text-[#5C5C5C]">{item.name}</p>
+                                      <p className="text-xs text-[#737373]">{item.description}</p>
+                                    </div>
+                                    {selected && <Badge className="bg-[#F2EDA2] text-[#5C5C5C] font-semibold hover:bg-[#F2EDA2]">Añadido</Badge>}
+                                  </div>
+                                </Button>
+                              )
+                            })}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
                   </div>
                   <div className="space-y-2">
-                    {getCurrentItem(day.key, "postre") ? (
-                      <div className="flex items-center justify-between rounded-lg border bg-background p-3">
-                        <div>
-                          <p className="font-medium">{getCurrentItem(day.key, "postre")?.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {getCurrentItem(day.key, "postre")?.description}
-                          </p>
-                        </div>
-                        {getCurrentItem(day.key, "postre")?.allergens &&
-                          getCurrentItem(day.key, "postre")!.allergens.length > 0 && (
+                    {getCurrentItems(day.key, "postre").length > 0 ? (
+                      getCurrentItems(day.key, "postre").map((item) => (
+                        <div key={item.id} className="flex items-center justify-between rounded-lg border bg-background p-3">
+                          <div>
+                            <p className="font-medium">{item.name}</p>
+                            <p className="text-sm text-muted-foreground">{item.description}</p>
+                          </div>
+                          {item.allergens && item.allergens.length > 0 && (
                             <div className="flex gap-1">
-                              {getCurrentItem(day.key, "postre")!.allergens.map((allergen) => (
+                              {item.allergens.map((allergen) => (
                                 <Badge key={allergen} variant="outline" className="text-xs">
                                   {allergen}
                                 </Badge>
                               ))}
                             </div>
                           )}
-                      </div>
+                        </div>
+                      ))
                     ) : (
-                      <p className="text-sm text-muted-foreground text-center py-4">No hay postre seleccionado</p>
+                      <p className="text-sm text-muted-foreground text-center py-4">No hay postres seleccionados</p>
                     )}
                   </div>
                 </div>

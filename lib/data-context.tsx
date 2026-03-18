@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type {
   MenuItem,
   Reservation,
@@ -10,6 +10,7 @@ import type {
   WeeklyMenu,
   GastroEvent,
   EventReservation,
+  ActivityLog,
 } from "./types"
 import { mockMenuItems, mockInventory, mockRatings } from "./mock-data"
 
@@ -24,7 +25,9 @@ interface DataContextType {
   reservations: Reservation[]
   addReservation: (reservation: Omit<Reservation, "id">) => void
   updateReservation: (id: string, updates: Partial<Reservation>) => void
+  updateReservationKitchenStatus: (id: string, status: "pending" | "preparing" | "completed") => void
   cancelReservation: (id: string) => void
+  clearCompletedReservations: () => void
 
   // Inventory
   inventory: InventoryItem[]
@@ -43,7 +46,8 @@ interface DataContextType {
 
   // Weekly Menu
   weeklyMenu: WeeklyMenu
-  updateWeeklyMenu: (day: string, category: "entrante" | "principal" | "postre", itemId: string) => void
+  toggleWeeklyMenuItem: (day: string, category: "entrante" | "principal" | "postre", itemId: string) => void
+  clearWeeklyMenu: () => void
 
   // Gastro Events
   gastroEvents: GastroEvent[]
@@ -56,6 +60,10 @@ interface DataContextType {
   reserveEventSpot: (eventId: string, userId: string, userName: string) => boolean
   cancelEventReservation: (eventId: string, userId: string) => void
   getEventAttendees: (eventId: string) => EventReservation[]
+
+  // Activity Logs
+  activityLogs: ActivityLog[]
+  logActivity: (action: string, details: string, userName: string, userRole: string) => void
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined)
@@ -94,6 +102,7 @@ const initialReservations: Reservation[] = [
     date: new Date("2026-01-13"),
     menuItems: ["3", "1", "5"],
     status: "confirmed",
+    kitchenStatus: "completed",
     createdAt: new Date("2026-01-10"),
   },
   {
@@ -103,17 +112,18 @@ const initialReservations: Reservation[] = [
     date: new Date("2026-01-14"),
     menuItems: ["4", "2", "6"],
     status: "pending",
+    kitchenStatus: "pending",
     createdAt: new Date("2026-01-11"),
   },
 ]
 
 // Initial weekly menu
 const initialWeeklyMenu: WeeklyMenu = {
-  Lunes: { entrante: "1", principal: "3", postre: "5" },
-  Martes: { entrante: "2", principal: "4", postre: "6" },
-  Miércoles: { entrante: "1", principal: "3", postre: "5" },
-  Jueves: { entrante: "2", principal: "4", postre: "6" },
-  Viernes: { entrante: "1", principal: "3", postre: "5" },
+  Lunes: { entrante: ["1"], principal: ["3"], postre: ["5"] },
+  Martes: { entrante: ["2"], principal: ["4"], postre: ["6"] },
+  Miércoles: { entrante: ["1"], principal: ["3"], postre: ["5"] },
+  Jueves: { entrante: ["2"], principal: ["4"], postre: ["6"] },
+  Viernes: { entrante: ["1"], principal: ["3"], postre: ["5"] },
 }
 
 const initialGastroEvents: GastroEvent[] = [
@@ -175,6 +185,38 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [weeklyMenu, setWeeklyMenu] = useState<WeeklyMenu>(initialWeeklyMenu)
   const [gastroEvents, setGastroEvents] = useState<GastroEvent[]>(initialGastroEvents)
   const [eventReservations, setEventReservations] = useState<EventReservation[]>(initialEventReservations)
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([])
+
+  // Automatic daily cleanup of old completed reservations
+  useEffect(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    setReservations(prev => {
+      const filtered = prev.filter(r => {
+        if (r.kitchenStatus === 'completed') {
+          const resDate = new Date(r.date);
+          resDate.setHours(0, 0, 0, 0);
+          if (resDate.getTime() < today.getTime()) return false;
+        }
+        return true;
+      });
+      return filtered.length !== prev.length ? filtered : prev;
+    });
+  }, []);
+
+  // Activity Logs
+  const logActivity = (action: string, details: string, userName: string, userRole: string) => {
+    const newLog: ActivityLog = {
+      id: Date.now().toString(),
+      action,
+      details,
+      userName,
+      userRole,
+      timestamp: new Date()
+    }
+    setActivityLogs(prev => [newLog, ...prev])
+  }
 
   // Menu Items
   const addMenuItem = (item: Omit<MenuItem, "id">) => {
@@ -206,8 +248,25 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setReservations(reservations.map((res) => (res.id === id ? { ...res, ...updates } : res)))
   }
 
+  const updateReservationKitchenStatus = (id: string, status: "pending" | "preparing" | "completed") => {
+    setReservations(reservations.map((res) => {
+      if (res.id === id) {
+        return { 
+          ...res, 
+          kitchenStatus: status,
+          status: status === "completed" ? "confirmed" : res.status
+        }
+      }
+      return res
+    }))
+  }
+
   const cancelReservation = (id: string) => {
     setReservations(reservations.map((res) => (res.id === id ? { ...res, status: "cancelled" as const } : res)))
+  }
+
+  const clearCompletedReservations = () => {
+    setReservations(prev => prev.filter(r => r.kitchenStatus !== "completed"))
   }
 
   // Inventory
@@ -253,14 +312,32 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }
 
   // Weekly Menu
-  const updateWeeklyMenu = (day: string, category: "entrante" | "principal" | "postre", itemId: string) => {
-    setWeeklyMenu({
-      ...weeklyMenu,
-      [day]: {
-        ...weeklyMenu[day],
-        [category]: itemId,
-      },
+  const toggleWeeklyMenuItem = (day: string, category: "entrante" | "principal" | "postre", itemId: string) => {
+    setWeeklyMenu((prevMenu) => {
+      const currentCategoryItems = prevMenu[day]?.[category] || []
+      const newCategoryItems = currentCategoryItems.includes(itemId)
+        ? currentCategoryItems.filter((id) => id !== itemId)
+        : [...currentCategoryItems, itemId]
+
+      return {
+        ...prevMenu,
+        [day]: {
+          ...prevMenu[day],
+          [category]: newCategoryItems,
+        },
+      }
     })
+  }
+
+  const clearWeeklyMenu = () => {
+    setWeeklyMenu({
+      Lunes: { entrante: [], principal: [], postre: [] },
+      Martes: { entrante: [], principal: [], postre: [] },
+      Miércoles: { entrante: [], principal: [], postre: [] },
+      Jueves: { entrante: [], principal: [], postre: [] },
+      Viernes: { entrante: [], principal: [], postre: [] },
+    })
+    setMenuItems([])
   }
 
   const addGastroEvent = (event: Omit<GastroEvent, "id" | "createdAt" | "currentAttendees">) => {
@@ -366,7 +443,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
         reservations,
         addReservation,
         updateReservation,
+        updateReservationKitchenStatus,
         cancelReservation,
+        clearCompletedReservations,
         inventory,
         updateInventoryItem,
         addInventoryItem,
@@ -377,7 +456,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         updateUser,
         deleteUser,
         weeklyMenu,
-        updateWeeklyMenu,
+        toggleWeeklyMenuItem,
+        clearWeeklyMenu,
         gastroEvents,
         addGastroEvent,
         updateGastroEvent,
@@ -386,6 +466,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         reserveEventSpot,
         cancelEventReservation,
         getEventAttendees,
+        activityLogs,
+        logActivity,
       }}
     >
       {children}

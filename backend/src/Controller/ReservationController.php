@@ -26,6 +26,7 @@ class ReservationController extends AbstractController
         }
 
         return $this->json(array_map(function(Reservation $reservation) {
+            $dish = $reservation->getDish();
             return [
                 'id' => $reservation->getId(),
                 'user' => [
@@ -33,9 +34,12 @@ class ReservationController extends AbstractController
                     'name' => $reservation->getUser()->getName()
                 ],
                 'dish' => [
-                    'id' => $reservation->getDish()->getId(),
-                    'name' => $reservation->getDish()->getName()
+                    'id' => $dish->getId(),
+                    'name' => $dish->getName(),
+                    'availableDate' => $dish->getAvailableDate()->format('Y-m-d'),
+                    'stockAvailable' => $dish->getStockAvailable()
                 ],
+                'quantity' => $reservation->getQuantity(),
                 'reservationDate' => $reservation->getReservationDate()->format('Y-m-d'),
                 'status' => $reservation->getStatus(),
                 'notes' => $reservation->getNotes()
@@ -56,21 +60,55 @@ class ReservationController extends AbstractController
         if (!$dish) {
             return $this->json(['error' => 'Plato no encontrado'], 404);
         }
+        
+        $quantity = $data['quantity'] ?? 1;
+        
+        // Validar fecha de disponibilidad
+        $today = new \DateTime();
+        if ($dish->getAvailableDate() < $today->setTime(0, 0, 0)) {
+            return $this->json([
+                'error' => 'El plato ya no está disponible para esta fecha'
+            ], 400);
+        }
+        
+        // Validar stock disponible
+        if (!$dish->hasStock($quantity)) {
+            return $this->json([
+                'error' => 'Stock insuficiente',
+                'available' => $dish->getStockAvailable(),
+                'requested' => $quantity
+            ], 400);
+        }
 
-        $reservation = new Reservation();
-        $reservation->setUser($user);
-        $reservation->setDish($dish);
-        $reservation->setReservationDate(new \DateTime($data['reservationDate']));
-        $reservation->setStatus('pending');
-        $reservation->setNotes($data['notes'] ?? null);
+        try {
+            // Usar transacción para garantizar consistencia
+            $em->beginTransaction();
+            
+            // Incrementar stock reservado
+            $dish->incrementReserved($quantity);
+            
+            // Crear reserva
+            $reservation = new Reservation();
+            $reservation->setUser($user);
+            $reservation->setDish($dish);
+            $reservation->setQuantity($quantity);
+            $reservation->setReservationDate(new \DateTime($data['reservationDate']));
+            $reservation->setStatus('pending');
+            $reservation->setNotes($data['notes'] ?? null);
 
-        $em->persist($reservation);
-        $em->flush();
+            $em->persist($reservation);
+            $em->flush();
+            $em->commit();
 
-        return $this->json([
-            'message' => 'Reserva creada correctamente',
-            'id' => $reservation->getId()
-        ], 201);
+            return $this->json([
+                'message' => 'Reserva creada correctamente',
+                'id' => $reservation->getId(),
+                'stockRemaining' => $dish->getStockAvailable()
+            ], 201);
+        } catch (\Exception $e) {
+            $em->rollback();
+            return $this->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     #[Route('/{id}', name: 'api_reservations_update', methods: ['PUT'])]
@@ -94,9 +132,32 @@ class ReservationController extends AbstractController
     #[Route('/{id}', name: 'api_reservations_cancel', methods: ['DELETE'])]
     public function cancel(Reservation $reservation, EntityManagerInterface $em): JsonResponse
     {
-        $reservation->setStatus('cancelled');
-        $em->flush();
+        // Solo permitir cancelar si está en estado pending o confirmed
+        if (!in_array($reservation->getStatus(), ['pending', 'confirmed'])) {
+            return $this->json([
+                'error' => 'No se puede cancelar una reserva en estado ' . $reservation->getStatus()
+            ], 400);
+        }
+        
+        try {
+            $em->beginTransaction();
+            
+            // Liberar stock
+            $dish = $reservation->getDish();
+            $dish->decrementReserved($reservation->getQuantity());
+            
+            // Cancelar reserva
+            $reservation->setStatus('cancelled');
+            $em->flush();
+            $em->commit();
 
-        return $this->json(['message' => 'Reserva cancelada correctamente']);
+            return $this->json([
+                'message' => 'Reserva cancelada correctamente',
+                'stockRestored' => $reservation->getQuantity()
+            ]);
+        } catch (\Exception $e) {
+            $em->rollback();
+            return $this->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

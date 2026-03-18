@@ -16,50 +16,46 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
-import { Calendar, Clock, UtensilsCrossed, Trash2, Star } from "lucide-react"
-import { useRouter } from "next/navigation"
-
-interface Reservation {
-  id: string
-  date: string
-  day: string
-  items: string[]
-  status: "pendiente" | "confirmada" | "cancelada"
-  time: string
-}
+import { Calendar, Clock, UtensilsCrossed, Trash2, Star, Plus } from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
+import { useData } from "@/lib/data-context"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 
 export function MyReservations() {
   const { toast } = useToast()
-  const router = useRouter()
-  const [reservations, setReservations] = useState<Reservation[]>([
-    {
-      id: "1",
-      date: "2026-01-15",
-      day: "Lunes",
-      items: ["Ensalada Mediterránea", "Pollo al Horno con Patatas", "Flan Casero"],
-      status: "confirmada",
-      time: "13:00",
-    },
-    {
-      id: "2",
-      date: "2026-01-16",
-      day: "Martes",
-      items: ["Gazpacho Andaluz", "Paella de Verduras", "Fruta de Temporada"],
-      status: "pendiente",
-      time: "13:15",
-    },
-    {
-      id: "3",
-      date: "2026-01-17",
-      day: "Miércoles",
-      items: ["Ensalada Mediterránea", "Pollo al Horno con Patatas", "Fruta de Temporada"],
-      status: "confirmada",
-      time: "13:00",
-    },
-  ])
+  const { user } = useAuth()
+  const { reservations: globalReservations, cancelReservation: globalCancel, menuItems, addRating } = useData()
+
+  // Ensure users only see their own reservations
+  const reservations = globalReservations.filter(r => r.userId === user?.id).map(r => {
+    // Determine day string from date
+    const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
+    const day = days[new Date(r.date).getDay()]
+    
+    // Map items from IDs to Names
+    const items = r.menuItems.map(id => {
+      const item = menuItems.find(m => m.id === id)
+      return { id, name: item ? item.name : "Plato Desconocido" }
+    })
+
+    return {
+      id: r.id,
+      date: new Date(r.date).toISOString().split('T')[0],
+      day,
+      items,
+      rawStatus: r.status,
+      status: r.status === "pending" ? "pendiente" : r.status === "confirmed" ? "confirmada" : "cancelada",
+      time: "14:00",
+    }
+  })
+
+  const [ratingDialogRes, setRatingDialogRes] = useState<any>(null)
+  const [dishRatings, setDishRatings] = useState<Record<string, { rating: number; comment: string }>>({})
 
   const cancelReservation = (id: string) => {
-    setReservations((prev) => prev.map((res) => (res.id === id ? { ...res, status: "cancelada" as const } : res)))
+    globalCancel(id)
     toast({
       title: "Reserva cancelada",
       description: "Tu reserva ha sido cancelada correctamente.",
@@ -79,6 +75,56 @@ export function MyReservations() {
 
   const upcomingReservations = reservations.filter((r) => r.status !== "cancelada")
   const pastReservations = reservations.filter((r) => r.status === "cancelada")
+
+  const submitRatings = (e: React.FormEvent) => {
+    e.preventDefault()
+    let ratingsCount = 0
+
+    Object.entries(dishRatings).forEach(([menuItemId, data]) => {
+      if (data.rating > 0) {
+        addRating({
+          userId: user?.id || "",
+          userName: user?.name || "",
+          menuItemId,
+          rating: data.rating,
+          comment: data.comment,
+        })
+        ratingsCount++
+      }
+    })
+
+    if (ratingsCount > 0) {
+      toast({
+        title: "Valoración enviada",
+        description: `Se han registrado ${ratingsCount} valoraciones de tus platos.`,
+      })
+      setRatingDialogRes(null)
+      setDishRatings({})
+    } else {
+      toast({
+        title: "Error",
+        description: "Por favor, asigna al menos una estrella a un plato.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const InteractiveStars = ({ value, onChange }: { value: number; onChange: (v: number) => void }) => {
+    const [hover, setHover] = useState(0)
+    return (
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`h-5 w-5 cursor-pointer ${star <= (hover || value) ? "fill-[#F2EDA2] text-[#F2EDA2]" : "text-[#E5E5E5]"}`}
+            onClick={() => onChange(star)}
+            onMouseEnter={() => setHover(star)}
+            onMouseLeave={() => setHover(0)}
+          />
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -119,7 +165,7 @@ export function MyReservations() {
             {upcomingReservations.map((reservation) => (
               <Card key={reservation.id} className="border-[#F2EDA2] bg-[#FFFEF9]">
                 <CardHeader>
-                  <div className="flex items-start justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="space-y-1">
                       <CardTitle className="flex items-center gap-2 text-[#5C5C5C]">
                         <Calendar className="h-5 w-5 text-[#5C5C5C]" />
@@ -130,7 +176,7 @@ export function MyReservations() {
                         Hora: <span className="text-[#F2594B] font-medium">{reservation.time}</span>
                       </CardDescription>
                     </div>
-                    <Badge className={getStatusColor(reservation.status)}>
+                    <Badge className={`${getStatusColor(reservation.status)} w-fit`}>
                       <span className="capitalize">{reservation.status}</span>
                     </Badge>
                   </div>
@@ -143,27 +189,70 @@ export function MyReservations() {
                         {reservation.items.map((item, idx) => (
                           <li key={idx} className="flex items-center gap-2 text-sm text-[#5C5C5C]">
                             <div className="h-1.5 w-1.5 rounded-full bg-[#F2EDA2]" />
-                            {item}
+                            {item.name}
                           </li>
                         ))}
                       </ul>
                     </div>
 
                     <div className="flex gap-2 pt-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 border-[#F2EDA2] bg-[#F2EFC2]/50 text-[#5C5C5C] hover:bg-[#F2EDA2]"
-                        onClick={() => {
-                          // Switch to ratings tab
-                          const tabsList = document.querySelector('[role="tablist"]')
-                          const ratingsTab = tabsList?.querySelector('[value="ratings"]') as HTMLButtonElement
-                          ratingsTab?.click()
+                      <Dialog 
+                        open={ratingDialogRes?.id === reservation.id} 
+                        onOpenChange={(op) => {
+                          if (!op) setRatingDialogRes(null)
+                          else {
+                            setRatingDialogRes(reservation)
+                            const initialRatings: Record<string, any> = {}
+                            reservation.items.forEach(it => initialRatings[it.id] = { rating: 0, comment: "" })
+                            setDishRatings(initialRatings)
+                          }
                         }}
                       >
-                        <Star className="mr-1 h-3 w-3" />
-                        Valorar
-                      </Button>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={reservation.status !== "confirmada"}
+                            className="flex-1 border-[#F2EDA2] bg-[#F2EFC2]/50 text-[#5C5C5C] hover:bg-[#F2EDA2]"
+                          >
+                            <Star className="mr-1 h-3 w-3" />
+                            {reservation.status === "confirmada" ? "Valorar Platos" : "Esperando Cocina..."}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Valorar platos: {reservation.day}</DialogTitle>
+                            <DialogDescription>¿Qué te han parecido los platos de tu reserva?</DialogDescription>
+                          </DialogHeader>
+                          <form onSubmit={submitRatings} className="space-y-4">
+                            {ratingDialogRes?.items.map((item: any) => (
+                              <div key={item.id} className="space-y-2 p-3 border rounded-lg bg-gray-50/50">
+                                <Label className="font-semibold text-md text-[#F2594B]">{item.name}</Label>
+                                <div className="space-y-1">
+                                  <Label className="text-xs text-[#737373]">Puntuación</Label>
+                                  <InteractiveStars 
+                                    value={dishRatings[item.id]?.rating || 0} 
+                                    onChange={(v) => setDishRatings(prev => ({...prev, [item.id]: {...prev[item.id], rating: v}}))} 
+                                  />
+                                </div>
+                                <div className="space-y-1 mt-2">
+                                  <Label className="text-xs text-[#737373]">Comentario (Opcional)</Label>
+                                  <Textarea 
+                                    placeholder="¡Estaba riquísimo!" 
+                                    value={dishRatings[item.id]?.comment || ""}
+                                    onChange={(e) => setDishRatings(prev => ({...prev, [item.id]: {...prev[item.id], comment: e.target.value}}))}
+                                    className="h-16 resize-none"
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                            <div className="flex justify-end gap-2 pt-2">
+                              <Button type="button" variant="outline" onClick={() => setRatingDialogRes(null)}>Cancelar</Button>
+                              <Button type="submit" className="bg-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]">Enviar Valoraciones</Button>
+                            </div>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
 
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
@@ -206,20 +295,20 @@ export function MyReservations() {
             {pastReservations.map((reservation) => (
               <Card key={reservation.id} className="opacity-60">
                 <CardHeader>
-                  <div className="flex items-start justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="space-y-1">
                       <CardTitle className="flex items-center gap-2">
                         <Calendar className="h-5 w-5" />
                         {reservation.day}, {new Date(reservation.date).toLocaleDateString("es-ES")}
                       </CardTitle>
                     </div>
-                    <Badge className={getStatusColor(reservation.status)}>
+                    <Badge className={`${getStatusColor(reservation.status)} w-fit text-xs`}>
                       <span className="capitalize">{reservation.status}</span>
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{reservation.items.join(", ")}</p>
+                  <p className="text-sm text-muted-foreground">{reservation.items.map(it => it.name).join(", ")}</p>
                 </CardContent>
               </Card>
             ))}

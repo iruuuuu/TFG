@@ -31,7 +31,7 @@ export function MenusTab() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    category: "entrante" as "entrante" | "principal" | "postre" | "bebida",
+    category: "entrante" as "entrante" | "principal" | "postre",
     allergens: "",
   })
 
@@ -139,7 +139,6 @@ export function MenusTab() {
                       <SelectItem value="entrante">Entrante</SelectItem>
                       <SelectItem value="principal">Principal</SelectItem>
                       <SelectItem value="postre">Postre</SelectItem>
-                      <SelectItem value="bebida">Bebida</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

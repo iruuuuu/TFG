@@ -27,7 +27,11 @@ class DishController extends AbstractController
                 'allergens' => $dish->getAllergens(),
                 'nutritionalInfo' => $dish->getNutritionalInfo(),
                 'price' => $dish->getPrice(),
-                'imageUrl' => $dish->getImageUrl()
+                'imageUrl' => $dish->getImageUrl(),
+                'availableDate' => $dish->getAvailableDate()->format('Y-m-d'),
+                'stockTotal' => $dish->getStockTotal(),
+                'stockReserved' => $dish->getStockReserved(),
+                'stockAvailable' => $dish->getStockAvailable()
             ];
         }, $dishes));
     }
@@ -43,7 +47,11 @@ class DishController extends AbstractController
             'allergens' => $dish->getAllergens(),
             'nutritionalInfo' => $dish->getNutritionalInfo(),
             'price' => $dish->getPrice(),
-            'imageUrl' => $dish->getImageUrl()
+            'imageUrl' => $dish->getImageUrl(),
+            'availableDate' => $dish->getAvailableDate()->format('Y-m-d'),
+            'stockTotal' => $dish->getStockTotal(),
+            'stockReserved' => $dish->getStockReserved(),
+            'stockAvailable' => $dish->getStockAvailable()
         ]);
     }
 
@@ -57,11 +65,19 @@ class DishController extends AbstractController
         $dish = new Dish();
         $dish->setName($data['name']);
         $dish->setDescription($data['description'] ?? null);
-        $dish->setCategory($data['category']);
+        $dish->setCategory($data['category'] ?? null);
         $dish->setAllergens($data['allergens'] ?? []);
         $dish->setNutritionalInfo($data['nutritionalInfo'] ?? []);
         $dish->setPrice($data['price']);
         $dish->setImageUrl($data['imageUrl'] ?? null);
+        
+        // Gestión de stock
+        if (isset($data['availableDate'])) {
+            $dish->setAvailableDate(new \DateTime($data['availableDate']));
+        }
+        if (isset($data['stockTotal'])) {
+            $dish->setStockTotal($data['stockTotal']);
+        }
 
         $em->persist($dish);
         $em->flush();
@@ -86,6 +102,18 @@ class DishController extends AbstractController
         $dish->setNutritionalInfo($data['nutritionalInfo'] ?? $dish->getNutritionalInfo());
         $dish->setPrice($data['price'] ?? $dish->getPrice());
         $dish->setImageUrl($data['imageUrl'] ?? $dish->getImageUrl());
+        
+        // Actualizar stock (con validación)
+        if (isset($data['availableDate'])) {
+            $dish->setAvailableDate(new \DateTime($data['availableDate']));
+        }
+        if (isset($data['stockTotal'])) {
+            try {
+                $dish->setStockTotal($data['stockTotal']);
+            } catch (\InvalidArgumentException $e) {
+                return $this->json(['error' => $e->getMessage()], 400);
+            }
+        }
 
         $em->flush();
 

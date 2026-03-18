@@ -87,6 +87,7 @@ export default function LoginPage() {
             <div className="space-y-1 text-[#737373]">
               <p><span className="text-[#F2594B] font-medium">Admin:</span> admin@iesmendoza.es / admin123</p>
               <p><span className="text-[#F2594B] font-medium">Cocina:</span> cocina@iesmendoza.es / cocina123</p>
+              <p><span className="text-[#F2594B] font-medium">Alumno:</span> alumno@iesmendoza.es / alumno123</p>
               <p><span className="text-[#F2594B] font-medium">Maestro:</span> maestro@iesmendoza.es / maestro123</p>
             </div>
           </div>

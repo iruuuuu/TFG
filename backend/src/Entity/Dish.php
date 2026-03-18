@@ -19,8 +19,8 @@ class Dish
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(type: 'string', length: 20)]
-    private string $category;
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $category = null;
 
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $allergens = [];
@@ -37,6 +37,16 @@ class Dish
     #[ORM\Column(type: 'boolean')]
     private bool $isActive = true;
 
+    // NUEVOS CAMPOS: Gestión de Stock y Disponibilidad
+    #[ORM\Column(type: 'date')]
+    private \DateTimeInterface $availableDate;
+
+    #[ORM\Column(type: 'integer')]
+    private int $stockTotal = 10;
+
+    #[ORM\Column(type: 'integer')]
+    private int $stockReserved = 0;
+
     #[ORM\Column(type: 'datetime')]
     private \DateTimeInterface $createdAt;
 
@@ -47,6 +57,7 @@ class Dish
     {
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
+        $this->availableDate = new \DateTime('+1 day');
     }
 
     // Getters and Setters
@@ -77,12 +88,12 @@ class Dish
         return $this;
     }
 
-    public function getCategory(): string
+    public function getCategory(): ?string
     {
         return $this->category;
     }
 
-    public function setCategory(string $category): self
+    public function setCategory(?string $category): self
     {
         $this->category = $category;
         return $this;
@@ -141,5 +152,67 @@ class Dish
     {
         $this->isActive = $isActive;
         return $this;
+    }
+
+    // Getters y Setters para Gestión de Stock
+
+    public function getAvailableDate(): \DateTimeInterface
+    {
+        return $this->availableDate;
+    }
+
+    public function setAvailableDate(\DateTimeInterface $availableDate): self
+    {
+        $this->availableDate = $availableDate;
+        return $this;
+    }
+
+    public function getStockTotal(): int
+    {
+        return $this->stockTotal;
+    }
+
+    public function setStockTotal(int $stockTotal): self
+    {
+        if ($stockTotal < $this->stockReserved) {
+            throw new \InvalidArgumentException(
+                'Stock total no puede ser menor que el stock reservado'
+            );
+        }
+        $this->stockTotal = $stockTotal;
+        return $this;
+    }
+
+    public function getStockReserved(): int
+    {
+        return $this->stockReserved;
+    }
+
+    // Métodos Calculados y Utilitarios de Stock
+
+    public function getStockAvailable(): int
+    {
+        return $this->stockTotal - $this->stockReserved;
+    }
+
+    public function hasStock(int $quantity = 1): bool
+    {
+        return $this->getStockAvailable() >= $quantity;
+    }
+
+    public function incrementReserved(int $quantity): void
+    {
+        if (!$this->hasStock($quantity)) {
+            throw new \LogicException(
+                sprintf('Stock insuficiente. Disponible: %d, Solicitado: %d', 
+                    $this->getStockAvailable(), $quantity)
+            );
+        }
+        $this->stockReserved += $quantity;
+    }
+
+    public function decrementReserved(int $quantity): void
+    {
+        $this->stockReserved = max(0, $this->stockReserved - $quantity);
     }
 }

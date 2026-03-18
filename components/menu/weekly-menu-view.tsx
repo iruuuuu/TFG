@@ -1,53 +1,107 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
-import { Calendar, AlertCircle } from "lucide-react"
-import { mockMenuItems } from "@/lib/mock-data"
+import { Calendar, AlertCircle, ChevronLeft, ChevronRight, ChefHat } from "lucide-react"
+import { useData } from "@/lib/data-context"
+import { useAuth } from "@/lib/auth-context"
 import type { MenuItem } from "@/lib/types"
 
-const daysOfWeek = [
-  { key: "lunes", label: "Lunes", date: "15 Ene" },
-  { key: "martes", label: "Martes", date: "16 Ene" },
-  { key: "miercoles", label: "Miércoles", date: "17 Ene" },
-  { key: "jueves", label: "Jueves", date: "18 Ene" },
-  { key: "viernes", label: "Viernes", date: "19 Ene" },
-]
+function getStaticInitialDays() {
+  return [
+    { key: "lunes", label: "Lunes", date: "" },
+    { key: "martes", label: "Martes", date: "" },
+    { key: "miercoles", label: "Miércoles", date: "" },
+    { key: "jueves", label: "Jueves", date: "" },
+    { key: "viernes", label: "Viernes", date: "" },
+  ]
+}
 
 export function WeeklyMenuView() {
   const { toast } = useToast()
   const [selectedDay, setSelectedDay] = useState("lunes")
   const [selectedItems, setSelectedItems] = useState<{ [key: string]: string[] }>({})
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  
+  const [daysOfWeek, setDaysOfWeek] = useState(getStaticInitialDays())
+  const [weekRange, setWeekRange] = useState("")
+
+  useEffect(() => {
+    const currentDate = new Date()
+    const currentDay = currentDate.getDay()
+    const diff = currentDate.getDate() - currentDay + (currentDay === 0 ? -6 : 1)
+    const monday = new Date(currentDate.setDate(diff))
+
+    const days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"]
+    const keys = ["lunes", "martes", "miercoles", "jueves", "viernes"]
+    const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+
+    const generatedDays = days.map((label, index) => {
+      const d = new Date(monday)
+      d.setDate(monday.getDate() + index)
+      return {
+        key: keys[index],
+        label,
+        date: `${d.getDate()} ${months[d.getMonth()]}`,
+      }
+    })
+    
+    setDaysOfWeek(generatedDays)
+    
+    const friday = new Date(monday)
+    friday.setDate(monday.getDate() + 4)
+    
+    if (monday.getMonth() === friday.getMonth()) {
+      setWeekRange(`${monday.getDate()} al ${friday.getDate()} de ${months[monday.getMonth()]}`)
+    } else {
+      setWeekRange(`${monday.getDate()} de ${months[monday.getMonth()]} al ${friday.getDate()} de ${months[friday.getMonth()]}`)
+    }
+  }, [])
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -150, behavior: "smooth" })
+    }
+  }
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 150, behavior: "smooth" })
+    }
+  }
+
+  const { user } = useAuth()
+  const { menuItems, weeklyMenu: globalWeeklyMenu, addReservation } = useData()
 
   const weeklyMenu = {
     lunes: {
-      entrantes: [mockMenuItems[0], mockMenuItems[1]],
-      principales: [mockMenuItems[2], mockMenuItems[3]],
-      postres: [mockMenuItems[4], mockMenuItems[5]],
+      entrantes: menuItems.filter(item => globalWeeklyMenu.Lunes.entrante.includes(item.id)),
+      principales: menuItems.filter(item => globalWeeklyMenu.Lunes.principal.includes(item.id)),
+      postres: menuItems.filter(item => globalWeeklyMenu.Lunes.postre.includes(item.id)),
     },
     martes: {
-      entrantes: [mockMenuItems[1], mockMenuItems[0]],
-      principales: [mockMenuItems[3], mockMenuItems[2]],
-      postres: [mockMenuItems[5], mockMenuItems[4]],
+      entrantes: menuItems.filter(item => globalWeeklyMenu.Martes.entrante.includes(item.id)),
+      principales: menuItems.filter(item => globalWeeklyMenu.Martes.principal.includes(item.id)),
+      postres: menuItems.filter(item => globalWeeklyMenu.Martes.postre.includes(item.id)),
     },
     miercoles: {
-      entrantes: [mockMenuItems[0], mockMenuItems[1]],
-      principales: [mockMenuItems[2], mockMenuItems[3]],
-      postres: [mockMenuItems[4], mockMenuItems[5]],
+      entrantes: menuItems.filter(item => globalWeeklyMenu.Miércoles.entrante.includes(item.id)),
+      principales: menuItems.filter(item => globalWeeklyMenu.Miércoles.principal.includes(item.id)),
+      postres: menuItems.filter(item => globalWeeklyMenu.Miércoles.postre.includes(item.id)),
     },
     jueves: {
-      entrantes: [mockMenuItems[1], mockMenuItems[0]],
-      principales: [mockMenuItems[3], mockMenuItems[2]],
-      postres: [mockMenuItems[5], mockMenuItems[4]],
+      entrantes: menuItems.filter(item => globalWeeklyMenu.Jueves.entrante.includes(item.id)),
+      principales: menuItems.filter(item => globalWeeklyMenu.Jueves.principal.includes(item.id)),
+      postres: menuItems.filter(item => globalWeeklyMenu.Jueves.postre.includes(item.id)),
     },
     viernes: {
-      entrantes: [mockMenuItems[0], mockMenuItems[1]],
-      principales: [mockMenuItems[2], mockMenuItems[3]],
-      postres: [mockMenuItems[4], mockMenuItems[5]],
+      entrantes: menuItems.filter(item => globalWeeklyMenu.Viernes.entrante.includes(item.id)),
+      principales: menuItems.filter(item => globalWeeklyMenu.Viernes.principal.includes(item.id)),
+      postres: menuItems.filter(item => globalWeeklyMenu.Viernes.postre.includes(item.id)),
     },
   }
 
@@ -80,6 +134,30 @@ export function WeeklyMenuView() {
       })
       return
     }
+
+    const allSelectedItems = [
+      ...(selectedItems[`${selectedDay}-entrantes`] || []),
+      ...(selectedItems[`${selectedDay}-principales`] || []),
+      ...(selectedItems[`${selectedDay}-postres`] || [])
+    ]
+
+    const today = new Date()
+    const currentDayOfWeek = today.getDay() || 7
+    const targetDayMap: Record<string, number> = { lunes: 1, martes: 2, miercoles: 3, jueves: 4, viernes: 5 }
+    const targetDayNum = targetDayMap[selectedDay] || 1
+    
+    const reservationDate = new Date(today)
+    reservationDate.setDate(today.getDate() - currentDayOfWeek + targetDayNum)
+
+    addReservation({
+      userId: user?.id || "",
+      userName: user?.name || "Desconocido",
+      date: reservationDate,
+      menuItems: allSelectedItems,
+      status: "pending",
+      kitchenStatus: "pending",
+      createdAt: new Date(),
+    })
 
     toast({
       title: "Reserva confirmada",
@@ -121,6 +199,12 @@ export function WeeklyMenuView() {
               {selected && <Badge className="bg-[#F2EDA2] text-[#5C5C5C] font-semibold">Seleccionado</Badge>}
             </div>
             <p className="text-sm text-[#737373]">{item.description}</p>
+            {item.authorName && (
+              <div className="flex items-center gap-1.5 pt-1">
+                <ChefHat className="h-3.5 w-3.5 text-[#F2594B]" />
+                <span className="text-xs font-medium text-[#737373]">Creado por: <span className="text-[#5C5C5C]">{item.authorName}</span></span>
+              </div>
+            )}
             {item.allergens.length > 0 && (
               <div className="flex flex-wrap gap-1 pt-2">
                 <span className="text-xs text-[#F2594B] font-medium">Alérgenos:</span>
@@ -143,21 +227,48 @@ export function WeeklyMenuView() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-[#5C5C5C]" />
-            <CardTitle className="text-[#5C5C5C]">Semana del <span className="text-[#F2594B]">15 al 19 de Enero</span></CardTitle>
+            <CardTitle className="text-[#5C5C5C]">Semana del <span className="text-[#F2594B]">{weekRange || "..."}</span></CardTitle>
           </div>
           <CardDescription className="text-[#737373]">Selecciona tus platos favoritos para cada día y haz tu reserva</CardDescription>
         </CardHeader>
       </Card>
 
       <Tabs value={selectedDay} onValueChange={setSelectedDay} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5 bg-[#FFFEF9] border border-[#F2EDA2]">
-          {daysOfWeek.map((day) => (
-            <TabsTrigger key={day.key} value={day.key} className="flex flex-col gap-1 data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C]">
-              <span className="font-medium">{day.label}</span>
-              <span className="text-xs">{day.date}</span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="relative flex items-center w-full">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={scrollLeft}
+            className="absolute left-1 z-10 h-8 w-8 bg-[#FFFEF9] border-[#F2EDA2] text-[#5C5C5C] shadow-sm hover:bg-[#F2EDA2]/50 md:hidden"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+
+          <TabsList 
+            ref={scrollContainerRef}
+            className="flex w-full overflow-x-auto justify-start h-fit min-h-[56px] items-stretch bg-[#FFFEF9] border border-[#F2EDA2] p-1 gap-1 rounded-lg px-10 md:px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          >
+            {daysOfWeek.map((day) => (
+              <TabsTrigger 
+                key={day.key} 
+                value={day.key} 
+                className="flex-1 min-w-[110px] h-full flex flex-col gap-1 data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373] hover:bg-[#F2EDA2]/50 hover:text-[#5C5C5C] transition-colors py-2 rounded-md whitespace-nowrap"
+              >
+                <span className="font-medium text-[15px] leading-none">{day.label}</span>
+                <span className="text-xs">{day.date}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={scrollRight}
+            className="absolute right-1 z-10 h-8 w-8 bg-[#FFFEF9] border-[#F2EDA2] text-[#5C5C5C] shadow-sm hover:bg-[#F2EDA2]/50 md:hidden"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
 
         {daysOfWeek.map((day) => (
           <TabsContent key={day.key} value={day.key} className="space-y-6">
