@@ -85,7 +85,7 @@ export function RatingsView() {
           <Star
             key={star}
             className={`h-5 w-5 ${interactive ? "cursor-pointer" : ""} ${
-              star <= (interactive ? hover || rating : rating) ? "fill-[#F2EDA2] text-[#F2EDA2]" : "text-[#E5E5E5]"
+              star <= (interactive ? hover || rating : rating) ? "fill-[#FAD85D] text-[#FAD85D]" : "text-[#E5E5E5]"
             }`}
             onClick={() => interactive && onRatingChange?.(star)}
             onMouseEnter={() => interactive && setHover(star)}
@@ -98,19 +98,19 @@ export function RatingsView() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-[#F2EDA2] bg-[#F2EFC2]/30">
+      <Card className="border-[#FAD85D] bg-[#FDF1B6]/30">
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <Star className="h-5 w-5 text-[#F2594B]" />
-                <CardTitle className="text-[#737373]">Valoraciones y Opiniones</CardTitle>
+                <Star className="h-5 w-5 text-[#E8654D]" />
+                <CardTitle className="text-[#877669]">Valoraciones y Opiniones</CardTitle>
               </div>
-              <CardDescription className="text-[#737373]/70">Comparte tu experiencia y lee opiniones de otros usuarios</CardDescription>
+              <CardDescription className="text-[#877669]/70">Comparte tu experiencia y lee opiniones de otros usuarios</CardDescription>
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto bg-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]">
+                <Button className="w-full sm:w-auto bg-[#FAD85D] text-[#877669] hover:bg-[#FDF1B6]">
                   <Plus className="mr-2 h-4 w-4" />
                   Nueva Valoración
                 </Button>
@@ -164,7 +164,7 @@ export function RatingsView() {
                     <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                       Cancelar
                     </Button>
-                    <Button type="submit" className="bg-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]">
+                    <Button type="submit" className="bg-[#FAD85D] text-[#877669] hover:bg-[#FDF1B6]">
                       Enviar Valoración
                     </Button>
                   </div>
@@ -224,10 +224,10 @@ export function RatingsView() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-[#F2594B]" />
-            <CardTitle className="text-[#737373]">Todas las Valoraciones</CardTitle>
+            <MessageSquare className="h-5 w-5 text-[#E8654D]" />
+            <CardTitle className="text-[#877669]">Todas las Valoraciones</CardTitle>
           </div>
-          <CardDescription className="text-[#737373]/70">Historial completo de opiniones</CardDescription>
+          <CardDescription className="text-[#877669]/70">Historial completo de opiniones</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -246,7 +246,7 @@ export function RatingsView() {
                         <div className="flex items-center gap-2">
                           <span className="font-semibold">{rating.userName}</span>
                           <span className="text-sm text-muted-foreground">valoró</span>
-                          <span className="font-medium text-[#F2594B]">{menuItem?.name}</span>
+                          <span className="font-medium text-[#E8654D]">{menuItem?.name}</span>
                         </div>
                         <StarRating rating={rating.rating} />
                         {rating.comment && <p className="text-sm text-muted-foreground">{rating.comment}</p>}

@@ -119,11 +119,11 @@ const initialReservations: Reservation[] = [
 
 // Initial weekly menu
 const initialWeeklyMenu: WeeklyMenu = {
-  Lunes: { entrante: ["1"], principal: ["3"], postre: ["5"] },
-  Martes: { entrante: ["2"], principal: ["4"], postre: ["6"] },
-  Miércoles: { entrante: ["1"], principal: ["3"], postre: ["5"] },
-  Jueves: { entrante: ["2"], principal: ["4"], postre: ["6"] },
-  Viernes: { entrante: ["1"], principal: ["3"], postre: ["5"] },
+  Lunes: { entrante: ["1", "2"], principal: ["3", "4"], postre: ["5", "6"] },
+  Martes: { entrante: ["2", "1"], principal: ["4", "3"], postre: ["6", "5"] },
+  Miércoles: { entrante: ["1", "2"], principal: ["3", "4"], postre: ["5", "6"] },
+  Jueves: { entrante: ["2", "1"], principal: ["4", "3"], postre: ["6", "5"] },
+  Viernes: { entrante: ["1", "2"], principal: ["3", "4"], postre: ["5", "6"] },
 }
 
 const initialGastroEvents: GastroEvent[] = [

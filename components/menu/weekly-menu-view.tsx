@@ -187,29 +187,29 @@ export function WeeklyMenuView() {
 
     return (
       <Card
-        className={`cursor-pointer transition-all border-[#F2EDA2] bg-[#FFFEF9] ${
-          selected ? "ring-2 ring-[#F2EDA2] bg-[#F2EFC2]/50" : "hover:bg-[#F2EFC2]/30"
+        className={`cursor-pointer transition-all border-[#FAD85D] bg-[#FFFFFF] ${
+          selected ? "ring-2 ring-[#FAD85D] bg-[#FDF1B6]/50" : "hover:bg-[#FDF1B6]/30"
         }`}
         onClick={() => toggleItem(day, category, item.id)}
       >
         <CardContent className="p-4">
           <div className="space-y-2">
             <div className="flex items-start justify-between">
-              <h4 className="font-semibold text-[#5C5C5C]">{item.name}</h4>
-              {selected && <Badge className="bg-[#F2EDA2] text-[#5C5C5C] font-semibold">Seleccionado</Badge>}
+              <h4 className="font-semibold text-[#4A3B32]">{item.name}</h4>
+              {selected && <Badge className="bg-[#FAD85D] text-[#4A3B32] font-semibold">Seleccionado</Badge>}
             </div>
-            <p className="text-sm text-[#737373]">{item.description}</p>
+            <p className="text-sm text-[#877669]">{item.description}</p>
             {item.authorName && (
               <div className="flex items-center gap-1.5 pt-1">
-                <ChefHat className="h-3.5 w-3.5 text-[#F2594B]" />
-                <span className="text-xs font-medium text-[#737373]">Creado por: <span className="text-[#5C5C5C]">{item.authorName}</span></span>
+                <ChefHat className="h-3.5 w-3.5 text-[#E8654D]" />
+                <span className="text-xs font-medium text-[#877669]">Creado por: <span className="text-[#4A3B32]">{item.authorName}</span></span>
               </div>
             )}
             {item.allergens.length > 0 && (
               <div className="flex flex-wrap gap-1 pt-2">
-                <span className="text-xs text-[#F2594B] font-medium">Alérgenos:</span>
+                <span className="text-xs text-[#E8654D] font-medium">Alérgenos:</span>
                 {item.allergens.map((allergen) => (
-                  <Badge key={allergen} variant="outline" className="text-xs border-[#F2EDA2] text-[#737373]">
+                  <Badge key={allergen} variant="outline" className="text-xs border-[#FAD85D] text-[#877669]">
                     {allergen}
                   </Badge>
                 ))}
@@ -223,13 +223,13 @@ export function WeeklyMenuView() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-[#F2EDA2] bg-[#FFFEF9] shadow-sm">
+      <Card className="border-[#FAD85D] bg-[#FFFFFF] shadow-sm">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-[#5C5C5C]" />
-            <CardTitle className="text-[#5C5C5C]">Semana del <span className="text-[#F2594B]">{weekRange || "..."}</span></CardTitle>
+            <Calendar className="h-5 w-5 text-[#4A3B32]" />
+            <CardTitle className="text-[#4A3B32]">Semana del <span className="text-[#E8654D]">{weekRange || "..."}</span></CardTitle>
           </div>
-          <CardDescription className="text-[#737373]">Selecciona tus platos favoritos para cada día y haz tu reserva</CardDescription>
+          <CardDescription className="text-[#877669]">Selecciona tus platos favoritos para cada día y haz tu reserva</CardDescription>
         </CardHeader>
       </Card>
 
@@ -239,20 +239,20 @@ export function WeeklyMenuView() {
             variant="outline" 
             size="icon" 
             onClick={scrollLeft}
-            className="absolute left-1 z-10 h-8 w-8 bg-[#FFFEF9] border-[#F2EDA2] text-[#5C5C5C] shadow-sm hover:bg-[#F2EDA2]/50 md:hidden"
+            className="absolute left-1 z-10 h-8 w-8 bg-[#FFFFFF] border-[#FAD85D] text-[#4A3B32] shadow-sm hover:bg-[#FAD85D]/50 md:hidden"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
           <TabsList 
             ref={scrollContainerRef}
-            className="flex w-full overflow-x-auto justify-start h-fit min-h-[56px] items-stretch bg-[#FFFEF9] border border-[#F2EDA2] p-1 gap-1 rounded-lg px-10 md:px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            className="flex w-full overflow-x-auto justify-start h-fit min-h-[56px] items-stretch bg-[#FFFFFF] border border-[#FAD85D] p-1 gap-1 rounded-lg px-10 md:px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
             {daysOfWeek.map((day) => (
               <TabsTrigger 
                 key={day.key} 
                 value={day.key} 
-                className="flex-1 min-w-[110px] h-full flex flex-col gap-1 data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373] hover:bg-[#F2EDA2]/50 hover:text-[#5C5C5C] transition-colors py-2 rounded-md whitespace-nowrap"
+                className="flex-1 min-w-[110px] h-full flex flex-col gap-1 data-[state=active]:bg-[#FAD85D] data-[state=active]:text-[#4A3B32] text-[#877669] hover:bg-[#FAD85D]/50 hover:text-[#4A3B32] transition-colors py-2 rounded-md whitespace-nowrap"
               >
                 <span className="font-medium text-[15px] leading-none">{day.label}</span>
                 <span className="text-xs">{day.date}</span>
@@ -264,7 +264,7 @@ export function WeeklyMenuView() {
             variant="outline" 
             size="icon" 
             onClick={scrollRight}
-            className="absolute right-1 z-10 h-8 w-8 bg-[#FFFEF9] border-[#F2EDA2] text-[#5C5C5C] shadow-sm hover:bg-[#F2EDA2]/50 md:hidden"
+            className="absolute right-1 z-10 h-8 w-8 bg-[#FFFFFF] border-[#FAD85D] text-[#4A3B32] shadow-sm hover:bg-[#FAD85D]/50 md:hidden"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -274,7 +274,7 @@ export function WeeklyMenuView() {
           <TabsContent key={day.key} value={day.key} className="space-y-6">
             <div className="space-y-4">
               <div>
-                <h3 className="mb-3 text-lg font-semibold text-[#5C5C5C]"><span className="text-[#F2594B]">Entrantes</span></h3>
+                <h3 className="mb-3 text-lg font-semibold text-[#4A3B32]"><span className="text-[#E8654D]">Entrantes</span></h3>
                 <div className="grid gap-4 md:grid-cols-2">
                   {weeklyMenu[day.key as keyof typeof weeklyMenu]?.entrantes.map((item) => (
                     <MenuItemCard key={item.id} item={item} day={day.key} category="entrantes" />
@@ -283,7 +283,7 @@ export function WeeklyMenuView() {
               </div>
 
               <div>
-                <h3 className="mb-3 text-lg font-semibold text-[#5C5C5C]">Platos <span className="text-[#F2594B]">Principales</span></h3>
+                <h3 className="mb-3 text-lg font-semibold text-[#4A3B32]">Platos <span className="text-[#E8654D]">Principales</span></h3>
                 <div className="grid gap-4 md:grid-cols-2">
                   {weeklyMenu[day.key as keyof typeof weeklyMenu]?.principales.map((item) => (
                     <MenuItemCard key={item.id} item={item} day={day.key} category="principales" />
@@ -292,7 +292,7 @@ export function WeeklyMenuView() {
               </div>
 
               <div>
-                <h3 className="mb-3 text-lg font-semibold text-[#5C5C5C]"><span className="text-[#F2594B]">Postres</span></h3>
+                <h3 className="mb-3 text-lg font-semibold text-[#4A3B32]"><span className="text-[#E8654D]">Postres</span></h3>
                 <div className="grid gap-4 md:grid-cols-2">
                   {weeklyMenu[day.key as keyof typeof weeklyMenu]?.postres.map((item) => (
                     <MenuItemCard key={item.id} item={item} day={day.key} category="postres" />
@@ -303,7 +303,7 @@ export function WeeklyMenuView() {
               <div className="flex justify-end gap-2 pt-4">
                 <Button
                   variant="outline"
-                  className="border-[#F2EDA2] text-[#737373] hover:bg-[#F2EFC2]/50 bg-transparent"
+                  className="border-[#FAD85D] text-[#877669] hover:bg-[#FDF1B6]/50 bg-transparent"
                   onClick={() => {
                     setSelectedItems((prev) => {
                       const newState = { ...prev }
@@ -316,7 +316,7 @@ export function WeeklyMenuView() {
                 >
                   Limpiar Selección
                 </Button>
-                <Button onClick={makeReservation} className="bg-[#F2EDA2] text-[#5C5C5C] font-semibold hover:bg-[#E8E398] shadow-sm">
+                <Button onClick={makeReservation} className="bg-[#FAD85D] text-[#4A3B32] font-semibold hover:bg-[#E8E398] shadow-sm">
                   <Calendar className="mr-2 h-4 w-4" />
                   Hacer Reserva
                 </Button>

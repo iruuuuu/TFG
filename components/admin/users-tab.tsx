@@ -89,12 +89,12 @@ export function UsersTab() {
 
   const getRoleBadge = (role: string) => {
     const variants = {
-      admin: "bg-[#F2594B]/10 text-[#F2594B]",
-      cocina: "bg-[#F2EDA2] text-[#737373]",
+      admin: "bg-[#E8654D]/10 text-[#E8654D]",
+      cocina: "bg-[#FAD85D] text-[#877669]",
       "alumno-cocina": "bg-[#E8F5E9] text-[#2E7D32]",
-      maestro: "bg-[#F2EFC2] text-[#737373]",
+      maestro: "bg-[#FDF1B6] text-[#877669]",
     }
-    return variants[role as keyof typeof variants] || "bg-[#F0F1F2] text-[#737373]"
+    return variants[role as keyof typeof variants] || "bg-[#F0F1F2] text-[#877669]"
   }
 
   const handleDeleteUser = (id: string, name: string) => {
@@ -129,21 +129,21 @@ export function UsersTab() {
   }
 
   const UserTable = ({ role }: { role: string | "all" }) => (
-    <div className="rounded-md border border-[#F2EDA2]/50 overflow-x-auto">
+    <div className="rounded-md border border-[#FAD85D]/50 overflow-x-auto">
       <Table className="min-w-[600px] sm:min-w-0">
-        <TableHeader className="bg-[#FFFEF9]">
-          <TableRow className="hover:bg-transparent border-[#F2EDA2]/50">
-            <TableHead className="font-bold text-[#5C5C5C]">Nombre</TableHead>
-            <TableHead className="font-bold text-[#5C5C5C]">Email</TableHead>
-            <TableHead className="font-bold text-[#5C5C5C]">Rol</TableHead>
-            <TableHead className="text-right font-bold text-[#5C5C5C]">Acciones</TableHead>
+        <TableHeader className="bg-[#FFFFFF]">
+          <TableRow className="hover:bg-transparent border-[#FAD85D]/50">
+            <TableHead className="font-bold text-[#4A3B32]">Nombre</TableHead>
+            <TableHead className="font-bold text-[#4A3B32]">Email</TableHead>
+            <TableHead className="font-bold text-[#4A3B32]">Rol</TableHead>
+            <TableHead className="text-right font-bold text-[#4A3B32]">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {filteredUsers(role).map((user) => (
-            <TableRow key={user.id} className="border-[#F2EDA2]/30 hover:bg-[#F2EFC2]/10 transition-colors">
-              <TableCell className="font-medium text-[#5C5C5C]">{user.name}</TableCell>
-              <TableCell className="text-[#737373]">{user.email}</TableCell>
+            <TableRow key={user.id} className="border-[#FAD85D]/30 hover:bg-[#FDF1B6]/10 transition-colors">
+              <TableCell className="font-medium text-[#4A3B32]">{user.name}</TableCell>
+              <TableCell className="text-[#877669]">{user.email}</TableCell>
               <TableCell>
                 <Badge className={`${getRoleBadge(user.role)} shadow-none border-none`}>
                   <span className="capitalize">{user.role}</span>
@@ -166,59 +166,59 @@ export function UsersTab() {
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        className="h-8 w-8 p-0 border-[#F2EDA2] text-[#737373] hover:bg-[#F2EDA2]/50"
+                        className="h-8 w-8 p-0 border-[#FAD85D] text-[#877669] hover:bg-[#FAD85D]/50"
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
                     </DialogTrigger>
                     {editingUser?.id === user.id && (
-                      <DialogContent className="bg-[#FFFEF9] border-[#F2EDA2]">
+                      <DialogContent className="bg-[#FFFFFF] border-[#FAD85D]">
                         <DialogHeader>
-                          <DialogTitle className="text-2xl text-[#5C5C5C]">Editar <span className="text-[#F2594B]">Usuario</span></DialogTitle>
-                          <DialogDescription className="text-[#737373]">
+                          <DialogTitle className="text-2xl text-[#4A3B32]">Editar <span className="text-[#E8654D]">Usuario</span></DialogTitle>
+                          <DialogDescription className="text-[#877669]">
                             Modifica los datos del usuario seleccionado.
                           </DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleSaveEdit} className="space-y-4 py-4">
                           <div className="space-y-2">
-                            <Label htmlFor="name" className="text-[#5C5C5C]">Nombre Completo</Label>
+                            <Label htmlFor="name" className="text-[#4A3B32]">Nombre Completo</Label>
                             <Input 
                               id="name" 
                               value={editingUser.name} 
                               onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
-                              className="border-[#F2EDA2] focus-visible:ring-[#F2594B]/20"
+                              className="border-[#FAD85D] focus-visible:ring-[#E8654D]/20"
                               required
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="email" className="text-[#5C5C5C]">Correo Electrónico</Label>
+                            <Label htmlFor="email" className="text-[#4A3B32]">Correo Electrónico</Label>
                             <Input 
                               id="email" 
                               type="email"
                               value={editingUser.email} 
                               onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                              className="border-[#F2EDA2] focus-visible:ring-[#F2594B]/20"
+                              className="border-[#FAD85D] focus-visible:ring-[#E8654D]/20"
                               required
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="password" className="text-[#5C5C5C]">Nueva Contraseña</Label>
+                            <Label htmlFor="password" className="text-[#4A3B32]">Nueva Contraseña</Label>
                             <Input 
                               id="password" 
                               type="password"
                               placeholder="Dejar en blanco para mantener actual"
                               value={editingUser.password || ""} 
                               onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
-                              className="border-[#F2EDA2] focus-visible:ring-[#F2594B]/20"
+                              className="border-[#FAD85D] focus-visible:ring-[#E8654D]/20"
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="role" className="text-[#5C5C5C]">Rol de Usuario</Label>
+                            <Label htmlFor="role" className="text-[#4A3B32]">Rol de Usuario</Label>
                             <Select 
                               value={editingUser.role} 
                               onValueChange={(val) => setEditingUser({ ...editingUser, role: val })}
                             >
-                              <SelectTrigger className="border-[#F2EDA2] focus:ring-[#F2594B]/20">
+                              <SelectTrigger className="border-[#FAD85D] focus:ring-[#E8654D]/20">
                                 <SelectValue placeholder="Seleccionar rol" />
                               </SelectTrigger>
                               <SelectContent>
@@ -234,11 +234,11 @@ export function UsersTab() {
                               type="button" 
                               variant="outline" 
                               onClick={() => setIsEditDialogOpen(false)}
-                              className="border-[#F2EDA2] text-[#737373] hover:bg-[#F2EDA2]/50"
+                              className="border-[#FAD85D] text-[#877669] hover:bg-[#FAD85D]/50"
                             >
                               Cancelar
                             </Button>
-                            <Button type="submit" className="bg-[#F2EDA2] text-[#5C5C5C] hover:bg-[#F2EFC2]">
+                            <Button type="submit" className="bg-[#FAD85D] text-[#4A3B32] hover:bg-[#FDF1B6]">
                               Guardar Cambios
                             </Button>
                           </DialogFooter>
@@ -249,25 +249,25 @@ export function UsersTab() {
                   
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button size="sm" variant="outline" className="h-8 w-8 p-0 text-[#F2594B] border-[#F2EDA2] bg-transparent hover:bg-[#FFF5F4]">
+                      <Button size="sm" variant="outline" className="h-8 w-8 p-0 text-[#E8654D] border-[#FAD85D] bg-transparent hover:bg-[#FDF0EC]">
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-[#FFFEF9] border-[#F2EDA2]">
+                    <AlertDialogContent className="bg-[#FFFFFF] border-[#FAD85D]">
                       <AlertDialogHeader>
-                        <div className="flex items-center gap-3 text-[#F2594B] mb-2">
+                        <div className="flex items-center gap-3 text-[#E8654D] mb-2">
                           <AlertTriangle className="h-6 w-6" />
                           <AlertDialogTitle>¿Eliminar usuario?</AlertDialogTitle>
                         </div>
-                        <AlertDialogDescription className="text-[#737373]">
-                          ¿Estás seguro de que deseas eliminar a <span className="font-bold text-[#5C5C5C]">{user.name}</span>? Esta acción no se puede deshacer.
+                        <AlertDialogDescription className="text-[#877669]">
+                          ¿Estás seguro de que deseas eliminar a <span className="font-bold text-[#4A3B32]">{user.name}</span>? Esta acción no se puede deshacer.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel className="border-[#F2EDA2] text-[#737373] hover:bg-[#F2EDA2]/50">Cancelar</AlertDialogCancel>
+                        <AlertDialogCancel className="border-[#FAD85D] text-[#877669] hover:bg-[#FAD85D]/50">Cancelar</AlertDialogCancel>
                         <AlertDialogAction 
                           onClick={() => handleDeleteUser(user.id, user.name)}
-                          className="bg-[#F2594B] text-white hover:bg-[#BF726B]"
+                          className="bg-[#E8654D] text-white hover:bg-[#BF726B]"
                         >
                           Eliminar Permanentemente
                         </AlertDialogAction>
@@ -285,14 +285,14 @@ export function UsersTab() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-[#F2EDA2] bg-[#FFFEF9] shadow-sm">
+      <Card className="border-[#FAD85D] bg-[#FFFFFF] shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <CardTitle className="text-2xl text-[#5C5C5C]">Gestión de <span className="text-[#F2594B]">Usuarios</span></CardTitle>
-              <CardDescription className="text-[#737373]">Administra y organiza los perfiles del centro</CardDescription>
+              <CardTitle className="text-2xl text-[#4A3B32]">Gestión de <span className="text-[#E8654D]">Usuarios</span></CardTitle>
+              <CardDescription className="text-[#877669]">Administra y organiza los perfiles del centro</CardDescription>
             </div>
-            <Button className="bg-[#F2EDA2] text-[#5C5C5C] hover:bg-[#F2EFC2] gap-2 w-full sm:w-auto">
+            <Button className="bg-[#FAD85D] text-[#4A3B32] hover:bg-[#FDF1B6] gap-2 w-full sm:w-auto">
               <UserPlus className="h-4 w-4" />
               Nuevo Usuario
             </Button>
@@ -300,24 +300,24 @@ export function UsersTab() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="all" className="space-y-6">
-            <TabsList className="flex w-full overflow-x-auto bg-[#FFFEF9] border border-[#F2EDA2] p-1 gap-1 h-auto justify-start sm:justify-center">
-              <TabsTrigger value="all" className="flex-1 min-w-[100px] data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373] py-2 gap-2">
+            <TabsList className="flex w-full overflow-x-auto bg-[#FFFFFF] border border-[#FAD85D] p-1 gap-1 h-auto justify-start sm:justify-center">
+              <TabsTrigger value="all" className="flex-1 min-w-[100px] data-[state=active]:bg-[#FAD85D] data-[state=active]:text-[#4A3B32] text-[#877669] py-2 gap-2">
                 <Users className="h-4 w-4" />
                 Todos
               </TabsTrigger>
-              <TabsTrigger value="cocina" className="flex-1 min-w-[100px] data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373] py-2 gap-2">
+              <TabsTrigger value="cocina" className="flex-1 min-w-[100px] data-[state=active]:bg-[#FAD85D] data-[state=active]:text-[#4A3B32] text-[#877669] py-2 gap-2">
                 <ChefHat className="h-4 w-4" />
                 Cocina
               </TabsTrigger>
-              <TabsTrigger value="alumno-cocina" className="flex-1 min-w-[100px] data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373] py-2 gap-2">
+              <TabsTrigger value="alumno-cocina" className="flex-1 min-w-[100px] data-[state=active]:bg-[#FAD85D] data-[state=active]:text-[#4A3B32] text-[#877669] py-2 gap-2">
                 <Users className="h-4 w-4" />
                 Alumnos
               </TabsTrigger>
-              <TabsTrigger value="maestro" className="flex-1 min-w-[100px] data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373] py-2 gap-2">
+              <TabsTrigger value="maestro" className="flex-1 min-w-[100px] data-[state=active]:bg-[#FAD85D] data-[state=active]:text-[#4A3B32] text-[#877669] py-2 gap-2">
                 <GraduationCap className="h-4 w-4" />
                 Profesores
               </TabsTrigger>
-              <TabsTrigger value="admin" className="flex-1 min-w-[100px] data-[state=active]:bg-[#F2EDA2] data-[state=active]:text-[#5C5C5C] text-[#737373] py-2 gap-2">
+              <TabsTrigger value="admin" className="flex-1 min-w-[100px] data-[state=active]:bg-[#FAD85D] data-[state=active]:text-[#4A3B32] text-[#877669] py-2 gap-2">
                 <ShieldCheck className="h-4 w-4" />
                 Admins
               </TabsTrigger>
