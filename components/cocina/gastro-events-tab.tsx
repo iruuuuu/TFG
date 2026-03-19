@@ -134,10 +134,10 @@ export function GastroEventsTab() {
 
   const getStatusBadge = (status: GastroEvent["status"]) => {
     const styles = {
-      active: "bg-[#FDF1B6] text-[#877669]",
-      full: "bg-[#FAD85D] text-[#877669]",
-      modified: "bg-[#BF726B]/20 text-[#BF726B]",
-      cancelled: "bg-[#E8654D]/10 text-[#E8654D]",
+      active: "bg-[var(--gm-accent-light)] text-[var(--gm-body)]",
+      full: "bg-[var(--gm-accent)] text-[var(--gm-body)]",
+      modified: "bg-[var(--gm-coral-hover)]/20 text-[var(--gm-coral-hover)]",
+      cancelled: "bg-[var(--gm-coral)]/10 text-[var(--gm-coral)]",
     }
     const labels = {
       active: "Activo",
@@ -158,7 +158,7 @@ export function GastroEventsTab() {
         {(user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-[#FAD85D] text-[#877669] hover:bg-[#FDF1B6]">
+              <Button className="bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]">
                 <Plus className="mr-2 h-4 w-4" />
                 Crear Evento
               </Button>
@@ -246,7 +246,7 @@ export function GastroEventsTab() {
                 <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button onClick={handleAddEvent} className="bg-[#FAD85D] text-[#877669] hover:bg-[#FDF1B6]">
+                <Button onClick={handleAddEvent} className="bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]">
                   Publicar Evento
                 </Button>
               </DialogFooter>
@@ -416,7 +416,7 @@ export function GastroEventsTab() {
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleEditEvent} className="bg-[#FAD85D] text-[#877669] hover:bg-[#FDF1B6]">
+            <Button onClick={handleEditEvent} className="bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]">
               Guardar Cambios
             </Button>
           </DialogFooter>

@@ -10,8 +10,8 @@ export function StatsTab() {
       value: "24",
       description: "+12% desde ayer",
       icon: Calendar,
-      color: "text-[#4A3B32]",
-      bgColor: "bg-[#FAD85D]",
+      color: "text-[var(--gm-heading)]",
+      bgColor: "bg-[var(--gm-accent)]",
       highlight: true,
     },
     {
@@ -19,8 +19,8 @@ export function StatsTab() {
       value: "156",
       description: "3 nuevos esta semana",
       icon: Users,
-      color: "text-[#4A3B32]",
-      bgColor: "bg-[#FDF1B6]",
+      color: "text-[var(--gm-heading)]",
+      bgColor: "bg-[var(--gm-accent-light)]",
       highlight: false,
     },
     {
@@ -28,8 +28,8 @@ export function StatsTab() {
       value: "8",
       description: "Menú de esta semana",
       icon: UtensilsCrossed,
-      color: "text-[#4A3B32]",
-      bgColor: "bg-[#FAD85D]",
+      color: "text-[var(--gm-heading)]",
+      bgColor: "bg-[var(--gm-accent)]",
       highlight: false,
     },
     {
@@ -37,8 +37,8 @@ export function StatsTab() {
       value: "4.5",
       description: "Basado en 48 opiniones",
       icon: Star,
-      color: "text-[#4A3B32]",
-      bgColor: "bg-[#FDF1B6]",
+      color: "text-[var(--gm-heading)]",
+      bgColor: "bg-[var(--gm-accent-light)]",
       highlight: true,
     },
   ]
@@ -49,16 +49,16 @@ export function StatsTab() {
         {stats.map((stat) => {
           const Icon = stat.icon
           return (
-            <Card key={stat.title} className="border-[#FAD85D] bg-[#FFFFFF]">
+            <Card key={stat.title} className="border-[var(--gm-accent)] bg-[var(--gm-surface)]">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-[#4A3B32]">{stat.title}</CardTitle>
+                <CardTitle className="text-sm font-medium text-[var(--gm-heading)]">{stat.title}</CardTitle>
                 <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${stat.bgColor}`}>
                   <Icon className={`h-5 w-5 ${stat.color}`} />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className={`text-2xl font-bold ${stat.highlight ? "text-[#E8654D]" : "text-[#4A3B32]"}`}>{stat.value}</div>
-                <p className="text-xs text-[#877669]">{stat.description}</p>
+                <div className={`text-2xl font-bold ${stat.highlight ? "text-[var(--gm-coral)]" : "text-[var(--gm-heading)]"}`}>{stat.value}</div>
+                <p className="text-xs text-[var(--gm-body)]">{stat.description}</p>
               </CardContent>
             </Card>
           )
@@ -66,10 +66,10 @@ export function StatsTab() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-1">
-        <Card className="border-[#FAD85D] bg-[#FFFFFF]">
+        <Card className="border-[var(--gm-accent)] bg-[var(--gm-surface)]">
           <CardHeader>
-            <CardTitle className="text-[#4A3B32]">Platos Más <span className="text-[#E8654D]">Populares</span></CardTitle>
-            <CardDescription className="text-[#877669]">Esta semana</CardDescription>
+            <CardTitle className="text-[var(--gm-heading)]">Platos Más <span className="text-[var(--gm-coral)]">Populares</span></CardTitle>
+            <CardDescription className="text-[var(--gm-body)]">Esta semana</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -79,8 +79,8 @@ export function StatsTab() {
                 { name: "Ensalada Mediterránea", orders: 32 },
               ].map((item, idx) => (
                 <div key={item.name} className="flex items-center justify-between">
-                  <span className="text-sm text-[#4A3B32]">{item.name}</span>
-                  <span className={`text-sm font-semibold ${idx === 0 ? "text-[#E8654D]" : "text-[#877669]"}`}>{item.orders} pedidos</span>
+                  <span className="text-sm text-[var(--gm-heading)]">{item.name}</span>
+                  <span className={`text-sm font-semibold ${idx === 0 ? "text-[var(--gm-coral)]" : "text-[var(--gm-body)]"}`}>{item.orders} pedidos</span>
                 </div>
               ))}
             </div>

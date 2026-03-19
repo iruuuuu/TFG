@@ -70,10 +70,10 @@ export function GastroEventsView() {
 
   const getStatusBadge = (status: GastroEvent["status"]) => {
     const styles = {
-      active: "bg-[#FDF1B6] text-[#877669]",
-      full: "bg-[#FAD85D] text-[#877669]",
-      modified: "bg-[#BF726B]/20 text-[#BF726B]",
-      cancelled: "bg-[#E8654D]/10 text-[#E8654D]",
+      active: "bg-[var(--gm-accent-light)] text-[var(--gm-body)]",
+      full: "bg-[var(--gm-accent)] text-[var(--gm-body)]",
+      modified: "bg-[var(--gm-coral-hover)]/20 text-[var(--gm-coral-hover)]",
+      cancelled: "bg-[var(--gm-coral)]/10 text-[var(--gm-coral)]",
     }
     const labels = {
       active: "Activo",
@@ -124,17 +124,17 @@ export function GastroEventsView() {
             const canReserve = !hasReserved && !isFull && !isPast && event.status === "active"
 
             return (
-              <Card key={event.id} className={hasReserved ? "border-[#E8654D] border-2" : ""}>
+              <Card key={event.id} className={hasReserved ? "border-[var(--gm-coral)] border-2" : ""}>
                 <CardHeader>
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="space-y-1 flex-1">
-                      <CardTitle className="text-xl text-[#877669]">{event.name}</CardTitle>
-                      <CardDescription className="text-[#877669]/70">{event.description}</CardDescription>
+                      <CardTitle className="text-xl text-[var(--gm-body)]">{event.name}</CardTitle>
+                      <CardDescription className="text-[var(--gm-body)]/70">{event.description}</CardDescription>
                     </div>
                     <div className="flex flex-row sm:flex-col gap-2 items-center sm:items-end flex-wrap">
                       {getStatusBadge(event.status)}
                       {hasReserved && (
-                        <Badge className="bg-[#FAD85D] text-[#877669]">
+                        <Badge className="bg-[var(--gm-accent)] text-[var(--gm-body)]">
                           <CheckCircle2 className="mr-1 h-3 w-3" />
                           Reservado
                         </Badge>
@@ -200,7 +200,7 @@ export function GastroEventsView() {
                         Cancelar mi Reserva
                       </Button>
                     ) : canReserve ? (
-                      <Button className="w-full bg-[#FAD85D] text-[#877669] hover:bg-[#FDF1B6]" onClick={() => handleReserve(event)}>
+                      <Button className="w-full bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]" onClick={() => handleReserve(event)}>
                         <CheckCircle2 className="mr-2 h-4 w-4" />
                         Reservar Plaza
                       </Button>

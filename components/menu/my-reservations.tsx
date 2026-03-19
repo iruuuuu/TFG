@@ -65,11 +65,11 @@ export function MyReservations() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmada":
-        return "bg-[#FDF1B6] text-[#877669]"
+        return "bg-[var(--gm-accent-light)] text-[var(--gm-body)]"
       case "cancelada":
-        return "bg-[#E8654D]/10 text-[#E8654D]"
+        return "bg-[var(--gm-coral)]/10 text-[var(--gm-coral)]"
       default:
-        return "bg-[#FAD85D] text-[#877669]"
+        return "bg-[var(--gm-accent)] text-[var(--gm-body)]"
     }
   }
 
@@ -116,7 +116,7 @@ export function MyReservations() {
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`h-5 w-5 cursor-pointer ${star <= (hover || value) ? "fill-[#FAD85D] text-[#FAD85D]" : "text-[#E5E5E5]"}`}
+            className={`h-5 w-5 cursor-pointer ${star <= (hover || value) ? "fill-[var(--gm-accent)] text-[var(--gm-accent)]" : "text-[#E5E5E5]"}`}
             onClick={() => onChange(star)}
             onMouseEnter={() => setHover(star)}
             onMouseLeave={() => setHover(0)}
@@ -128,31 +128,31 @@ export function MyReservations() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-[#FAD85D] bg-[#FFFFFF] shadow-sm">
+      <Card className="border-[var(--gm-accent)] bg-[var(--gm-surface)] shadow-sm">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <UtensilsCrossed className="h-5 w-5 text-[#4A3B32]" />
-            <CardTitle className="text-[#4A3B32]">Mis <span className="text-[#E8654D]">Reservas</span></CardTitle>
+            <UtensilsCrossed className="h-5 w-5 text-[var(--gm-heading)]" />
+            <CardTitle className="text-[var(--gm-heading)]">Mis <span className="text-[var(--gm-coral)]">Reservas</span></CardTitle>
           </div>
-          <CardDescription className="text-[#877669]">Gestiona tus reservas de comida</CardDescription>
+          <CardDescription className="text-[var(--gm-body)]">Gestiona tus reservas de comida</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-lg bg-[#FAD85D]/50 border border-[#FAD85D] p-4">
-              <div className="text-2xl font-bold text-[#E8654D]">{upcomingReservations.length}</div>
-              <p className="text-sm text-[#877669]">Reservas activas</p>
+            <div className="rounded-lg bg-[var(--gm-accent)]/50 border border-[var(--gm-accent)] p-4">
+              <div className="text-2xl font-bold text-[var(--gm-coral)]">{upcomingReservations.length}</div>
+              <p className="text-sm text-[var(--gm-body)]">Reservas activas</p>
             </div>
-            <div className="rounded-lg bg-[#FDF1B6]/50 border border-[#FAD85D] p-4">
-              <div className="text-2xl font-bold text-[#4A3B32]">
+            <div className="rounded-lg bg-[var(--gm-accent-light)]/50 border border-[var(--gm-accent)] p-4">
+              <div className="text-2xl font-bold text-[var(--gm-heading)]">
                 {reservations.filter((r) => r.status === "confirmada").length}
               </div>
-              <p className="text-sm text-[#877669]">Confirmadas</p>
+              <p className="text-sm text-[var(--gm-body)]">Confirmadas</p>
             </div>
-            <div className="rounded-lg bg-[#FFFFFF] border border-[#FAD85D] p-4">
-              <div className="text-2xl font-bold text-[#E8654D]">
+            <div className="rounded-lg bg-[var(--gm-surface)] border border-[var(--gm-accent)] p-4">
+              <div className="text-2xl font-bold text-[var(--gm-coral)]">
                 {reservations.filter((r) => r.status === "pendiente").length}
               </div>
-              <p className="text-sm text-[#877669]"><span className="text-[#E8654D]">Pendientes</span></p>
+              <p className="text-sm text-[var(--gm-body)]"><span className="text-[var(--gm-coral)]">Pendientes</span></p>
             </div>
           </div>
         </CardContent>
@@ -160,20 +160,20 @@ export function MyReservations() {
 
       {upcomingReservations.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-[#4A3B32]">Próximas <span className="text-[#E8654D]">Reservas</span></h2>
+          <h2 className="text-xl font-semibold text-[var(--gm-heading)]">Próximas <span className="text-[var(--gm-coral)]">Reservas</span></h2>
           <div className="grid gap-4">
             {upcomingReservations.map((reservation) => (
-              <Card key={reservation.id} className="border-[#FAD85D] bg-[#FFFFFF]">
+              <Card key={reservation.id} className="border-[var(--gm-accent)] bg-[var(--gm-surface)]">
                 <CardHeader>
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="space-y-1">
-                      <CardTitle className="flex items-center gap-2 text-[#4A3B32]">
-                        <Calendar className="h-5 w-5 text-[#4A3B32]" />
+                      <CardTitle className="flex items-center gap-2 text-[var(--gm-heading)]">
+                        <Calendar className="h-5 w-5 text-[var(--gm-heading)]" />
                         {reservation.day}, {new Date(reservation.date).toLocaleDateString("es-ES")}
                       </CardTitle>
-                      <CardDescription className="flex items-center gap-2 text-[#877669]">
+                      <CardDescription className="flex items-center gap-2 text-[var(--gm-body)]">
                         <Clock className="h-4 w-4" />
-                        Hora: <span className="text-[#E8654D] font-medium">{reservation.time}</span>
+                        Hora: <span className="text-[var(--gm-coral)] font-medium">{reservation.time}</span>
                       </CardDescription>
                     </div>
                     <Badge className={`${getStatusColor(reservation.status)} w-fit`}>
@@ -184,11 +184,11 @@ export function MyReservations() {
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <p className="mb-2 text-sm font-medium text-[#E8654D]">Platos seleccionados:</p>
+                      <p className="mb-2 text-sm font-medium text-[var(--gm-coral)]">Platos seleccionados:</p>
                       <ul className="space-y-1">
                         {reservation.items.map((item, idx) => (
-                          <li key={idx} className="flex items-center gap-2 text-sm text-[#4A3B32]">
-                            <div className="h-1.5 w-1.5 rounded-full bg-[#FAD85D]" />
+                          <li key={idx} className="flex items-center gap-2 text-sm text-[var(--gm-heading)]">
+                            <div className="h-1.5 w-1.5 rounded-full bg-[var(--gm-accent)]" />
                             {item.name}
                           </li>
                         ))}
@@ -213,7 +213,7 @@ export function MyReservations() {
                             variant="outline"
                             size="sm"
                             disabled={reservation.status !== "confirmada"}
-                            className="flex-1 border-[#FAD85D] bg-[#FDF1B6]/50 text-[#4A3B32] hover:bg-[#FAD85D]"
+                            className="flex-1 border-[var(--gm-accent)] bg-[var(--gm-accent-light)]/50 text-[var(--gm-heading)] hover:bg-[var(--gm-accent)]"
                           >
                             <Star className="mr-1 h-3 w-3" />
                             {reservation.status === "confirmada" ? "Valorar Platos" : "Esperando Cocina..."}
@@ -227,16 +227,16 @@ export function MyReservations() {
                           <form onSubmit={submitRatings} className="space-y-4">
                             {ratingDialogRes?.items.map((item: any) => (
                               <div key={item.id} className="space-y-2 p-3 border rounded-lg bg-gray-50/50">
-                                <Label className="font-semibold text-md text-[#E8654D]">{item.name}</Label>
+                                <Label className="font-semibold text-md text-[var(--gm-coral)]">{item.name}</Label>
                                 <div className="space-y-1">
-                                  <Label className="text-xs text-[#877669]">Puntuación</Label>
+                                  <Label className="text-xs text-[var(--gm-body)]">Puntuación</Label>
                                   <InteractiveStars 
                                     value={dishRatings[item.id]?.rating || 0} 
                                     onChange={(v) => setDishRatings(prev => ({...prev, [item.id]: {...prev[item.id], rating: v}}))} 
                                   />
                                 </div>
                                 <div className="space-y-1 mt-2">
-                                  <Label className="text-xs text-[#877669]">Comentario (Opcional)</Label>
+                                  <Label className="text-xs text-[var(--gm-body)]">Comentario (Opcional)</Label>
                                   <Textarea 
                                     placeholder="¡Estaba riquísimo!" 
                                     value={dishRatings[item.id]?.comment || ""}
@@ -248,7 +248,7 @@ export function MyReservations() {
                             ))}
                             <div className="flex justify-end gap-2 pt-2">
                               <Button type="button" variant="outline" onClick={() => setRatingDialogRes(null)}>Cancelar</Button>
-                              <Button type="submit" className="bg-[#FAD85D] text-[#877669] hover:bg-[#FDF1B6]">Enviar Valoraciones</Button>
+                              <Button type="submit" className="bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]">Enviar Valoraciones</Button>
                             </div>
                           </form>
                         </DialogContent>
@@ -256,7 +256,7 @@ export function MyReservations() {
 
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-[#E8654D] border-[#FAD85D] bg-transparent hover:bg-[#FDF0EC]">
+                          <Button variant="outline" size="sm" className="text-[var(--gm-coral)] border-[var(--gm-accent)] bg-transparent hover:bg-[var(--gm-coral-bg)]">
                             <Trash2 className="mr-1 h-3 w-3" />
                             Cancelar
                           </Button>

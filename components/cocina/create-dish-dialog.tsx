@@ -87,18 +87,18 @@ export function CreateDishDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-[#FAD85D] text-[#4A3B32] font-semibold hover:bg-[#E8E398] shadow-sm">
+        <Button className="bg-[var(--gm-accent)] text-[var(--gm-heading)] font-semibold hover:bg-[var(--gm-accent-hover)] shadow-sm">
           <Plus className="mr-2 h-4 w-4" />
           Añadir Plato al Catálogo
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-[#4A3B32]">Añadir Nuevo Plato</DialogTitle>
+          <DialogTitle className="text-[var(--gm-heading)]">Añadir Nuevo Plato</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-[#4A3B32]">Nombre del plato</Label>
+            <Label htmlFor="name" className="text-[var(--gm-heading)]">Nombre del plato</Label>
             <Input 
               id="name" 
               required 
@@ -107,7 +107,7 @@ export function CreateDishDialog() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-[#4A3B32]">Descripción</Label>
+            <Label htmlFor="description" className="text-[var(--gm-heading)]">Descripción</Label>
             <Textarea 
               id="description" 
               required 
@@ -116,7 +116,7 @@ export function CreateDishDialog() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="category" className="text-[#4A3B32]">Categoría</Label>
+            <Label htmlFor="category" className="text-[var(--gm-heading)]">Categoría</Label>
             <Select 
               value={formData.category} 
               onValueChange={(val) => setFormData(prev => ({ ...prev, category: val }))}
@@ -132,7 +132,7 @@ export function CreateDishDialog() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label className="text-[#4A3B32]">Alérgenos</Label>
+            <Label className="text-[var(--gm-heading)]">Alérgenos</Label>
             <Select 
               value="" 
               onValueChange={(val) => {
@@ -152,7 +152,7 @@ export function CreateDishDialog() {
             </Select>
             <div className="flex flex-wrap gap-2 pt-2">
               {formData.allergens.map(a => (
-                <Badge key={a} variant="secondary" className="bg-[#FAD85D] text-[#4A3B32] hover:bg-[#E8E398] flex items-center gap-1 px-3 py-1">
+                <Badge key={a} variant="secondary" className="bg-[var(--gm-accent)] text-[var(--gm-heading)] hover:bg-[var(--gm-accent-hover)] flex items-center gap-1 px-3 py-1">
                   {a}
                   <X className="h-3 w-3 cursor-pointer" onClick={() => toggleAllergen(a)} />
                 </Badge>
@@ -163,7 +163,7 @@ export function CreateDishDialog() {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="author" className="text-[#4A3B32]">Autor (Opcional - Atribuir a un Alumno)</Label>
+            <Label htmlFor="author" className="text-[var(--gm-heading)]">Autor (Opcional - Atribuir a un Alumno)</Label>
             <Select 
               value={formData.authorId || "none"} 
               onValueChange={(val) => setFormData(prev => ({ ...prev, authorId: val === "none" ? undefined : val }))}
@@ -178,11 +178,11 @@ export function CreateDishDialog() {
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-[#877669]">Las valoraciones de este plato se sumarán al perfil de este estudiante</p>
+            <p className="text-xs text-[var(--gm-body)]">Las valoraciones de este plato se sumarán al perfil de este estudiante</p>
           </div>
           <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button type="submit" className="bg-[#E8654D] text-white hover:bg-[#D94C3F]">Crear Plato</Button>
+            <Button type="submit" className="bg-[var(--gm-coral)] text-white hover:bg-[var(--gm-coral-hover)]">Crear Plato</Button>
           </div>
         </form>
       </DialogContent>

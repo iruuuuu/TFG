@@ -42,6 +42,26 @@
   /* Color especial para texto destacado */
   --highlight: #F2594B;
   --highlight-soft: #BF726B;
+
+  /* ─── GuMip Design Tokens ─────────────────────────────────────────────
+   * Prefix "gm-" avoids collisions with Tailwind/shadcn variables.
+   * Used via Tailwind arbitrary values: text-[var(--gm-heading)]
+   * Edit these to retheme the entire application in one place.
+   * ─────────────────────────────────────────────────────────────────── */
+  --gm-heading:       #4A3B32; /* Deep Cocoa  – titles, primary text      */
+  --gm-body:          #877669; /* Warm Taupe  – secondary / muted text    */
+  --gm-accent:        #FAD85D; /* Goldenrod   – primary brand accent      */
+  --gm-accent-light:  #FDF1B6; /* Light Gold  – hover backgrounds         */
+  --gm-accent-hover:  #E8E398; /* Gold darker – accent button hover       */
+  --gm-coral:         #E8654D; /* Coral       – highlight / destructive   */
+  --gm-coral-hover:   #BF726B; /* Coral dark  – destructive hover         */
+  --gm-coral-bg:      #FDF0EC; /* Coral tint  – destructive light bg      */
+  --gm-surface:       #FFFFFF; /* Card / dialog background                */
+  --gm-page-bg:       #FAF7F0; /* App page background                     */
+  --gm-muted-bg:      #F0F1F2; /* Neutral disabled background             */
+  --gm-neutral:       #E5E5E5; /* Neutral border / empty stars            */
+  --gm-success:       #2E7D32; /* Green – success text                    */
+  --gm-success-bg:    #E8F5E9; /* Green success bg                        */
 }
 
 .dark {

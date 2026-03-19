@@ -36,19 +36,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#FAF7F0] to-[#FDF1B6]/30 p-4">
-      <Card className="w-full max-w-md border-[#FAD85D] bg-[#FFFFFF] shadow-lg shadow-[#FAD85D]/20">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[var(--gm-page-bg)] to-[var(--gm-accent-light)]/30 p-4">
+      <Card className="w-full max-w-md border-[var(--gm-accent)] bg-[var(--gm-surface)] shadow-lg shadow-[var(--gm-accent)]/20">
         <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#FAD85D]">
-            <ChefHat className="h-8 w-8 text-[#4A3B32]" />
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--gm-accent)]">
+            <ChefHat className="h-8 w-8 text-[var(--gm-heading)]" />
           </div>
-          <CardTitle className="text-2xl font-bold text-[#4A3B32]">GuMip - IES Mendoza</CardTitle>
-          <CardDescription className="text-[#877669]">Sistema de Gestión de Cocina Escolar</CardDescription>
+          <CardTitle className="text-2xl font-bold text-[var(--gm-heading)]">GuMip - IES Mendoza</CardTitle>
+          <CardDescription className="text-[var(--gm-body)]">Sistema de Gestión de Cocina Escolar</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-[#4A3B32]">Correo electrónico</Label>
+              <Label htmlFor="email" className="text-[var(--gm-heading)]">Correo electrónico</Label>
               <Input
                 id="email"
                 type="email"
@@ -56,39 +56,39 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="border-[#FAD85D] bg-[#FFFFFF] text-[#4A3B32] focus:border-[#FAD85D] focus:ring-[#FAD85D]"
+                className="border-[var(--gm-accent)] bg-[var(--gm-surface)] text-[var(--gm-heading)] focus:border-[var(--gm-accent)] focus:ring-[var(--gm-accent)]"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-[#4A3B32]">Contraseña</Label>
+              <Label htmlFor="password" className="text-[var(--gm-heading)]">Contraseña</Label>
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="border-[#FAD85D] bg-[#FFFFFF] text-[#4A3B32] focus:border-[#FAD85D] focus:ring-[#FAD85D]"
+                className="border-[var(--gm-accent)] bg-[var(--gm-surface)] text-[var(--gm-heading)] focus:border-[var(--gm-accent)] focus:ring-[var(--gm-accent)]"
               />
             </div>
 
             {error && (
-              <Alert variant="destructive" className="border-[#E8654D]/30 bg-[#FDF0EC] text-[#E8654D]">
+              <Alert variant="destructive" className="border-[var(--gm-coral)]/30 bg-[var(--gm-coral-bg)] text-[var(--gm-coral)]">
                 <AlertDescription className="font-medium">{error}</AlertDescription>
               </Alert>
             )}
 
-            <Button type="submit" className="w-full bg-[#FAD85D] text-[#4A3B32] font-semibold hover:bg-[#E8E398] shadow-sm" disabled={isLoading}>
+            <Button type="submit" className="w-full bg-[var(--gm-accent)] text-[var(--gm-heading)] font-semibold hover:bg-[var(--gm-accent-hover)] shadow-sm" disabled={isLoading}>
               {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
             </Button>
           </form>
 
-          <div className="mt-6 space-y-2 rounded-lg bg-[#FDF1B6]/50 border border-[#FAD85D] p-4 text-sm">
-            <p className="font-semibold text-[#4A3B32]">Usuarios de demostración:</p>
-            <div className="space-y-1 text-[#877669]">
-              <p><span className="text-[#E8654D] font-medium">Admin:</span> admin@iesmendoza.es / admin123</p>
-              <p><span className="text-[#E8654D] font-medium">Cocina:</span> cocina@iesmendoza.es / cocina123</p>
-              <p><span className="text-[#E8654D] font-medium">Alumno:</span> alumno@iesmendoza.es / alumno123</p>
-              <p><span className="text-[#E8654D] font-medium">Maestro:</span> maestro@iesmendoza.es / maestro123</p>
+          <div className="mt-6 space-y-2 rounded-lg bg-[var(--gm-accent-light)]/50 border border-[var(--gm-accent)] p-4 text-sm">
+            <p className="font-semibold text-[var(--gm-heading)]">Usuarios de demostración:</p>
+            <div className="space-y-1 text-[var(--gm-body)]">
+              <p><span className="text-[var(--gm-coral)] font-medium">Admin:</span> admin@iesmendoza.es / admin123</p>
+              <p><span className="text-[var(--gm-coral)] font-medium">Cocina:</span> cocina@iesmendoza.es / cocina123</p>
+              <p><span className="text-[var(--gm-coral)] font-medium">Alumno:</span> alumno@iesmendoza.es / alumno123</p>
+              <p><span className="text-[var(--gm-coral)] font-medium">Maestro:</span> maestro@iesmendoza.es / maestro123</p>
             </div>
           </div>
         </CardContent>
