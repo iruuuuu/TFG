@@ -23,7 +23,7 @@ interface DataContextType {
 
   // Reservations
   reservations: Reservation[]
-  addReservation: (reservation: Omit<Reservation, "id">) => void
+  addReservation: (reservation: Omit<Reservation, "id" | "shortCode">) => void
   updateReservation: (id: string, updates: Partial<Reservation>) => void
   updateReservationKitchenStatus: (id: string, status: "pending" | "preparing" | "completed") => void
   cancelReservation: (id: string) => void
@@ -60,6 +60,7 @@ interface DataContextType {
   reserveEventSpot: (eventId: string, userId: string, userName: string) => boolean
   cancelEventReservation: (eventId: string, userId: string) => void
   getEventAttendees: (eventId: string) => EventReservation[]
+  markEventAttendance: (reservationId: string, attended: boolean) => void
 
   // Activity Logs
   activityLogs: ActivityLog[]
@@ -99,11 +100,12 @@ const initialReservations: Reservation[] = [
     id: "1",
     userId: "3",
     userName: "Profesor García",
-    date: new Date("2026-01-13"),
+    date: new Date(),
     menuItems: ["3", "1", "5"],
     status: "confirmed",
-    kitchenStatus: "completed",
+    kitchenStatus: "pending",
     createdAt: new Date("2026-01-10"),
+    shortCode: "V3X9A2"
   },
   {
     id: "2",
@@ -114,6 +116,7 @@ const initialReservations: Reservation[] = [
     status: "pending",
     kitchenStatus: "pending",
     createdAt: new Date("2026-01-11"),
+    shortCode: "L8M7K1"
   },
 ]
 
@@ -131,7 +134,7 @@ const initialGastroEvents: GastroEvent[] = [
     id: "1",
     name: "Menú Degustación Mediterráneo",
     description: "Experiencia culinaria con lo mejor de la cocina mediterránea. Incluye 5 platos de autor.",
-    date: new Date("2026-01-20T13:00:00"),
+    date: new Date(new Date().setHours(13, 0, 0, 0)),
     maxCapacity: 20,
     currentAttendees: 12,
     dishes: [
@@ -173,6 +176,7 @@ const initialEventReservations: EventReservation[] = [
     userName: "Profesor García",
     reservedAt: new Date("2026-01-12"),
     status: "confirmed",
+    attended: false
   },
 ]
 
@@ -236,10 +240,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }
 
   // Reservations
-  const addReservation = (reservation: Omit<Reservation, "id">) => {
+  const addReservation = (reservation: Omit<Reservation, "id" | "shortCode">) => {
     const newReservation: Reservation = {
       ...reservation,
       id: Date.now().toString(),
+      shortCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
     }
     setReservations([...reservations, newReservation])
   }
@@ -433,6 +438,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return eventReservations.filter((r) => r.eventId === eventId && r.status === "confirmed")
   }
 
+  const markEventAttendance = (reservationId: string, attended: boolean) => {
+    setEventReservations(prev => prev.map(res => 
+      res.id === reservationId ? { ...res, attended } : res
+    ))
+  }
+
   return (
     <DataContext.Provider
       value={{
@@ -466,6 +477,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         reserveEventSpot,
         cancelEventReservation,
         getEventAttendees,
+        markEventAttendance,
         activityLogs,
         logActivity,
       }}

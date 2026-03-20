@@ -18,17 +18,21 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Users, ChefHat, Edit, XCircle, Plus } from "lucide-react"
+import { Calendar, Users, ChefHat, Edit, XCircle, Plus, QrCode, CheckCircle } from "lucide-react"
+import { Scanner } from "@yudiel/react-qr-scanner"
 import { useToast } from "@/hooks/use-toast"
 import type { GastroEvent } from "@/lib/types"
 
 export function GastroEventsTab() {
-  const { gastroEvents, addGastroEvent, updateGastroEvent, cancelGastroEvent, getEventAttendees, logActivity } = useData()
+  const { gastroEvents, addGastroEvent, updateGastroEvent, cancelGastroEvent, getEventAttendees, markEventAttendance, users, logActivity } = useData()
   const { user } = useAuth()
   const { toast } = useToast()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isAttendanceDialogOpen, setIsAttendanceDialogOpen] = useState(false)
+  const [isScanning, setIsScanning] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<GastroEvent | null>(null)
+  const [selectedAttendanceEvent, setSelectedAttendanceEvent] = useState<GastroEvent | null>(null)
 
   const [formData, setFormData] = useState({
     name: "",
@@ -130,6 +134,40 @@ export function GastroEventsTab() {
         description: "Los usuarios reservados serán notificados",
       })
     }
+  }
+
+  const handleScanAttendance = (text: string, eventId: string) => {
+    if (!text) return
+
+    // Find user by email (from QR)
+    const foundUser = users.find(u => u.email.toLowerCase() === text.toLowerCase())
+    if (!foundUser) {
+      toast({ title: "QR Inválido", description: "El QR no corresponde a un maestro registrado.", variant: "destructive" })
+      return
+    }
+
+    const attendees = getEventAttendees(eventId)
+    const reservation = attendees.find(r => r.userId === foundUser.id)
+
+    if (!reservation) {
+      toast({ title: "Acceso Denegado", description: `${foundUser.name} no está en la lista de invitados.`, variant: "destructive" })
+      return
+    }
+
+    if (reservation.attended) {
+      toast({ title: "Aviso", description: `${foundUser.name} ya había hecho el Check-In.`, variant: "default" })
+      return
+    }
+
+    // Mark as attended
+    markEventAttendance(reservation.id, true)
+    
+    // Auto-close scanner and show success
+    setIsScanning(false)
+    toast({
+      title: "Check-In Exitoso",
+      description: `Acceso concedido a ${foundUser.name}.`,
+    })
   }
 
   const getStatusBadge = (status: GastroEvent["status"]) => {
@@ -310,23 +348,35 @@ export function GastroEventsTab() {
                   </ul>
                 </div>
 
-                <div className="text-xs text-muted-foreground">{attendees.length} reservas confirmadas</div>
+                <div className="text-xs text-muted-foreground mb-4">{attendees.length} reservas confirmadas</div>
 
                 {event.status !== "cancelled" && (user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
-                  <div className="flex gap-2 pt-2">
-                    <Button variant="outline" size="sm" onClick={() => openEditDialog(event)} className="flex-1">
-                      <Edit className="mr-2 h-3 w-3" />
-                      Editar
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleCancelEvent(event.id, event.name)}
-                      className="flex-1"
+                  <div className="space-y-2">
+                    <Button 
+                      onClick={() => {
+                        setSelectedAttendanceEvent(event)
+                        setIsAttendanceDialogOpen(true)
+                        setIsScanning(false)
+                      }}
+                      className="w-full bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]"
                     >
-                      <XCircle className="mr-2 h-3 w-3" />
-                      Cancelar Evento
+                      <Users className="mr-2 h-4 w-4" /> Gestionar Asistencia
                     </Button>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => openEditDialog(event)} className="flex-1">
+                        <Edit className="mr-2 h-3 w-3" />
+                        Editar
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleCancelEvent(event.id, event.name)}
+                        className="flex-1"
+                      >
+                        <XCircle className="mr-2 h-3 w-3" />
+                        Cancelar Evento
+                      </Button>
+                    </div>
                   </div>
                 )}
               </CardContent>
@@ -418,6 +468,91 @@ export function GastroEventsTab() {
             </Button>
             <Button onClick={handleEditEvent} className="bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]">
               Guardar Cambios
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isAttendanceDialogOpen} onOpenChange={setIsAttendanceDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{`Asistencia: ${selectedAttendanceEvent?.name || ""}`}</DialogTitle>
+            <DialogDescription>
+              Escanea el QR del invitado o marca su asistencia manualmente.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedAttendanceEvent && (
+            <div className="space-y-6 pt-4">
+              <div className="flex justify-between items-center bg-[var(--gm-surface)] p-4 rounded-lg border border-[var(--gm-accent)]">
+                <div>
+                  <h4 className="font-semibold text-[var(--gm-heading)]">Lector Automático</h4>
+                  <p className="text-xs text-muted-foreground">Utiliza la cámara para escanear el QR del maestro</p>
+                </div>
+                <Button 
+                  variant={isScanning ? "outline" : "default"}
+                  onClick={() => setIsScanning(!isScanning)}
+                  className={!isScanning ? "bg-[var(--gm-coral)] hover:bg-[var(--gm-coral-hover)] text-white" : "text-destructive border-destructive hover:bg-destructive/10"}
+                >
+                  {isScanning ? <XCircle className="mr-2 h-4 w-4" /> : <QrCode className="mr-2 h-4 w-4" />}
+                  {isScanning ? "Cerrar Escáner" : "Activar Escáner"}
+                </Button>
+              </div>
+
+              {isScanning && (
+                <div className="w-full max-w-sm mx-auto aspect-square overflow-hidden rounded-lg border-2 border-[var(--gm-accent)] relative">
+                  <Scanner 
+                    onScan={(detectedCodes) => {
+                      if (detectedCodes && detectedCodes.length > 0) {
+                        handleScanAttendance(detectedCodes[0].rawValue, selectedAttendanceEvent.id)
+                      }
+                    }}
+                  />
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <h4 className="text-lg font-bold border-b pb-2 text-[var(--gm-heading)]">Lista de Invitados</h4>
+                {(() => {
+                  const attendees = getEventAttendees(selectedAttendanceEvent.id)
+                  if (attendees.length === 0) {
+                    return <p className="text-sm text-muted-foreground text-center py-4">No hay reservas confirmadas para este evento.</p>
+                  }
+                  return (
+                    <div className="space-y-2">
+                      {attendees.map(res => (
+                        <div key={res.id} className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${res.attended ? "bg-blue-50/50 border-blue-200" : "bg-background"}`}>
+                          <div>
+                            <p className="font-semibold text-sm">{res.userName}</p>
+                            <p className="text-xs text-muted-foreground">ID: {res.userId}</p>
+                          </div>
+                          <Button 
+                            variant={res.attended ? "outline" : "default"}
+                            className={res.attended ? "" : "bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]"}
+                            size="sm"
+                            onClick={() => {
+                              markEventAttendance(res.id, !res.attended)
+                              toast({ 
+                                title: "Actualizado", 
+                                description: res.attended ? "Asistencia cancelada" : "Check-In realizado",
+                              })
+                            }}
+                          >
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            {res.attended ? "Desmarcar" : "Hacer Check-In"}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })()}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAttendanceDialogOpen(false)}>
+              Cerrar Panel
             </Button>
           </DialogFooter>
         </DialogContent>

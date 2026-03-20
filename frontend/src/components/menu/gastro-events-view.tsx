@@ -91,18 +91,29 @@ export function GastroEventsView() {
         <p className="text-muted-foreground">Reserva tu plaza en nuestros menús degustación</p>
       </div>
 
-      <div className="flex gap-2">
-        <Button variant={filter === "upcoming" ? "default" : "outline"} onClick={() => setFilter("upcoming")} size="sm">
+      <div className="flex flex-col sm:flex-row gap-2">
+        <Button
+          variant={filter === "upcoming" ? "default" : "outline"}
+          onClick={() => setFilter("upcoming")}
+          size="sm"
+          className="w-full sm:w-auto"
+        >
           Próximos Eventos
         </Button>
         <Button
           variant={filter === "available" ? "default" : "outline"}
           onClick={() => setFilter("available")}
           size="sm"
+          className="w-full sm:w-auto"
         >
           Con Plazas Disponibles
         </Button>
-        <Button variant={filter === "all" ? "default" : "outline"} onClick={() => setFilter("all")} size="sm">
+        <Button
+          variant={filter === "all" ? "default" : "outline"}
+          onClick={() => setFilter("all")}
+          size="sm"
+          className="w-full sm:w-auto"
+        >
           Todos
         </Button>
       </div>

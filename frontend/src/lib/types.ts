@@ -30,6 +30,7 @@ export interface WeeklyMenu {
 
 export interface Reservation {
   id: string
+  shortCode?: string
   userId: string
   userName: string
   date: Date
@@ -80,6 +81,7 @@ export interface EventReservation {
   userName: string
   reservedAt: Date
   status: "confirmed" | "cancelled"
+  attended?: boolean
 }
 
 export interface ActivityLog {

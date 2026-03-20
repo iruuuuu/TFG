@@ -42,6 +42,7 @@ export function MyReservations() {
 
     return {
       id: r.id,
+      shortCode: r.shortCode,
       date: new Date(r.date).toISOString().split('T')[0],
       day,
       items,
@@ -171,9 +172,16 @@ export function MyReservations() {
                         <Calendar className="h-5 w-5 text-[var(--gm-heading)]" />
                         {reservation.day}, {new Date(reservation.date).toLocaleDateString("es-ES")}
                       </CardTitle>
-                      <CardDescription className="flex items-center gap-2 text-[var(--gm-body)]">
-                        <Clock className="h-4 w-4" />
-                        Hora: <span className="text-[var(--gm-coral)] font-medium">{reservation.time}</span>
+                      <CardDescription className="flex flex-wrap items-center gap-2 text-[var(--gm-body)]">
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" />
+                          <span>Hora: <span className="text-[var(--gm-coral)] font-medium">{reservation.time}</span></span>
+                        </div>
+                        {reservation.shortCode && (
+                          <span className="px-2 py-0.5 bg-[var(--gm-accent)]/20 border border-[var(--gm-accent)] rounded text-xs font-mono text-[var(--gm-heading)]">
+                            {reservation.shortCode}
+                          </span>
+                        )}
                       </CardDescription>
                     </div>
                     <Badge className={`${getStatusColor(reservation.status)} w-fit`}>
