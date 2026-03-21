@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,17 +14,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { AlertCircle, Plus, Minus, Package } from "lucide-react"
-import { mockInventory } from "@/lib/mock-data"
+import { useData } from "@/lib/data-context"
 import type { InventoryItem } from "@/lib/types"
 
 export function InventoryTab() {
-  const [inventory, setInventory] = useState<InventoryItem[]>(mockInventory)
+  const { inventory, updateInventoryItem } = useData()
 
   const updateQuantity = (id: string, change: number) => {
-    setInventory((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity: Math.max(0, item.quantity + change) } : item)),
-    )
+    const item = inventory.find(i => i.id === id)
+    if (item) updateInventoryItem(id, Math.max(0, item.quantity + change))
   }
+
 
   const getStockStatus = (item: InventoryItem) => {
     if (item.quantity <= item.minStock) {
@@ -167,7 +166,7 @@ export function InventoryTab() {
                     value={item.quantity}
                     onChange={(e) => {
                       const newQuantity = Number.parseInt(e.target.value) || 0
-                      setInventory((prev) => prev.map((i) => (i.id === item.id ? { ...i, quantity: newQuantity } : i)))
+                      updateInventoryItem(item.id, newQuantity)
                     }}
                     className="h-8 text-center"
                   />

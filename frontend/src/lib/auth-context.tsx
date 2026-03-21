@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { User } from "./types"
+import { fetchApi } from "./api"
 
 interface AuthContextType {
   user: User | null
@@ -16,130 +17,87 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Mock users for demo
-let mockUsers: (User & { password: string })[] = [
-  {
-    id: "1",
-    email: "admin@iesmendoza.es",
-    password: "admin123",
-    name: "Administrador",
-    role: "admin",
-    createdAt: new Date(),
-  },
-  {
-    id: "2",
-    email: "cocina@iesmendoza.es",
-    password: "cocina123",
-    name: "Personal de Cocina",
-    role: "cocina",
-    createdAt: new Date(),
-  },
-  {
-    id: "3",
-    email: "maestro@iesmendoza.es",
-    password: "maestro123",
-    name: "Profesor García",
-    role: "maestro",
-    createdAt: new Date(),
-  },
-  {
-    id: "4",
-    email: "alumno@iesmendoza.es",
-    password: "alumno123",
-    name: "Carlos Estudiante",
-    role: "alumno-cocina",
-    createdAt: new Date(),
-  },
-]
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [usersList, setUsersList] = useState(mockUsers)
+  const [usersList, setUsersList] = useState<(User & { password?: string })[]>([])
 
+  // Load users from Flask on mount
   useEffect(() => {
-    // Check for stored mock users (to persist across reloads)
-    const storedUsers = localStorage.getItem("mockUsers")
-    if (storedUsers) {
-      try {
-        const parsed = JSON.parse(storedUsers)
-        setUsersList(parsed)
-        mockUsers = parsed
-      } catch (e) {}
-    }
-
-    // Check for stored user session
     const storedUser = localStorage.getItem("user")
     if (storedUser) {
-      setUser(JSON.parse(storedUser))
+      try { setUser(JSON.parse(storedUser)) } catch {}
     }
-    
-    // Automatically revert student roles at 14:30 on weekdays
+
+    fetchApi<any[]>('/auth/users')
+      .then(data => {
+        const mapped = data.map(u => ({
+          id: u.id.toString(),
+          email: u.email,
+          name: u.name,
+          role: Array.isArray(u.roles) ? u.roles[0] : 'alumno-cocina',
+          createdAt: new Date(),
+        }))
+        setUsersList(mapped)
+      })
+      .catch(() => {})
+      .finally(() => setIsLoading(false))
+  }, [])
+
+  // Auto-reset alumno-cocina-titular roles at 14:30 on weekdays
+  useEffect(() => {
     const checkAndResetRoles = () => {
       const now = new Date()
       const lastResetStr = localStorage.getItem('lastRoleReset')
       const lastReset = lastResetStr ? parseInt(lastResetStr) : 0
-      
-      const mostRecentTarget = new Date(now)
-      mostRecentTarget.setHours(14, 30, 0, 0)
-      
-      if (now.getTime() < mostRecentTarget.getTime()) {
-        mostRecentTarget.setDate(mostRecentTarget.getDate() - 1)
-      }
-      
-      while (mostRecentTarget.getDay() === 0 || mostRecentTarget.getDay() === 6) {
-        mostRecentTarget.setDate(mostRecentTarget.getDate() - 1)
-      }
-      
-      if (lastReset < mostRecentTarget.getTime()) {
+      const target = new Date(now)
+      target.setHours(14, 30, 0, 0)
+      if (now.getTime() < target.getTime()) target.setDate(target.getDate() - 1)
+      while (target.getDay() === 0 || target.getDay() === 6) target.setDate(target.getDate() - 1)
+
+      if (lastReset < target.getTime()) {
         setUsersList(prev => {
-          let hasChanges = false
-          const newUsers = prev.map(u => {
-            if (u.role === "alumno-cocina-titular") {
-              hasChanges = true
-              return { ...u, role: "alumno-cocina" as const }
+          const updated = prev.map(u =>
+            u.role === "alumno-cocina-titular" ? { ...u, role: "alumno-cocina" as const } : u
+          )
+          setUser(prevUser => {
+            if (prevUser?.role === "alumno-cocina-titular") {
+              const updatedUser = { ...prevUser, role: "alumno-cocina" as const }
+              localStorage.setItem("user", JSON.stringify(updatedUser))
+              return updatedUser
             }
-            return u
+            return prevUser
           })
-          
-          if (hasChanges) {
-            mockUsers = newUsers
-            localStorage.setItem("mockUsers", JSON.stringify(newUsers))
-            
-            setUser(prevUser => {
-              if (prevUser && prevUser.role === "alumno-cocina-titular") {
-                const updated = { ...prevUser, role: "alumno-cocina" as const }
-                localStorage.setItem("user", JSON.stringify(updated))
-                return updated
-              }
-              return prevUser
-            })
-          }
-          return newUsers
+          return updated
         })
-        
-        localStorage.setItem("lastRoleReset", now.getTime().toString())
+        localStorage.setItem('lastRoleReset', now.getTime().toString())
       }
     }
-
     checkAndResetRoles()
     const interval = setInterval(checkAndResetRoles, 60000)
-    
-    setIsLoading(false)
     return () => clearInterval(interval)
   }, [])
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    const foundUser = usersList.find((u) => u.email === email && u.password === password)
-
-    if (foundUser) {
-      const { password: _, ...userWithoutPassword } = foundUser
-      setUser(userWithoutPassword)
-      localStorage.setItem("user", JSON.stringify(userWithoutPassword))
+    try {
+      const res = await fetchApi<any>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password })
+      })
+      const u = res.user
+      const loggedIn: User = {
+        id: u.id.toString(),
+        email: u.email,
+        name: u.name,
+        role: Array.isArray(u.roles) ? u.roles[0] : 'alumno-cocina',
+        createdAt: new Date(),
+      }
+      setUser(loggedIn)
+      localStorage.setItem("user", JSON.stringify(loggedIn))
       return true
+    } catch {
+      return false
     }
-
-    return false
   }
 
   const logout = () => {
@@ -147,53 +105,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("user")
   }
 
-  const updateUser = (id: string, updates: Partial<User> & { password?: string }) => {
-    const newUsers = usersList.map(u => u.id === id ? { ...u, ...updates } : u)
-    setUsersList(newUsers)
-    mockUsers = newUsers
-    localStorage.setItem("mockUsers", JSON.stringify(newUsers))
-    
-    // If the currently logged in user is the one being updated, update their session
-    if (user && user.id === id) {
-      const updatedUser = { ...user, ...updates }
-      setUser(updatedUser as User)
-      localStorage.setItem("user", JSON.stringify(updatedUser))
-    }
+  const updateUser = async (id: string, updates: Partial<User> & { password?: string }) => {
+    try {
+      const body: any = {}
+      if (updates.name) body.name = updates.name
+      if (updates.email) body.email = updates.email
+      if (updates.password) body.password = updates.password
+      if (updates.role) body.roles = [updates.role]
+      await fetchApi(`/auth/users/${id}`, { method: 'PUT', body: JSON.stringify(body) })
+      setUsersList(prev => prev.map(u => u.id === id ? { ...u, ...updates } : u))
+      if (user && user.id === id) {
+        const updated = { ...user, ...updates }
+        setUser(updated as User)
+        localStorage.setItem("user", JSON.stringify(updated))
+      }
+    } catch (e) { console.error(e) }
   }
 
-  const addUser = (newUser: Omit<User, "id" | "createdAt"> & { password?: string }) => {
-    const nextId = (Math.max(...usersList.map(u => parseInt(u.id) || 0)) + 1).toString()
-    const newUsers = [
-      ...usersList,
-      {
-        ...newUser,
-        id: nextId,
-        password: newUser.password || "123456",
+  const addUser = async (newUser: Omit<User, "id" | "createdAt"> & { password?: string }) => {
+    try {
+      const res = await fetchApi<any>('/auth/users', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: newUser.email,
+          name: newUser.name,
+          password: newUser.password || '123456',
+          roles: [newUser.role]
+        })
+      })
+      const created: User = {
+        id: res.id.toString(),
+        email: res.email,
+        name: res.name,
+        role: Array.isArray(res.roles) ? res.roles[0] : 'alumno-cocina',
         createdAt: new Date(),
       }
-    ]
-    setUsersList(newUsers)
-    mockUsers = newUsers
-    localStorage.setItem("mockUsers", JSON.stringify(newUsers))
+      setUsersList(prev => [...prev, created])
+    } catch (e) { console.error(e) }
   }
 
-  const deleteUser = (id: string) => {
-    const newUsers = usersList.filter(u => u.id !== id)
-    setUsersList(newUsers)
-    mockUsers = newUsers
-    localStorage.setItem("mockUsers", JSON.stringify(newUsers))
+  const deleteUser = async (id: string) => {
+    try {
+      await fetchApi(`/auth/users/${id}`, { method: 'DELETE' })
+      setUsersList(prev => prev.filter(u => u.id !== id))
+    } catch (e) { console.error(e) }
   }
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      login, 
-      logout, 
-      isLoading, 
-      allUsers: usersList, 
-      updateUser,
-      addUser,
-      deleteUser
+    <AuthContext.Provider value={{
+      user, login, logout, isLoading,
+      allUsers: usersList,
+      updateUser, addUser, deleteUser
     }}>
       {children}
     </AuthContext.Provider>
@@ -202,8 +164,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
-  }
+  if (context === undefined) throw new Error("useAuth must be used within an AuthProvider")
   return context
 }
