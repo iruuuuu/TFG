@@ -2,31 +2,30 @@ from .. import db
 from datetime import datetime
 
 class Reserva(db.Model):
-    __tablename__ = 'reservas'
+    __tablename__ = 'reservations'
     
     id = db.Column(db.Integer, primary_key=True)
-    id_usuario = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-    id_plato = db.Column(db.Integer, db.ForeignKey('platos.id'), nullable=False)
-    fecha_reserva = db.Column(db.Date, nullable=False)
-    cantidad = db.Column(db.Integer, nullable=False)
-    estado = db.Column(db.String(20), default='pending')
-    notas = db.Column(db.Text)
-    creado_en = db.Column(db.DateTime, default=datetime.utcnow)
-    actualizado_en = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    reservation_date = db.Column(db.Date, nullable=False)
+    dish_id = db.Column(db.Integer, db.ForeignKey('dishes.id', ondelete='CASCADE'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    status = db.Column(db.Enum('pending', 'confirmed', 'cancelled', 'completed'), default='pending')
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
     usuario = db.relationship('Usuario', back_populates='reservas')
     plato = db.relationship('Plato', back_populates='reservas')
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'id_usuario': self.id_usuario,
-            'id_plato': self.id_plato,
-            'fecha_reserva': self.fecha_reserva.isoformat(),
-            'cantidad': self.cantidad,
-            'estado': self.estado,
-            'notas': self.notas,
-            'creado_en': self.creado_en.isoformat(),
-            'actualizado_en': self.actualizado_en.isoformat()
+            'id': str(self.id),
+            'id_usuario': str(self.user_id),
+            'id_plato': str(self.dish_id),
+            'fecha_reserva': self.reservation_date.isoformat() if self.reservation_date else None,
+            'cantidad': self.quantity,
+            'estado': self.status,
+            'notas': self.notes,
+            'creado_en': self.created_at.isoformat(),
+            'actualizado_en': self.updated_at.isoformat()
         }

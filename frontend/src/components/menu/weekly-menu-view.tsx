@@ -272,33 +272,57 @@ export function WeeklyMenuView() {
 
         {daysOfWeek.map((day) => (
           <TabsContent key={day.key} value={day.key} className="space-y-6">
-            <div className="space-y-4">
-              <div>
-                <h3 className="mb-3 text-lg font-semibold text-[var(--gm-heading)]"><span className="text-[var(--gm-coral)]">Entrantes</span></h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {weeklyMenu[day.key as keyof typeof weeklyMenu]?.entrantes.map((item) => (
-                    <MenuItemCard key={item.id} item={item} day={day.key} category="entrantes" />
-                  ))}
-                </div>
-              </div>
+            <div className="space-y-6">
+              {/* Entrantes Container */}
+              <Card className="border-[var(--gm-accent)] bg-[var(--gm-surface)] shadow-sm overflow-hidden">
+                <CardHeader className="bg-[var(--gm-accent)]/10 pb-4 border-b border-[var(--gm-accent)]/30">
+                  <h3 className="text-[1.1rem] font-semibold text-[var(--gm-heading)]"><span className="text-[var(--gm-coral)]">Entrantes</span></h3>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {weeklyMenu[day.key as keyof typeof weeklyMenu]?.entrantes.map((item) => (
+                      <MenuItemCard key={item.id} item={item} day={day.key} category="entrantes" />
+                    ))}
+                  </div>
+                  {(!weeklyMenu[day.key as keyof typeof weeklyMenu]?.entrantes || weeklyMenu[day.key as keyof typeof weeklyMenu]?.entrantes.length === 0) && (
+                    <p className="text-[var(--gm-body)] text-sm italic py-2">No hay entrantes programados para este día.</p>
+                  )}
+                </CardContent>
+              </Card>
 
-              <div>
-                <h3 className="mb-3 text-lg font-semibold text-[var(--gm-heading)]">Platos <span className="text-[var(--gm-coral)]">Principales</span></h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {weeklyMenu[day.key as keyof typeof weeklyMenu]?.principales.map((item) => (
-                    <MenuItemCard key={item.id} item={item} day={day.key} category="principales" />
-                  ))}
-                </div>
-              </div>
+              {/* Platos Principales Container */}
+              <Card className="border-[var(--gm-accent)] bg-[var(--gm-surface)] shadow-sm overflow-hidden">
+                <CardHeader className="bg-[var(--gm-accent)]/10 pb-4 border-b border-[var(--gm-accent)]/30">
+                  <h3 className="text-[1.1rem] font-semibold text-[var(--gm-heading)]">Platos <span className="text-[var(--gm-coral)]">Principales</span></h3>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {weeklyMenu[day.key as keyof typeof weeklyMenu]?.principales.map((item) => (
+                      <MenuItemCard key={item.id} item={item} day={day.key} category="principales" />
+                    ))}
+                  </div>
+                  {(!weeklyMenu[day.key as keyof typeof weeklyMenu]?.principales || weeklyMenu[day.key as keyof typeof weeklyMenu]?.principales.length === 0) && (
+                    <p className="text-[var(--gm-body)] text-sm italic py-2">No hay platos principales programados para este día.</p>
+                  )}
+                </CardContent>
+              </Card>
 
-              <div>
-                <h3 className="mb-3 text-lg font-semibold text-[var(--gm-heading)]"><span className="text-[var(--gm-coral)]">Postres</span></h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {weeklyMenu[day.key as keyof typeof weeklyMenu]?.postres.map((item) => (
-                    <MenuItemCard key={item.id} item={item} day={day.key} category="postres" />
-                  ))}
-                </div>
-              </div>
+              {/* Postres Container */}
+              <Card className="border-[var(--gm-accent)] bg-[var(--gm-surface)] shadow-sm overflow-hidden">
+                <CardHeader className="bg-[var(--gm-accent)]/10 pb-4 border-b border-[var(--gm-accent)]/30">
+                  <h3 className="text-[1.1rem] font-semibold text-[var(--gm-heading)]"><span className="text-[var(--gm-coral)]">Postres</span></h3>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {weeklyMenu[day.key as keyof typeof weeklyMenu]?.postres.map((item) => (
+                      <MenuItemCard key={item.id} item={item} day={day.key} category="postres" />
+                    ))}
+                  </div>
+                  {(!weeklyMenu[day.key as keyof typeof weeklyMenu]?.postres || weeklyMenu[day.key as keyof typeof weeklyMenu]?.postres.length === 0) && (
+                    <p className="text-[var(--gm-body)] text-sm italic py-2">No hay postres programados para este día.</p>
+                  )}
+                </CardContent>
+              </Card>
 
               <div className="flex justify-end gap-2 pt-4">
                 <Button

@@ -22,14 +22,23 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     CORS(app)
+    app.url_map.strict_slashes = False
 
     # Register blueprints (to be implemented)
     from .routes.dish_routes import dish_bp
     from .routes.reservation_routes import reservation_bp
     from .routes.auth_routes import auth_bp
+    from .routes.inventory_routes import inventory_bp
+    from .routes.event_routes import event_bp
+    from .routes.log_routes import log_bp
+    from .routes.rating_routes import rating_bp
 
     app.register_blueprint(dish_bp, url_prefix='/api/dishes')
     app.register_blueprint(reservation_bp, url_prefix='/api/reservations')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(inventory_bp, url_prefix='/api/inventory')
+    app.register_blueprint(event_bp, url_prefix='/api/events')
+    app.register_blueprint(log_bp, url_prefix='/api/logs')
+    app.register_blueprint(rating_bp, url_prefix='/api/ratings')
 
     return app

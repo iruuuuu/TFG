@@ -456,3 +456,48 @@ El script procesó automáticamente todos los archivos `.tsx` y `.ts` de los dir
 - Página de login.
 
 ---
+
+# **21/03/26**
+
+## **16. Reorganización del Panel de Cocina**
+
+Se ha reestructurado la navegación del panel de cocina para optimizar el flujo de trabajo diario, agrupando las funcionalidades de forma lógica:
+
+- **Pedidos (Interactivo)**: Desplegable que agrupa **Gestión de Pedidos** (para preparar platos) y **Buscador de Reservas** (para la entrega final).
+- **Previsión y Totales (Informativo)**: Renombrado de "Reservas Hoy" para reflejar mejor su función de dashboard de consulta rápida sin interacción directa.
+- **Jerarquía mejorada**: Se ha posicionado la previsión en la parte superior para ofrecer una visión clara de la carga de trabajo antes de entrar en la gestión operativa.
+
+## **17. Mejora de la Estética Premium y Branding**
+
+Se ha unificado la identidad visual de todo el panel siguiendo la paleta de colores corporativa (Coral):
+
+- ✅ **Iconografía**: Actualización de todos los iconos de categorías de primer nivel al color Coral corporativo.
+- ✅ **Tipografía y Estados**: Tipografía semi-bold y efectos de hover mejorados (`bg-accent/20`) para una navegación más intuitiva y elegante.
+- ✅ **Consistencia**: Unificación de los estilos de botones, bordes y espaciados en todos los menús laterales y desplegables.
+
+## **18. Optimización para Dispositivos Móviles (Aesthetics & Breathing)**
+
+Se han aplicado cambios críticos de UI para mejorar la experiencia en pantallas pequeñas, asegurando que los componentes "respiren":
+
+- ✅ **Modales Flotantes**: Modificación de `DialogContent` y `AlertDialogContent` para incluir un margen lateral de 16px (`w-[calc(100%-2rem)]`) y evitar que toquen los bordes de la pantalla.
+- ✅ **Redondeo Moderno**: Incremento del radio de las esquinas de `rounded-lg` a `rounded-2xl` en diálogos y `rounded-xl` en tarjetas para una estética más fluida y premium.
+- ✅ **Filtros Verticales**: Los botones de filtrado de eventos ahora se apilan verticalmente en móvil, eliminando el scroll horizontal y permitiendo ver todas las opciones de un vistazo.
+
+## **19. Sistema de Asistencia y Verificación de Eventos**
+
+- **Lector de QR integrado**: Implementación de un escáner en el panel de eventos que identifica al docente por su código QR y valida si está en la lista de invitados.
+- **Check-In Manual**: Lista de asistentes interactiva que permite marcar la presencia de un docente manualmente si el código no está disponible.
+- **Buscador de Reservas**: Nuevo sistema de búsqueda por código alfanumérico corto o correo electrónico para agilizar la entrega de pedidos en cocina.
+
+---
+
+## **20. Migración Completa al Backend (Python/Flask + MySQL)**
+
+Se ha llevado a cabo una reestructuración profunda de la arquitectura del proyecto, pasando de un frontend monolítico temporal con datos simulados a una arquitectura Cliente-Servidor robusta y definitiva:
+
+- ✅ **Nuevos Modelos ORM (SQLAlchemy)**: Creación e integración de modelos en Python para `Inventario`, `Eventos Gastro`, `Reservas de Eventos`, `Valoraciones` y `Logs de Actividad`, asegurando una coincidencia exacta con el esquema de la base de datos `gumip_db` en MySQL.
+- ✅ **API RESTful Completa (Blueprints)**: Desarrollo de controladores remotos (Endpoints) con soporte CRUD (CREATE, READ, UPDATE, DELETE) para todas las entidades, operando bajo el prefijo `/api/`.
+- ✅ **Servicio Conector (`api.ts`)**: Implementación de un cliente asíncrono centralizado y estandarizado en el frontend para peticiones `fetch` hacia el servidor Flask.
+- ✅ **Refactorización de Estados (`data-context.tsx`)**: Eliminación total del 100% de los arrays `mock`. Se ha integrado un enfoque de carga asíncrona para arrancar la aplicación, así como mutaciones locales (`Optimistic UI`) acompañadas de peticiones silenciosas de actualización. La aplicación presenta ahora persistencia viva de datos manejada 100% por el backend XAMPP.
+
+* **Hotfixes (21/Mar/2026):** Resolv� un problema de redirecciones 308 CORS configurando `strict_slashes=False` en Flask. Adicionalmente, cre� un traductor en `data-context.tsx` para mapear las categor�as en ingl�s de la base de datos (`starter`, `main`, `dessert`) a las claves en espa�ol que esperaba el frontend (`entrante`, `principal`, `postre`), restaurando as� la renderizaci�n visual del men� semanal. Tambi�n se mejor� la est�tica de las divisiones del men� usando componentes Card.
