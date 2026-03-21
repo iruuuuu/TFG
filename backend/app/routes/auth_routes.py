@@ -1,3 +1,4 @@
+import bcrypt
 from flask import Blueprint, jsonify, request
 from ..models.user import Usuario
 from .. import db
@@ -7,16 +8,56 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    user = Usuario.query.filter_by(email=data.get('email')).first()
+    email = data.get('email')
+    password = data.get('password')
     
-    if user and user.password == data.get('password'):
+    user = Usuario.query.filter_by(email=email).first()
+    
+    if not user:
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    # Check if the database password is a hash
+    is_valid = False
+    if user.password.startswith('$2'):
+        try:
+            # The hash in DB might be string, need bytes for bcrypt
+            if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+                is_valid = True
+        except Exception:
+            # Fallback if hash is malformed but looks like one
+            pass
+    
+    # Fallback for plain text if not a hash or check failed
+    if not is_valid and user.password == password:
+        is_valid = True
+
+    if is_valid:
         return jsonify({
             "message": "Login successful",
             "user": user.to_dict(),
-            "token": "dummy-jwt-token"
+            "token": f"dummy-token-{user.id}"
         }), 200
 
     return jsonify({"error": "Invalid credentials"}), 401
+
+@auth_bp.route('/me', methods=['GET'])
+def get_me():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    token = auth_header.split(' ')[1]
+    if not token.startswith('dummy-token-'):
+        return jsonify({"error": "Invalid token"}), 401
+    
+    try:
+        user_id = int(token.replace('dummy-token-', ''))
+        user = Usuario.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        return jsonify(user.to_dict()), 200
+    except ValueError:
+        return jsonify({"error": "Invalid token format"}), 401
 
 @auth_bp.route('/users', methods=['GET'])
 def get_users():
