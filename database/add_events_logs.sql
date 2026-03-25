@@ -1,4 +1,4 @@
-USE gumip_db;
+USE mendos_db;
 
 CREATE TABLE IF NOT EXISTS activity_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,

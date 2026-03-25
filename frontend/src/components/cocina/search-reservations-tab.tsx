@@ -93,7 +93,7 @@ export function SearchReservationsTab() {
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2">
-            <ScanLine className="h-6 w-6 text-[var(--gm-coral)]" />
+            <ScanLine className="h-6 w-6 text-(--md-coral)" />
             Buscador de Entregas
           </CardTitle>
           <CardDescription>Busca por el código alfanumérico o escanea el QR del maestro</CardDescription>
@@ -107,7 +107,7 @@ export function SearchReservationsTab() {
                 onChange={e => setSearchTerm(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && handleSearch()}
               />
-              <Button onClick={handleSearch} className="bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]">
+              <Button onClick={handleSearch} className="bg-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)">
                 <Search className="h-4 w-4 mr-2" /> Buscar
               </Button>
             </div>
@@ -117,7 +117,7 @@ export function SearchReservationsTab() {
             <Button 
               variant="outline" 
               onClick={() => setIsScanning(!isScanning)}
-              className={isScanning ? "border-[var(--gm-coral)] text-[var(--gm-coral)] bg-transparent" : "border-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent)]/20"}
+              className={isScanning ? "border-(--md-coral) text-(--md-coral) bg-transparent" : "border-(--md-accent) text-(--md-body) hover:bg-(--md-accent)/20"}
             >
               {isScanning ? <XCircle className="h-4 w-4 mr-2" /> : <QrCode className="h-4 w-4 mr-2" />}
               {isScanning ? "Cancelar Escáner" : "Escanear QR"}
@@ -125,7 +125,7 @@ export function SearchReservationsTab() {
           </div>
 
           {isScanning && (
-            <div className="w-full max-w-sm mx-auto aspect-square overflow-hidden rounded-lg border-2 border-[var(--gm-accent)] relative">
+            <div className="w-full max-w-sm mx-auto aspect-square overflow-hidden rounded-lg border-2 border-(--md-accent) relative">
               <Scanner 
                 onScan={(detectedCodes) => {
                   if (detectedCodes && detectedCodes.length > 0) {
@@ -138,7 +138,7 @@ export function SearchReservationsTab() {
 
           {foundUserId && !hasResults && !isScanning && (
             <div className="text-center py-8">
-              <p className="text-[var(--gm-heading)] font-semibold text-lg">Sin reservas hoy</p>
+              <p className="text-(--md-heading) font-semibold text-lg">Sin reservas hoy</p>
               <p className="text-muted-foreground">Este usuario no tiene platos ni eventos reservados para el día de hoy.</p>
             </div>
           )}
@@ -149,7 +149,7 @@ export function SearchReservationsTab() {
               
               {userReservations.length > 0 && (
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-[var(--gm-coral)] flex items-center gap-2">Platos Reservados</h4>
+                  <h4 className="font-semibold text-(--md-coral) flex items-center gap-2">Platos Reservados</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {userReservations.map(res => {
                       const prepared = res.kitchenStatus === "completed"
@@ -159,9 +159,9 @@ export function SearchReservationsTab() {
                             <div className="flex justify-between items-start">
                               <div>
                                 <CardTitle className="text-base">{res.userName}</CardTitle>
-                                <CardDescription>Código: <span className="font-mono bg-[var(--gm-accent)]/20 px-1 rounded">{res.shortCode || "N/A"}</span></CardDescription>
+                                <CardDescription>Código: <span className="font-mono bg-(--md-accent)/20 px-1 rounded">{res.shortCode || "N/A"}</span></CardDescription>
                               </div>
-                              <Badge className={prepared ? "bg-green-600 hover:bg-green-700" : "bg-[var(--gm-accent)] text-[var(--gm-body)]"}>
+                              <Badge className={prepared ? "bg-green-600 hover:bg-green-700" : "bg-(--md-accent) text-(--md-body)"}>
                                 {prepared ? "Preparada" : "Pendiente"}
                               </Badge>
                             </div>
@@ -195,7 +195,7 @@ export function SearchReservationsTab() {
 
               {userEvents.length > 0 && (
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-[var(--gm-coral)] flex items-center gap-2">Eventos Gastronómicos</h4>
+                  <h4 className="font-semibold text-(--md-coral) flex items-center gap-2">Eventos Gastronómicos</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {userEvents.map(er => {
                       const event = gastroEvents.find(ge => ge.id === er.eventId)!
@@ -240,3 +240,4 @@ export function SearchReservationsTab() {
     </div>
   )
 }
+

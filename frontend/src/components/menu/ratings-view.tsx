@@ -85,7 +85,7 @@ export function RatingsView() {
           <Star
             key={star}
             className={`h-5 w-5 ${interactive ? "cursor-pointer" : ""} ${
-              star <= (interactive ? hover || rating : rating) ? "fill-[var(--gm-accent)] text-[var(--gm-accent)]" : "text-[#E5E5E5]"
+              star <= (interactive ? hover || rating : rating) ? "fill-md-accent text-md-accent" : "text-[#E5E5E5]"
             }`}
             onClick={() => interactive && onRatingChange?.(star)}
             onMouseEnter={() => interactive && setHover(star)}
@@ -98,19 +98,19 @@ export function RatingsView() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-[var(--gm-accent)] bg-[var(--gm-accent-light)]/30">
+      <Card className="border-md-accent bg-md-accent-light/30">
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <Star className="h-5 w-5 text-[var(--gm-coral)]" />
-                <CardTitle className="text-[var(--gm-body)]">Valoraciones y Opiniones</CardTitle>
+                <Star className="h-5 w-5 text-md-coral" />
+                <CardTitle className="text-md-body">Valoraciones y Opiniones</CardTitle>
               </div>
-              <CardDescription className="text-[var(--gm-body)]/70">Comparte tu experiencia y lee opiniones de otros usuarios</CardDescription>
+              <CardDescription className="text-md-body/70">Comparte tu experiencia y lee opiniones de otros usuarios</CardDescription>
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]">
+                <Button className="w-full sm:w-auto bg-md-accent text-md-body hover:bg-md-accent-light">
                   <Plus className="mr-2 h-4 w-4" />
                   Nueva Valoración
                 </Button>
@@ -164,7 +164,7 @@ export function RatingsView() {
                     <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                       Cancelar
                     </Button>
-                    <Button type="submit" className="bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]">
+                    <Button type="submit" className="bg-md-accent text-md-body hover:bg-md-accent-light">
                       Enviar Valoración
                     </Button>
                   </div>
@@ -176,8 +176,10 @@ export function RatingsView() {
       </Card>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {menuItems.map((item) => {
-          const itemRatings = ratings.filter((r) => r.menuItemId === item.id)
+        {menuItems
+          .filter((item) => ratings.some((r) => r.menuItemId === item.id))
+          .map((item) => {
+            const itemRatings = ratings.filter((r) => r.menuItemId === item.id)
           const avgRating = getAverageRating(item.id)
 
           return (
@@ -224,10 +226,10 @@ export function RatingsView() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-[var(--gm-coral)]" />
-            <CardTitle className="text-[var(--gm-body)]">Todas las Valoraciones</CardTitle>
+            <MessageSquare className="h-5 w-5 text-md-coral" />
+            <CardTitle className="text-md-body">Todas las Valoraciones</CardTitle>
           </div>
-          <CardDescription className="text-[var(--gm-body)]/70">Historial completo de opiniones</CardDescription>
+          <CardDescription className="text-md-body/70">Historial completo de opiniones</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -246,7 +248,7 @@ export function RatingsView() {
                         <div className="flex items-center gap-2">
                           <span className="font-semibold">{rating.userName}</span>
                           <span className="text-sm text-muted-foreground">valoró</span>
-                          <span className="font-medium text-[var(--gm-coral)]">{menuItem?.name}</span>
+                          <span className="font-medium text-md-coral">{menuItem?.name}</span>
                         </div>
                         <StarRating rating={rating.rating} />
                         {rating.comment && <p className="text-sm text-muted-foreground">{rating.comment}</p>}
@@ -266,3 +268,4 @@ export function RatingsView() {
     </div>
   )
 }
+

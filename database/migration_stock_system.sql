@@ -1,7 +1,7 @@
 -- Migración para actualizar base de datos existente a sistema de stock
 -- Ejecutar DESPUÉS del schema.sql inicial si ya hay datos en la BD
 
-USE gumip_db;
+USE mendos_db;
 
 -- PASO 1: Eliminar tabla weekly_menus (ya no necesaria)
 DROP TABLE IF EXISTS weekly_menus;

@@ -25,7 +25,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-amber-50">
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-orange-600">GuMip</h1>
+          <h1 className="text-4xl font-bold text-orange-600">Mendos</h1>
           <p className="mt-2 text-gray-600">Sistema de Gestión de Cocina</p>
           <p className="text-sm text-gray-500">IES Mendoza</p>
         </div>

@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Calendar, AlertCircle, ChevronLeft, ChevronRight, ChefHat } from "lucide-react"
 import { useData } from "@/lib/data-context"
 import { useAuth } from "@/lib/auth-context"
+import Link from "next/link"
 import type { MenuItem } from "@/lib/types"
 
 function getStaticInitialDays() {
@@ -187,29 +188,29 @@ export function WeeklyMenuView() {
 
     return (
       <Card
-        className={`cursor-pointer transition-all border-[var(--gm-accent)] bg-[var(--gm-surface)] ${
-          selected ? "ring-2 ring-[var(--gm-accent)] bg-[var(--gm-accent-light)]/50" : "hover:bg-[var(--gm-accent-light)]/30"
-        }`}
-        onClick={() => toggleItem(day, category, item.id)}
+        className={`transition-all border-(--md-accent) bg-(--md-surface) ${
+          selected ? "ring-2 ring-(--md-accent) bg-(--md-accent-light)/50" : ""
+        } ${user ? "cursor-pointer hover:bg-(--md-accent-light)/30" : "opacity-80"}`}
+        onClick={() => user && toggleItem(day, category, item.id)}
       >
         <CardContent className="p-4">
           <div className="space-y-2">
             <div className="flex items-start justify-between">
-              <h4 className="font-semibold text-[var(--gm-heading)]">{item.name}</h4>
-              {selected && <Badge className="bg-[var(--gm-accent)] text-[var(--gm-heading)] font-semibold">Seleccionado</Badge>}
+              <h4 className="font-semibold text-(--md-heading)">{item.name}</h4>
+              {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold">Seleccionado</Badge>}
             </div>
-            <p className="text-sm text-[var(--gm-body)]">{item.description}</p>
+            <p className="text-sm text-(--md-body)">{item.description}</p>
             {item.authorName && (
               <div className="flex items-center gap-1.5 pt-1">
-                <ChefHat className="h-3.5 w-3.5 text-[var(--gm-coral)]" />
-                <span className="text-xs font-medium text-[var(--gm-body)]">Creado por: <span className="text-[var(--gm-heading)]">{item.authorName}</span></span>
+                <ChefHat className="h-3.5 w-3.5 text-(--md-coral)" />
+                <span className="text-xs font-medium text-(--md-body)">Creado por: <span className="text-(--md-heading)">{item.authorName}</span></span>
               </div>
             )}
             {item.allergens.length > 0 && (
               <div className="flex flex-wrap gap-1 pt-2">
-                <span className="text-xs text-[var(--gm-coral)] font-medium">Alérgenos:</span>
+                <span className="text-xs text-(--md-coral) font-medium">Alérgenos:</span>
                 {item.allergens.map((allergen) => (
-                  <Badge key={allergen} variant="outline" className="text-xs border-[var(--gm-accent)] text-[var(--gm-body)]">
+                  <Badge key={allergen} variant="outline" className="text-xs border-(--md-accent) text-(--md-body)">
                     {allergen}
                   </Badge>
                 ))}
@@ -223,13 +224,13 @@ export function WeeklyMenuView() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-[var(--gm-accent)] bg-[var(--gm-surface)] shadow-sm">
+      <Card className="border-(--md-accent) bg-(--md-surface) shadow-sm">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-[var(--gm-heading)]" />
-            <CardTitle className="text-[var(--gm-heading)]">Semana del <span className="text-[var(--gm-coral)]">{weekRange || "..."}</span></CardTitle>
+            <Calendar className="h-5 w-5 text-(--md-heading)" />
+            <CardTitle className="text-(--md-heading)">Semana del <span className="text-(--md-coral)">{weekRange || "..."}</span></CardTitle>
           </div>
-          <CardDescription className="text-[var(--gm-body)]">Selecciona tus platos favoritos para cada día y haz tu reserva</CardDescription>
+          <CardDescription className="text-(--md-body)">Selecciona tus platos favoritos para cada día y haz tu reserva</CardDescription>
         </CardHeader>
       </Card>
 
@@ -239,20 +240,20 @@ export function WeeklyMenuView() {
             variant="outline" 
             size="icon" 
             onClick={scrollLeft}
-            className="absolute left-1 z-10 h-8 w-8 bg-[var(--gm-surface)] border-[var(--gm-accent)] text-[var(--gm-heading)] shadow-sm hover:bg-[var(--gm-accent)]/50 md:hidden"
+            className="absolute left-1 z-10 h-8 w-8 bg-(--md-surface) border-(--md-accent) text-(--md-heading) shadow-sm hover:bg-(--md-accent)/50 md:hidden"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
           <TabsList 
             ref={scrollContainerRef}
-            className="flex w-full overflow-x-auto justify-start h-fit min-h-[56px] items-stretch bg-[var(--gm-surface)] border border-[var(--gm-accent)] p-1 gap-1 rounded-lg px-10 md:px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            className="flex w-full overflow-x-auto justify-start h-fit min-h-[56px] items-stretch bg-(--md-surface) border border-(--md-accent) p-1 gap-1 rounded-lg px-10 md:px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
             {daysOfWeek.map((day) => (
               <TabsTrigger 
                 key={day.key} 
                 value={day.key} 
-                className="flex-1 min-w-[110px] h-full flex flex-col gap-1 data-[state=active]:bg-[var(--gm-accent)] data-[state=active]:text-[var(--gm-heading)] text-[var(--gm-body)] hover:bg-[var(--gm-accent)]/50 hover:text-[var(--gm-heading)] transition-colors py-2 rounded-md whitespace-nowrap"
+                className="flex-1 min-w-[110px] h-full flex flex-col gap-1 data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2 rounded-md whitespace-nowrap"
               >
                 <span className="font-medium text-[15px] leading-none">{day.label}</span>
                 <span className="text-xs">{day.date}</span>
@@ -264,7 +265,7 @@ export function WeeklyMenuView() {
             variant="outline" 
             size="icon" 
             onClick={scrollRight}
-            className="absolute right-1 z-10 h-8 w-8 bg-[var(--gm-surface)] border-[var(--gm-accent)] text-[var(--gm-heading)] shadow-sm hover:bg-[var(--gm-accent)]/50 md:hidden"
+            className="absolute right-1 z-10 h-8 w-8 bg-(--md-surface) border-(--md-accent) text-(--md-heading) shadow-sm hover:bg-(--md-accent)/50 md:hidden"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -274,9 +275,9 @@ export function WeeklyMenuView() {
           <TabsContent key={day.key} value={day.key} className="space-y-6">
             <div className="space-y-6">
               {/* Entrantes Container */}
-              <Card className="border-[var(--gm-accent)] bg-[var(--gm-surface)] shadow-sm overflow-hidden">
-                <CardHeader className="bg-[var(--gm-accent)]/10 pb-4 border-b border-[var(--gm-accent)]/30">
-                  <h3 className="text-[1.1rem] font-semibold text-[var(--gm-heading)]"><span className="text-[var(--gm-coral)]">Entrantes</span></h3>
+              <Card className="border-(--md-accent) bg-(--md-surface) shadow-sm overflow-hidden">
+                <CardHeader className="bg-(--md-accent)/10 pb-4 border-b border-(--md-accent)/30">
+                  <h3 className="text-[1.1rem] font-semibold text-(--md-heading)"><span className="text-(--md-coral)">Entrantes</span></h3>
                 </CardHeader>
                 <CardContent className="pt-6">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -285,15 +286,15 @@ export function WeeklyMenuView() {
                     ))}
                   </div>
                   {(!weeklyMenu[day.key as keyof typeof weeklyMenu]?.entrantes || weeklyMenu[day.key as keyof typeof weeklyMenu]?.entrantes.length === 0) && (
-                    <p className="text-[var(--gm-body)] text-sm italic py-2">No hay entrantes programados para este día.</p>
+                    <p className="text-(--md-body) text-sm italic py-2">No hay entrantes programados para este día.</p>
                   )}
                 </CardContent>
               </Card>
 
               {/* Platos Principales Container */}
-              <Card className="border-[var(--gm-accent)] bg-[var(--gm-surface)] shadow-sm overflow-hidden">
-                <CardHeader className="bg-[var(--gm-accent)]/10 pb-4 border-b border-[var(--gm-accent)]/30">
-                  <h3 className="text-[1.1rem] font-semibold text-[var(--gm-heading)]">Platos <span className="text-[var(--gm-coral)]">Principales</span></h3>
+              <Card className="border-(--md-accent) bg-(--md-surface) shadow-sm overflow-hidden">
+                <CardHeader className="bg-(--md-accent)/10 pb-4 border-b border-(--md-accent)/30">
+                  <h3 className="text-[1.1rem] font-semibold text-(--md-heading)">Platos <span className="text-(--md-coral)">Principales</span></h3>
                 </CardHeader>
                 <CardContent className="pt-6">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -302,15 +303,15 @@ export function WeeklyMenuView() {
                     ))}
                   </div>
                   {(!weeklyMenu[day.key as keyof typeof weeklyMenu]?.principales || weeklyMenu[day.key as keyof typeof weeklyMenu]?.principales.length === 0) && (
-                    <p className="text-[var(--gm-body)] text-sm italic py-2">No hay platos principales programados para este día.</p>
+                    <p className="text-(--md-body) text-sm italic py-2">No hay platos principales programados para este día.</p>
                   )}
                 </CardContent>
               </Card>
 
               {/* Postres Container */}
-              <Card className="border-[var(--gm-accent)] bg-[var(--gm-surface)] shadow-sm overflow-hidden">
-                <CardHeader className="bg-[var(--gm-accent)]/10 pb-4 border-b border-[var(--gm-accent)]/30">
-                  <h3 className="text-[1.1rem] font-semibold text-[var(--gm-heading)]"><span className="text-[var(--gm-coral)]">Postres</span></h3>
+              <Card className="border-(--md-accent) bg-(--md-surface) shadow-sm overflow-hidden">
+                <CardHeader className="bg-(--md-accent)/10 pb-4 border-b border-(--md-accent)/30">
+                  <h3 className="text-[1.1rem] font-semibold text-(--md-heading)"><span className="text-(--md-coral)">Postres</span></h3>
                 </CardHeader>
                 <CardContent className="pt-6">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -319,7 +320,7 @@ export function WeeklyMenuView() {
                     ))}
                   </div>
                   {(!weeklyMenu[day.key as keyof typeof weeklyMenu]?.postres || weeklyMenu[day.key as keyof typeof weeklyMenu]?.postres.length === 0) && (
-                    <p className="text-[var(--gm-body)] text-sm italic py-2">No hay postres programados para este día.</p>
+                    <p className="text-(--md-body) text-sm italic py-2">No hay postres programados para este día.</p>
                   )}
                 </CardContent>
               </Card>
@@ -327,7 +328,7 @@ export function WeeklyMenuView() {
               <div className="flex justify-end gap-2 pt-4">
                 <Button
                   variant="outline"
-                  className="border-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]/50 bg-transparent"
+                  className="border-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)/50 bg-transparent"
                   onClick={() => {
                     setSelectedItems((prev) => {
                       const newState = { ...prev }
@@ -340,11 +341,24 @@ export function WeeklyMenuView() {
                 >
                   Limpiar Selección
                 </Button>
-                <Button onClick={makeReservation} className="bg-[var(--gm-accent)] text-[var(--gm-heading)] font-semibold hover:bg-[var(--gm-accent-hover)] shadow-sm">
+                <Button 
+                  onClick={makeReservation} 
+                  disabled={!user}
+                  className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent-hover) shadow-sm disabled:opacity-50 disabled:grayscale"
+                >
                   <Calendar className="mr-2 h-4 w-4" />
-                  Hacer Reserva
+                  {user ? "Hacer Reserva" : "Inicia sesión para reservar"}
                 </Button>
               </div>
+              {!user && (
+                <div className="bg-(--md-accent)/10 border border-(--md-accent) rounded-lg p-3 flex items-center gap-3 mt-4">
+                  <AlertCircle className="h-5 w-5 text-(--md-coral) shrink-0" />
+                  <p className="text-sm text-(--md-heading)">
+                    Estás viendo el menú como <span className="font-bold">invitado</span>. 
+                    <Link href="/login" className="ml-1 underline font-bold hover:text-(--md-coral) transition-colors">Inicia sesión</Link> para poder seleccionar platos y realizar tu reserva.
+                  </p>
+                </div>
+              )}
             </div>
           </TabsContent>
         ))}
@@ -352,3 +366,4 @@ export function WeeklyMenuView() {
     </div>
   )
 }
+

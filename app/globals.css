@@ -4,68 +4,77 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Paleta GuMip - Calida con amarillos y rojo para texto destacado */
-  --background: #FFFDF7;
-  --foreground: #737373;
-  --card: #FFFEF9;
-  --card-foreground: #737373;
-  --popover: #FFFEF9;
-  --popover-foreground: #737373;
-  --primary: #F2EDA2;
-  --primary-foreground: #5C5C5C;
-  --secondary: #F2EFC2;
-  --secondary-foreground: #5C5C5C;
+  /* Paleta Mendos - Calida con amarillos y rojo para texto destacado */
+  --background: #FAF7F0;
+  --foreground: #4A3B32;
+  --card: #FFFFFF;
+  --card-foreground: #4A3B32;
+  --popover: #FFFFFF;
+  --popover-foreground: #4A3B32;
+  --primary: #FAD85D;
+  --primary-foreground: #4A3B32;
+  --secondary: #FDF1B6;
+  --secondary-foreground: #4A3B32;
   --muted: #FBF9F0;
-  --muted-foreground: #737373;
-  --accent: #F2EDA2;
-  --accent-foreground: #5C5C5C;
-  --destructive: #F2594B;
+  --muted-foreground: #877669;
+  --accent: #FDF1B6;
+  --accent-foreground: #4A3B32;
+  --destructive: #E8654D;
   --destructive-foreground: #FFFFFF;
-  --border: #F2EDA2;
-  --input: #F5F3E8;
-  --ring: #F2EDA2;
-  --chart-1: #F2EDA2;
-  --chart-2: #F2EFC2;
-  --chart-3: #E8E4C9;
-  --chart-4: #D4CFA8;
-  --chart-5: #737373;
-  --radius: 0.625rem;
-  --sidebar: #FFFEF9;
-  --sidebar-foreground: #737373;
-  --sidebar-primary: #F2EDA2;
-  --sidebar-primary-foreground: #5C5C5C;
-  --sidebar-accent: #F2EFC2;
-  --sidebar-accent-foreground: #5C5C5C;
-  --sidebar-border: #F2EDA2;
-  --sidebar-ring: #F2EDA2;
+  --border: #FAD85D;
+  --input: #FAD85D;
+  --ring: #FAD85D;
+  --chart-1: #FAD85D;
+  --chart-2: #FDF1B6;
+  --chart-3: #E8E398;
+  --chart-4: #4A3B32;
+  --chart-5: #877669;
+  --radius: 0.75rem;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #4A3B32;
+  --sidebar-primary: #FAD85D;
+  --sidebar-primary-foreground: #4A3B32;
+  --sidebar-accent: #FDF1B6;
+  --sidebar-accent-foreground: #4A3B32;
+  --sidebar-border: #FAD85D;
+  --sidebar-ring: #FAD85D;
   
   /* Color especial para texto destacado */
   --highlight: #F2594B;
   --highlight-soft: #BF726B;
 
-  /* ─── GuMip Design Tokens ─────────────────────────────────────────────
-   * Prefix "gm-" avoids collisions with Tailwind/shadcn variables.
-   * Used via Tailwind arbitrary values: text-[var(--gm-heading)]
-   * Edit these to retheme the entire application in one place.
+  /* ─── Mendos Design Tokens ─────────────────────────────────────────────
+   * Prefix "md-" matches the Mendos brand components.
+   * Prefix "gm-" kept as alias for legacy compatibility.
    * ─────────────────────────────────────────────────────────────────── */
-  --gm-heading:       #4A3B32; /* Deep Cocoa  – titles, primary text      */
-  --gm-body:          #877669; /* Warm Taupe  – secondary / muted text    */
-  --gm-accent:        #FAD85D; /* Goldenrod   – primary brand accent      */
-  --gm-accent-light:  #FDF1B6; /* Light Gold  – hover backgrounds         */
-  --gm-accent-hover:  #E8E398; /* Gold darker – accent button hover       */
-  --gm-coral:         #E8654D; /* Coral       – highlight / destructive   */
-  --gm-coral-hover:   #BF726B; /* Coral dark  – destructive hover         */
-  --gm-coral-bg:      #FDF0EC; /* Coral tint  – destructive light bg      */
-  --gm-surface:       #FFFFFF; /* Card / dialog background                */
-  --gm-page-bg:       #FAF7F0; /* App page background                     */
-  --gm-muted-bg:      #F0F1F2; /* Neutral disabled background             */
-  --gm-neutral:       #E5E5E5; /* Neutral border / empty stars            */
-  --gm-success:       #2E7D32; /* Green – success text                    */
-  --gm-success-bg:    #E8F5E9; /* Green success bg                        */
+  --md-heading:       #4A3B32; /* Deep Cocoa  – titles, primary text      */
+  --md-body:          #877669; /* Warm Taupe  – secondary / muted text    */
+  --md-accent:        #FAD85D; /* Goldenrod   – primary brand accent      */
+  --md-accent-light:  #FDF1B6; /* Light Gold  – hover backgrounds         */
+  --md-accent-hover:  #E8E398; /* Gold darker – accent button hover       */
+  --md-coral:         #E8654D; /* Coral       – highlight / destructive   */
+  --md-coral-hover:   #BF726B; /* Coral dark  – destructive hover         */
+  --md-coral-bg:      #FDF0EC; /* Coral tint  – destructive light bg      */
+  --md-surface:       #FFFFFF; /* Card / dialog background                */
+  --md-page-bg:       #FAF7F0; /* App page background                     */
+  --md-muted-bg:      #F0F1F2; /* Neutral disabled background             */
+  --md-neutral:       #E5E5E5; /* Neutral border / empty stars            */
+  --md-success:       #2E7D32; /* Green – success text                    */
+  --md-success-bg:    #E8F5E9; /* Green success bg                        */
+
+  /* Aliases for gm- to avoid breaking older components */
+  --gm-heading: var(--md-heading);
+  --gm-body: var(--md-body);
+  --gm-accent: var(--md-accent);
+  --gm-accent-light: var(--md-accent-light);
+  --gm-coral: var(--md-coral);
+  --gm-surface: var(--md-surface);
+  --gm-page-bg: var(--md-page-bg);
+  --gm-neutral: var(--md-neutral);
 }
 
 .dark {
-  /* Paleta GuMip Dark Mode */
+  /* Paleta Mendos Dark Mode */
   --background: #1A1A1A;
   --foreground: #E5E5E5;
   --card: #262626;
@@ -139,6 +148,17 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Mendos Design Tokens for utility classes */
+  --color-md-heading: var(--md-heading);
+  --color-md-body: var(--md-body);
+  --color-md-accent: var(--md-accent);
+  --color-md-accent-light: var(--md-accent-light);
+  --color-md-accent-hover: var(--md-accent-hover);
+  --color-md-coral: var(--md-coral);
+  --color-md-surface: var(--md-surface);
+  --color-md-page-bg: var(--md-page-bg);
+  --color-md-neutral: var(--md-neutral);
 }
 
 @layer base {

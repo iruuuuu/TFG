@@ -1,95 +1,75 @@
-# GuMip - Sistema de Gestión de Cocina IES Mendoza
+# Mendos - Sistema de Gestión de Cocina IES Mendoza
 
 ## Arquitectura del Proyecto
 
-- **Frontend**: React + TypeScript
-- **Backend**: PHP + Symfony 6
+- **Frontend**: Next.js + Tailwind CSS
+- **Backend**: Python + Flask
 - **Base de Datos**: MySQL
-- **IA/Servicios**: Python + Flask
 
 ## Estructura del Proyecto
 
 ```
-gumip/
-├── frontend/          # Aplicación React
-├── backend/           # API Symfony
-├── database/          # Scripts SQL
-├── ai-services/       # Servicios Python IA
-└── docs/              # Documentación
+mendos/
+├── frontend/          # Aplicación principal Next.js
+├── backend/           # API Flask
+├── database/          # Scripts SQL e histórico
+└── brain/             # Documentación de diseño y desarrollo (Antigravity)
 ```
 
 ## Requisitos
 
-### Backend (Symfony)
-- PHP 8.1+
-- Composer
-- Symfony CLI
-
-### Frontend (React)
-- Node.js 18+
-- npm o yarn
-
-### Base de Datos
+### Backend (Flask)
+- Python 3.10+
 - MySQL 8.0+
 
-### Servicios IA
-- Python 3.10+
-- pip
+### Frontend (Next.js)
+- Node.js 18+
+- npm
 
 ## Instalación
 
 ### 1. Base de Datos
 ```bash
+# Crear la base de datos mendos_db en MySQL
 mysql -u root -p < database/schema.sql
-mysql -u root -p gumip_db < database/seed.sql
+# (Opcional) Cargar datos de prueba
+mysql -u root -p mendos_db < database/seed.sql
 ```
 
 ### 2. Backend
 ```bash
 cd backend
-composer install
-php bin/console doctrine:migrations:migrate
-php bin/console lexik:jwt:generate-keypair
-symfony server:start
+python -m venv venv
+# Activar venv (Windows: .\venv\Scripts\activate | Unix: source venv/bin/activate)
+pip install -r app/requirements.txt
+python run.py
 ```
 
 ### 3. Frontend
 ```bash
 cd frontend
 npm install
-npm start
-```
-
-### 4. Servicios IA
-```bash
-cd ai-services
-pip install -r requirements.txt
-python app.py
+npm run dev
 ```
 
 ## Configuración
 
 ### Backend (.env)
 ```
-DATABASE_URL="mysql://user:password@127.0.0.1:3306/gumip_db"
-JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
-JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
-AI_SERVICE_URL=http://localhost:5000
-```
-
-### Frontend (.env)
-```
-REACT_APP_API_URL=http://localhost:8000/api
+DATABASE_URL=mysql+pymysql://root@localhost/mendos_db
+SECRET_KEY=supersecretkey-for-tfg-mendoza
+FLASK_APP=run.py
+FLASK_ENV=development
 ```
 
 ## URLs
 
 - Frontend: http://localhost:3000
-- Backend API: http://localhost:8000/api
-- Servicios IA: http://localhost:5000
+- Backend API: http://localhost:8000
 
 ## Usuarios de Prueba
 
 - Admin: admin@iesmendoza.es / admin123
 - Cocina: cocina@iesmendoza.es / cocina123
 - Maestro: maestro@iesmendoza.es / maestro123
+- Alumno: alumno@iesmendoza.es / alumno123

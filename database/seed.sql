@@ -1,5 +1,5 @@
--- GuMip Database Seed Data (Actualizado para Sistema de Stock)
-USE gumip_db;
+-- Mendos Database Seed Data (Actualizado para Sistema de Stock)
+USE mendos_db;
 
 -- Usuarios (contraseñas hasheadas con bcrypt)
 -- Contraseñas: admin123, cocina123, maestro123

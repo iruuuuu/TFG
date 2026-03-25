@@ -22,7 +22,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "admin")) {
-      router.push("/login")
+      router.push("/")
     }
   }, [user, isLoading, router])
 
@@ -38,62 +38,62 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--gm-page-bg)] to-[var(--gm-accent-light)]/20">
+    <div className="min-h-screen bg-gradient-to-br from-(--md-page-bg) to-(--md-accent-light)/20">
       <Navbar />
       <main className="px-6 py-6 md:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col md:flex-row gap-8">
           
           {/* Mobile Sticky Header Wrapper */}
-          <div className="md:hidden sticky top-0 z-40 -mx-6 px-6 pt-[10px] pb-0 mb-6 bg-[var(--gm-page-bg)]/80 backdrop-blur-xl">
+          <div className="md:hidden sticky top-0 z-40 -mx-6 px-6 pt-[10px] pb-0 mb-6 bg-(--md-page-bg)/80 backdrop-blur-xl">
             {/* Menu Box */}
-            <div className="bg-[var(--gm-surface)]/95 border border-[var(--gm-accent)]/80 rounded-2xl p-4 flex items-center justify-between shadow-sm shadow-[var(--gm-accent)]/20">
+            <div className="bg-(--md-surface)/95 border border-(--md-accent)/80 rounded-2xl p-4 flex items-center justify-between shadow-sm shadow-(--md-accent)/20">
               <div>
-                <h1 className="text-xl font-bold text-[var(--gm-heading)]">Panel <span className="text-[var(--gm-coral)]">Admin</span></h1>
+                <h1 className="text-xl font-bold text-(--md-heading)">Panel <span className="text-(--md-coral)">Admin</span></h1>
               </div>
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="icon" className="border-[var(--gm-accent)] bg-[var(--gm-surface)] text-[var(--gm-heading)] hover:bg-[var(--gm-accent)]/50">
+                  <Button variant="outline" size="icon" className="border-(--md-accent) bg-(--md-surface) text-(--md-heading) hover:bg-(--md-accent)/50">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[300px] border-r-[var(--gm-accent)] bg-[var(--gm-page-bg)]">
+                <SheetContent side="left" className="w-[300px] border-r-(--md-accent) bg-(--md-page-bg)">
                   <SheetHeader className="mb-6 mt-4">
-                    <SheetTitle className="text-left text-2xl font-bold text-[var(--gm-heading)]">
-                      Panel <span className="text-[var(--gm-coral)]">Admin</span>
+                    <SheetTitle className="text-left text-2xl font-bold text-(--md-heading)">
+                      Panel <span className="text-(--md-coral)">Admin</span>
                     </SheetTitle>
                   </SheetHeader>
-                  <div className="flex flex-col h-auto w-full bg-[var(--gm-surface)] border border-[var(--gm-accent)] p-1 gap-1 rounded-md">
+                  <div className="flex flex-col h-auto w-full bg-(--md-surface) border border-(--md-accent) p-1 gap-1 rounded-md">
                     <button 
                       onClick={() => { setActiveTab("stats"); setIsMobileMenuOpen(false) }} 
-                      className={`text-left px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-colors ${activeTab === "stats" ? "bg-[var(--gm-accent)] text-[var(--gm-heading)]" : "text-[var(--gm-body)] hover:bg-[var(--gm-accent)]/50 hover:text-[var(--gm-heading)]"}`}
+                      className={`text-left px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-colors ${activeTab === "stats" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading)"}`}
                     >
                       <BarChart3 className="h-4 w-4" />
                       Estadísticas
                     </button>
                     <button 
                       onClick={() => { setActiveTab("menus"); setIsMobileMenuOpen(false) }} 
-                      className={`text-left px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-colors ${activeTab === "menus" ? "bg-[var(--gm-accent)] text-[var(--gm-heading)]" : "text-[var(--gm-body)] hover:bg-[var(--gm-accent)]/50 hover:text-[var(--gm-heading)]"}`}
+                      className={`text-left px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-colors ${activeTab === "menus" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading)"}`}
                     >
                       <Utensils className="h-4 w-4" />
                       Menús
                     </button>
                     <button 
                       onClick={() => { setActiveTab("reservations"); setIsMobileMenuOpen(false) }} 
-                      className={`text-left px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-colors ${activeTab === "reservations" ? "bg-[var(--gm-accent)] text-[var(--gm-heading)]" : "text-[var(--gm-body)] hover:bg-[var(--gm-accent)]/50 hover:text-[var(--gm-heading)]"}`}
+                      className={`text-left px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-colors ${activeTab === "reservations" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading)"}`}
                     >
                       <CalendarDays className="h-4 w-4" />
                       Reservas
                     </button>
                     <button 
                       onClick={() => { setActiveTab("users"); setIsMobileMenuOpen(false) }} 
-                      className={`text-left px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-colors ${activeTab === "users" ? "bg-[var(--gm-accent)] text-[var(--gm-heading)]" : "text-[var(--gm-body)] hover:bg-[var(--gm-accent)]/50 hover:text-[var(--gm-heading)]"}`}
+                      className={`text-left px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-colors ${activeTab === "users" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading)"}`}
                     >
                       <Users className="h-4 w-4" />
                       Usuarios
                     </button>
                     <button 
                       onClick={() => { setActiveTab("activity"); setIsMobileMenuOpen(false) }} 
-                      className={`text-left px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-colors ${activeTab === "activity" ? "bg-[var(--gm-accent)] text-[var(--gm-heading)]" : "text-[var(--gm-body)] hover:bg-[var(--gm-accent)]/50 hover:text-[var(--gm-heading)]"}`}
+                      className={`text-left px-4 py-3 rounded-sm font-medium flex items-center gap-3 transition-colors ${activeTab === "activity" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading)"}`}
                     >
                       <Activity className="h-4 w-4" />
                       Actividad
@@ -106,28 +106,28 @@ export default function AdminPage() {
 
           <aside className="hidden md:block w-full md:w-64 shrink-0 space-y-6">
             <div>
-              <h1 className="text-3xl font-bold text-[var(--gm-heading)]">Panel <span className="text-[var(--gm-coral)]">Admin</span></h1>
-              <p className="text-[var(--gm-body)]">Gestión global del sistema</p>
+              <h1 className="text-3xl font-bold text-(--md-heading)">Panel <span className="text-(--md-coral)">Admin</span></h1>
+              <p className="text-(--md-body)">Gestión global del sistema</p>
             </div>
 
-            <TabsList className="flex flex-col h-auto w-full bg-[var(--gm-surface)] border border-[var(--gm-accent)] p-1 gap-1">
-              <TabsTrigger value="stats" className="w-full justify-start data-[state=active]:bg-[var(--gm-accent)] data-[state=active]:text-[var(--gm-heading)] text-[var(--gm-body)] hover:bg-[var(--gm-accent)]/50 hover:text-[var(--gm-heading)] transition-colors py-2.5 gap-3">
+            <TabsList className="flex flex-col h-auto w-full bg-(--md-surface) border border-(--md-accent) p-1 gap-1">
+              <TabsTrigger value="stats" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2.5 gap-3">
                 <BarChart3 className="h-4 w-4" />
                 Estadísticas
               </TabsTrigger>
-              <TabsTrigger value="menus" className="w-full justify-start data-[state=active]:bg-[var(--gm-accent)] data-[state=active]:text-[var(--gm-heading)] text-[var(--gm-body)] hover:bg-[var(--gm-accent)]/50 hover:text-[var(--gm-heading)] transition-colors py-2.5 gap-3">
+              <TabsTrigger value="menus" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2.5 gap-3">
                 <Utensils className="h-4 w-4" />
                 Menús
               </TabsTrigger>
-              <TabsTrigger value="reservations" className="w-full justify-start data-[state=active]:bg-[var(--gm-accent)] data-[state=active]:text-[var(--gm-heading)] text-[var(--gm-body)] hover:bg-[var(--gm-accent)]/50 hover:text-[var(--gm-heading)] transition-colors py-2.5 gap-3">
+              <TabsTrigger value="reservations" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2.5 gap-3">
                 <CalendarDays className="h-4 w-4" />
                 Reservas
               </TabsTrigger>
-              <TabsTrigger value="users" className="w-full justify-start data-[state=active]:bg-[var(--gm-accent)] data-[state=active]:text-[var(--gm-heading)] text-[var(--gm-body)] hover:bg-[var(--gm-accent)]/50 hover:text-[var(--gm-heading)] transition-colors py-2.5 gap-3">
+              <TabsTrigger value="users" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2.5 gap-3">
                 <Users className="h-4 w-4" />
                 Usuarios
               </TabsTrigger>
-              <TabsTrigger value="activity" className="w-full justify-start data-[state=active]:bg-[var(--gm-accent)] data-[state=active]:text-[var(--gm-heading)] text-[var(--gm-body)] hover:bg-[var(--gm-accent)]/50 hover:text-[var(--gm-heading)] transition-colors py-2.5 gap-3">
+              <TabsTrigger value="activity" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2.5 gap-3">
                 <Activity className="h-4 w-4" />
                 Actividad
               </TabsTrigger>
@@ -160,3 +160,4 @@ export default function AdminPage() {
     </div>
   )
 }
+

@@ -6,7 +6,7 @@ import { fetchApi } from "./api"
 
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => Promise<boolean>
+  login: (email: string, password: string) => Promise<User | null>
   logout: () => void
   isLoading: boolean
   allUsers: (User & { password?: string })[]
@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval)
   }, [])
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<User | null> => {
     try {
       const res = await fetchApi<any>('/auth/login', {
         method: 'POST',
@@ -94,9 +94,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setUser(loggedIn)
       localStorage.setItem("user", JSON.stringify(loggedIn))
-      return true
+      return loggedIn
     } catch {
-      return false
+      return null
     }
   }
 
@@ -167,3 +167,4 @@ export function useAuth() {
   if (context === undefined) throw new Error("useAuth must be used within an AuthProvider")
   return context
 }
+

@@ -25,24 +25,45 @@ export default function LoginPage() {
     setError("")
     setIsLoading(true)
 
-    const success = await login(email, password)
-
-    if (success) {
-      router.push("/")
+    const user = await login(email, password)
+    
+    if (user) {
+      if (user.role === 'admin') {
+        router.push("/admin")
+      } else if (user.role === 'cocina' || user.role.startsWith('alumno-cocina')) {
+        router.push("/cocina")
+      } else if (user.role === 'maestro') {
+        router.push("/menu")
+      } else {
+        router.push("/")
+      }
     } else {
       setError("Credenciales incorrectas. Por favor, inténtalo de nuevo.")
       setIsLoading(false)
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6 bg-gradient-to-br from-[var(--gm-page-bg)] to-[var(--gm-accent-light)]/20">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[var(--gm-accent)] border-r-transparent"></div>
+          <p className="mt-4 text-[var(--gm-body)]">Cargando Mendos...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[var(--gm-page-bg)] to-[var(--gm-accent-light)]/30 p-4">
-      <Card className="w-full max-w-md border-[var(--gm-accent)] bg-[var(--gm-surface)] shadow-lg shadow-[var(--gm-accent)]/20">
-        <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--gm-accent)]">
-            <ChefHat className="h-8 w-8 text-[var(--gm-heading)]" />
+    <div className="flex min-h-screen items-center justify-center p-6 bg-gradient-to-br from-[var(--gm-page-bg)] to-[var(--gm-accent-light)]/20">
+      <Card className="w-full max-w-md border-[var(--gm-accent)] bg-[var(--gm-surface)] shadow-lg">
+        <CardHeader className="space-y-1">
+          <div className="flex justify-center mb-4">
+            <div className="h-16 w-16 rounded-2xl bg-[var(--gm-accent)] flex items-center justify-center">
+              <ChefHat className="h-10 w-10 text-[var(--gm-heading)]" />
+            </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-[var(--gm-heading)]">GuMip - IES Mendoza</CardTitle>
+          <CardTitle className="text-2xl font-bold text-[var(--gm-heading)] text-center">Mendos - IES Mendoza</CardTitle>
           <CardDescription className="text-[var(--gm-body)]">Sistema de Gestión de Cocina Escolar</CardDescription>
         </CardHeader>
         <CardContent>

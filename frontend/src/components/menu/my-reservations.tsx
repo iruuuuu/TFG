@@ -66,11 +66,11 @@ export function MyReservations() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmada":
-        return "bg-[var(--gm-accent-light)] text-[var(--gm-body)]"
+        return "bg-md-accent-light text-md-body"
       case "cancelada":
-        return "bg-[var(--gm-coral)]/10 text-[var(--gm-coral)]"
+        return "bg-md-coral/10 text-md-coral"
       default:
-        return "bg-[var(--gm-accent)] text-[var(--gm-body)]"
+        return "bg-md-accent text-md-body"
     }
   }
 
@@ -117,7 +117,7 @@ export function MyReservations() {
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`h-5 w-5 cursor-pointer ${star <= (hover || value) ? "fill-[var(--gm-accent)] text-[var(--gm-accent)]" : "text-[#E5E5E5]"}`}
+            className={`h-5 w-5 cursor-pointer ${star <= (hover || value) ? "fill-(--md-accent) text-(--md-accent)" : "text-[#E5E5E5]"}`}
             onClick={() => onChange(star)}
             onMouseEnter={() => setHover(star)}
             onMouseLeave={() => setHover(0)}
@@ -129,31 +129,31 @@ export function MyReservations() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-[var(--gm-accent)] bg-[var(--gm-surface)] shadow-sm">
+      <Card className="border-(--md-accent) bg-(--md-surface) shadow-sm">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <UtensilsCrossed className="h-5 w-5 text-[var(--gm-heading)]" />
-            <CardTitle className="text-[var(--gm-heading)]">Mis <span className="text-[var(--gm-coral)]">Reservas</span></CardTitle>
+            <UtensilsCrossed className="h-5 w-5 text-(--md-heading)" />
+            <CardTitle className="text-(--md-heading)">Mis <span className="text-(--md-coral)">Reservas</span></CardTitle>
           </div>
-          <CardDescription className="text-[var(--gm-body)]">Gestiona tus reservas de comida</CardDescription>
+          <CardDescription className="text-(--md-body)">Gestiona tus reservas de comida</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-lg bg-[var(--gm-accent)]/50 border border-[var(--gm-accent)] p-4">
-              <div className="text-2xl font-bold text-[var(--gm-coral)]">{upcomingReservations.length}</div>
-              <p className="text-sm text-[var(--gm-body)]">Reservas activas</p>
+            <div className="rounded-lg bg-(--md-accent)/50 border border-(--md-accent) p-4">
+              <div className="text-2xl font-bold text-(--md-coral)">{upcomingReservations.length}</div>
+              <p className="text-sm text-(--md-body)">Reservas activas</p>
             </div>
-            <div className="rounded-lg bg-[var(--gm-accent-light)]/50 border border-[var(--gm-accent)] p-4">
-              <div className="text-2xl font-bold text-[var(--gm-heading)]">
+            <div className="rounded-lg bg-(--md-accent-light)/50 border border-(--md-accent) p-4">
+              <div className="text-2xl font-bold text-(--md-heading)">
                 {reservations.filter((r) => r.status === "confirmada").length}
               </div>
-              <p className="text-sm text-[var(--gm-body)]">Confirmadas</p>
+              <p className="text-sm text-(--md-body)">Confirmadas</p>
             </div>
-            <div className="rounded-lg bg-[var(--gm-surface)] border border-[var(--gm-accent)] p-4">
-              <div className="text-2xl font-bold text-[var(--gm-coral)]">
+            <div className="rounded-lg bg-(--md-surface) border border-(--md-accent) p-4">
+              <div className="text-2xl font-bold text-(--md-coral)">
                 {reservations.filter((r) => r.status === "pendiente").length}
               </div>
-              <p className="text-sm text-[var(--gm-body)]"><span className="text-[var(--gm-coral)]">Pendientes</span></p>
+              <p className="text-sm text-(--md-body)"><span className="text-(--md-coral)">Pendientes</span></p>
             </div>
           </div>
         </CardContent>
@@ -161,24 +161,24 @@ export function MyReservations() {
 
       {upcomingReservations.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-[var(--gm-heading)]">Próximas <span className="text-[var(--gm-coral)]">Reservas</span></h2>
+          <h2 className="text-xl font-semibold text-(--md-heading)">Próximas <span className="text-(--md-coral)">Reservas</span></h2>
           <div className="grid gap-4">
             {upcomingReservations.map((reservation) => (
-              <Card key={reservation.id} className="border-[var(--gm-accent)] bg-[var(--gm-surface)]">
+              <Card key={reservation.id} className="border-(--md-accent) bg-(--md-surface)">
                 <CardHeader>
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="space-y-1">
-                      <CardTitle className="flex items-center gap-2 text-[var(--gm-heading)]">
-                        <Calendar className="h-5 w-5 text-[var(--gm-heading)]" />
+                      <CardTitle className="flex items-center gap-2 text-(--md-heading)">
+                        <Calendar className="h-5 w-5 text-(--md-heading)" />
                         {reservation.day}, {new Date(reservation.date).toLocaleDateString("es-ES")}
                       </CardTitle>
-                      <CardDescription className="flex flex-wrap items-center gap-2 text-[var(--gm-body)]">
+                      <CardDescription className="flex flex-wrap items-center gap-2 text-(--md-body)">
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          <span>Hora: <span className="text-[var(--gm-coral)] font-medium">{reservation.time}</span></span>
+                          <span>Hora: <span className="text-(--md-coral) font-medium">{reservation.time}</span></span>
                         </div>
                         {reservation.shortCode && (
-                          <span className="px-2 py-0.5 bg-[var(--gm-accent)]/20 border border-[var(--gm-accent)] rounded text-xs font-mono text-[var(--gm-heading)]">
+                          <span className="px-2 py-0.5 bg-(--md-accent)/20 border border-(--md-accent) rounded text-xs font-mono text-(--md-heading)">
                             {reservation.shortCode}
                           </span>
                         )}
@@ -192,11 +192,11 @@ export function MyReservations() {
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <p className="mb-2 text-sm font-medium text-[var(--gm-coral)]">Platos seleccionados:</p>
+                      <p className="mb-2 text-sm font-medium text-(--md-coral)">Platos seleccionados:</p>
                       <ul className="space-y-1">
                         {reservation.items.map((item, idx) => (
-                          <li key={idx} className="flex items-center gap-2 text-sm text-[var(--gm-heading)]">
-                            <div className="h-1.5 w-1.5 rounded-full bg-[var(--gm-accent)]" />
+                          <li key={idx} className="flex items-center gap-2 text-sm text-(--md-heading)">
+                            <div className="h-1.5 w-1.5 rounded-full bg-(--md-accent)" />
                             {item.name}
                           </li>
                         ))}
@@ -221,7 +221,7 @@ export function MyReservations() {
                             variant="outline"
                             size="sm"
                             disabled={reservation.status !== "confirmada"}
-                            className="flex-1 border-[var(--gm-accent)] bg-[var(--gm-accent-light)]/50 text-[var(--gm-heading)] hover:bg-[var(--gm-accent)]"
+                            className="flex-1 border-(--md-accent) bg-(--md-accent-light)/50 text-(--md-heading) hover:bg-(--md-accent)"
                           >
                             <Star className="mr-1 h-3 w-3" />
                             {reservation.status === "confirmada" ? "Valorar Platos" : "Esperando Cocina..."}
@@ -234,17 +234,17 @@ export function MyReservations() {
                           </DialogHeader>
                           <form onSubmit={submitRatings} className="space-y-4">
                             {ratingDialogRes?.items.map((item: any) => (
-                              <div key={item.id} className="space-y-2 p-3 border rounded-lg bg-gray-50/50">
-                                <Label className="font-semibold text-md text-[var(--gm-coral)]">{item.name}</Label>
+                              <div key={item.id} className="space-y-2 p-3 border rounded-lg bg-(--md-accent-light)/20">
+                                <Label className="font-semibold text-md text-(--md-coral)">{item.name}</Label>
                                 <div className="space-y-1">
-                                  <Label className="text-xs text-[var(--gm-body)]">Puntuación</Label>
+                                  <Label className="text-xs text-(--md-body)">Puntuación</Label>
                                   <InteractiveStars 
                                     value={dishRatings[item.id]?.rating || 0} 
                                     onChange={(v) => setDishRatings(prev => ({...prev, [item.id]: {...prev[item.id], rating: v}}))} 
                                   />
                                 </div>
                                 <div className="space-y-1 mt-2">
-                                  <Label className="text-xs text-[var(--gm-body)]">Comentario (Opcional)</Label>
+                                  <Label className="text-xs text-(--md-body)">Comentario (Opcional)</Label>
                                   <Textarea 
                                     placeholder="¡Estaba riquísimo!" 
                                     value={dishRatings[item.id]?.comment || ""}
@@ -256,7 +256,7 @@ export function MyReservations() {
                             ))}
                             <div className="flex justify-end gap-2 pt-2">
                               <Button type="button" variant="outline" onClick={() => setRatingDialogRes(null)}>Cancelar</Button>
-                              <Button type="submit" className="bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]">Enviar Valoraciones</Button>
+                              <Button type="submit" className="bg-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)">Enviar Valoraciones</Button>
                             </div>
                           </form>
                         </DialogContent>
@@ -264,7 +264,7 @@ export function MyReservations() {
 
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-[var(--gm-coral)] border-[var(--gm-accent)] bg-transparent hover:bg-[var(--gm-coral-bg)]">
+                          <Button variant="outline" size="sm" className="text-(--md-coral) border-(--md-accent) bg-transparent hover:bg-(--md-coral-bg)">
                             <Trash2 className="mr-1 h-3 w-3" />
                             Cancelar
                           </Button>
@@ -316,7 +316,7 @@ export function MyReservations() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{reservation.items.map(it => it.name).join(", ")}</p>
+                  <p className="text-sm text-(--md-body)">{reservation.items.map(it => it.name).join(", ")}</p>
                 </CardContent>
               </Card>
             ))}
@@ -325,14 +325,15 @@ export function MyReservations() {
       )}
 
       {upcomingReservations.length === 0 && pastReservations.length === 0 && (
-        <Card>
+        <Card className="border-(--md-accent) bg-(--md-surface)">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <UtensilsCrossed className="h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-4 text-lg font-semibold">No tienes reservas</h3>
-            <p className="text-sm text-muted-foreground">Consulta el menú semanal para hacer una reserva</p>
+            <UtensilsCrossed className="h-12 w-12 text-(--md-body)" />
+            <h3 className="mt-4 text-lg font-semibold text-(--md-heading)">No tienes reservas</h3>
+            <p className="text-sm text-(--md-body)">Consulta el menú semanal para hacer una reserva</p>
           </CardContent>
         </Card>
       )}
     </div>
   )
 }
+

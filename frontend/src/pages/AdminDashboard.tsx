@@ -33,15 +33,15 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
+    <div className="min-h-screen bg-md-page-bg">
+      <nav className="bg-md-surface shadow-md border-b border-md-accent/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-orange-600">GuMip Admin</h1>
+              <h1 className="text-2xl font-bold text-[var(--gm-heading)]">Mendos Admin</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-gray-700">{user?.name}</span>
+              <span className="text-md-body font-medium">{user?.name}</span>
               <button
                 onClick={logout}
                 className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
@@ -58,7 +58,7 @@ export default function AdminDashboard() {
           <button
             onClick={() => setActiveTab("stats")}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === "stats" ? "bg-orange-600 text-white" : "bg-white text-gray-700 hover:bg-gray-50"
+              activeTab === "stats" ? "bg-md-accent text-md-heading shadow-sm" : "bg-md-surface text-md-body hover:bg-md-accent/30 border border-md-accent/20"
             }`}
           >
             Estadísticas
@@ -66,7 +66,7 @@ export default function AdminDashboard() {
           <button
             onClick={() => setActiveTab("dishes")}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === "dishes" ? "bg-orange-600 text-white" : "bg-white text-gray-700 hover:bg-gray-50"
+              activeTab === "dishes" ? "bg-md-accent text-md-heading shadow-sm" : "bg-md-surface text-md-body hover:bg-md-accent/30 border border-md-accent/20"
             }`}
           >
             Platos
@@ -74,7 +74,7 @@ export default function AdminDashboard() {
           <button
             onClick={() => setActiveTab("reservations")}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === "reservations" ? "bg-orange-600 text-white" : "bg-white text-gray-700 hover:bg-gray-50"
+              activeTab === "reservations" ? "bg-md-accent text-md-heading shadow-sm" : "bg-md-surface text-md-body hover:bg-md-accent/30 border border-md-accent/20"
             }`}
           >
             Reservas
@@ -83,36 +83,36 @@ export default function AdminDashboard() {
 
         {activeTab === "stats" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-sm font-medium text-gray-500">Total Platos</h3>
-              <p className="text-3xl font-bold text-orange-600 mt-2">{stats.totalDishes}</p>
+            <div className="bg-md-surface p-6 rounded-lg shadow-sm border border-md-accent/30">
+              <h3 className="text-sm font-medium text-md-body">Total Platos</h3>
+              <p className="text-3xl font-bold text-md-coral mt-2">{stats.totalDishes}</p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-sm font-medium text-gray-500">Total Reservas</h3>
-              <p className="text-3xl font-bold text-orange-600 mt-2">{stats.totalReservations}</p>
+            <div className="bg-md-surface p-6 rounded-lg shadow-sm border border-md-accent/30">
+              <h3 className="text-sm font-medium text-md-body">Total Reservas</h3>
+              <p className="text-3xl font-bold text-md-coral mt-2">{stats.totalReservations}</p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-sm font-medium text-gray-500">Pendientes</h3>
-              <p className="text-3xl font-bold text-amber-600 mt-2">{stats.pendingReservations}</p>
+            <div className="bg-md-surface p-6 rounded-lg shadow-sm border border-md-accent/30">
+              <h3 className="text-sm font-medium text-md-body">Pendientes</h3>
+              <p className="text-3xl font-bold text-md-heading mt-2">{stats.pendingReservations}</p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-sm font-medium text-gray-500">Confirmadas</h3>
-              <p className="text-3xl font-bold text-green-600 mt-2">{stats.confirmedReservations}</p>
+            <div className="bg-md-surface p-6 rounded-lg shadow-sm border border-md-accent/30">
+              <h3 className="text-sm font-medium text-md-body">Confirmadas</h3>
+              <p className="text-3xl font-bold text-md-heading mt-2 opacity-80">{stats.confirmedReservations}</p>
             </div>
           </div>
         )}
 
         {activeTab === "dishes" && (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+          <div className="bg-md-surface rounded-lg shadow-sm overflow-hidden border border-md-accent/30">
+            <table className="min-w-full divide-y divide-md-accent/20">
+              <thead className="bg-md-accent/10">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Categoría</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Precio</th>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-md-heading uppercase tracking-wider">Nombre</th>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-md-heading uppercase tracking-wider">Categoría</th>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-md-heading uppercase tracking-wider">Precio</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-md-surface divide-y divide-md-accent/10">
                 {dishes.map((dish) => (
                   <tr key={dish.id}>
                     <td className="px-6 py-4 whitespace-nowrap">{dish.name}</td>
@@ -130,17 +130,17 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === "reservations" && (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+          <div className="bg-md-surface rounded-lg shadow-sm overflow-hidden border border-md-accent/30">
+            <table className="min-w-full divide-y divide-md-accent/20">
+              <thead className="bg-md-accent/10">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plato</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-md-heading uppercase tracking-wider">Usuario</th>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-md-heading uppercase tracking-wider">Plato</th>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-md-heading uppercase tracking-wider">Fecha</th>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-md-heading uppercase tracking-wider">Estado</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-md-surface divide-y divide-md-accent/10">
                 {reservations.map((reservation) => (
                   <tr key={reservation.id}>
                     <td className="px-6 py-4 whitespace-nowrap">{reservation.user.name}</td>

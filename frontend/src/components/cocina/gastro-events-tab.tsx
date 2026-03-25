@@ -172,10 +172,10 @@ export function GastroEventsTab() {
 
   const getStatusBadge = (status: GastroEvent["status"]) => {
     const styles = {
-      active: "bg-[var(--gm-accent-light)] text-[var(--gm-body)]",
-      full: "bg-[var(--gm-accent)] text-[var(--gm-body)]",
-      modified: "bg-[var(--gm-coral-hover)]/20 text-[var(--gm-coral-hover)]",
-      cancelled: "bg-[var(--gm-coral)]/10 text-[var(--gm-coral)]",
+      active: "bg-(--md-accent-light) text-(--md-body)",
+      full: "bg-(--md-accent) text-(--md-body)",
+      modified: "bg-(--md-coral-hover)/20 text-(--md-coral-hover)",
+      cancelled: "bg-(--md-coral)/10 text-(--md-coral)",
     }
     const labels = {
       active: "Activo",
@@ -196,7 +196,7 @@ export function GastroEventsTab() {
         {(user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]">
+              <Button className="bg-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)">
                 <Plus className="mr-2 h-4 w-4" />
                 Crear Evento
               </Button>
@@ -284,7 +284,7 @@ export function GastroEventsTab() {
                 <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button onClick={handleAddEvent} className="bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]">
+                <Button onClick={handleAddEvent} className="bg-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)">
                   Publicar Evento
                 </Button>
               </DialogFooter>
@@ -358,7 +358,7 @@ export function GastroEventsTab() {
                         setIsAttendanceDialogOpen(true)
                         setIsScanning(false)
                       }}
-                      className="w-full bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]"
+                      className="w-full bg-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)"
                     >
                       <Users className="mr-2 h-4 w-4" /> Gestionar Asistencia
                     </Button>
@@ -466,7 +466,7 @@ export function GastroEventsTab() {
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleEditEvent} className="bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]">
+            <Button onClick={handleEditEvent} className="bg-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)">
               Guardar Cambios
             </Button>
           </DialogFooter>
@@ -484,15 +484,15 @@ export function GastroEventsTab() {
 
           {selectedAttendanceEvent && (
             <div className="space-y-6 pt-4">
-              <div className="flex justify-between items-center bg-[var(--gm-surface)] p-4 rounded-lg border border-[var(--gm-accent)]">
+              <div className="flex justify-between items-center bg-(--md-surface) p-4 rounded-lg border border-(--md-accent)">
                 <div>
-                  <h4 className="font-semibold text-[var(--gm-heading)]">Lector Automático</h4>
+                  <h4 className="font-semibold text-(--md-heading)">Lector Automático</h4>
                   <p className="text-xs text-muted-foreground">Utiliza la cámara para escanear el QR del maestro</p>
                 </div>
                 <Button 
                   variant={isScanning ? "outline" : "default"}
                   onClick={() => setIsScanning(!isScanning)}
-                  className={!isScanning ? "bg-[var(--gm-coral)] hover:bg-[var(--gm-coral-hover)] text-white" : "text-destructive border-destructive hover:bg-destructive/10"}
+                  className={!isScanning ? "bg-(--md-coral) hover:bg-(--md-coral-hover) text-white" : "text-destructive border-destructive hover:bg-destructive/10"}
                 >
                   {isScanning ? <XCircle className="mr-2 h-4 w-4" /> : <QrCode className="mr-2 h-4 w-4" />}
                   {isScanning ? "Cerrar Escáner" : "Activar Escáner"}
@@ -500,7 +500,7 @@ export function GastroEventsTab() {
               </div>
 
               {isScanning && (
-                <div className="w-full max-w-sm mx-auto aspect-square overflow-hidden rounded-lg border-2 border-[var(--gm-accent)] relative">
+                <div className="w-full max-w-sm mx-auto aspect-square overflow-hidden rounded-lg border-2 border-(--md-accent) relative">
                   <Scanner 
                     onScan={(detectedCodes) => {
                       if (detectedCodes && detectedCodes.length > 0) {
@@ -512,7 +512,7 @@ export function GastroEventsTab() {
               )}
 
               <div className="space-y-4">
-                <h4 className="text-lg font-bold border-b pb-2 text-[var(--gm-heading)]">Lista de Invitados</h4>
+                <h4 className="text-lg font-bold border-b pb-2 text-(--md-heading)">Lista de Invitados</h4>
                 {(() => {
                   const attendees = getEventAttendees(selectedAttendanceEvent.id)
                   if (attendees.length === 0) {
@@ -528,7 +528,7 @@ export function GastroEventsTab() {
                           </div>
                           <Button 
                             variant={res.attended ? "outline" : "default"}
-                            className={res.attended ? "" : "bg-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]"}
+                            className={res.attended ? "" : "bg-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)"}
                             size="sm"
                             onClick={() => {
                               markEventAttendance(res.id, !res.attended)
@@ -560,3 +560,4 @@ export function GastroEventsTab() {
     </div>
   )
 }
+

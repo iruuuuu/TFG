@@ -1,7 +1,7 @@
 {
-  "name": "gumip-frontend",
-  "version": "1.0.0",
-  "description": "Frontend React para GuMip - Sistema de Gestión de Cocina",
+  "name": "mendos-frontend",
+  "version": "0.1.0",
+  "description": "Frontend React para Mendos - Sistema de Gestión de Cocina",
   "private": true,
   "dependencies": {
     "react": "^18.2.0",

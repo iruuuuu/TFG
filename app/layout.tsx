@@ -11,8 +11,8 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "GuMip - Gestión de Cocina IES Mendoza",
-  description: "Sistema de gestión de menús y reservas para IES Mendoza",
+  title: "Mendos - Gestión de Cocina IES Mendoza",
+  description: "Sistema premium de gestión de cocina e inventario para el IES Antonio de Mendoza.",
   generator: "v0.app",
   icons: {
     icon: [

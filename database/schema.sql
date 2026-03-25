@@ -1,9 +1,9 @@
--- GuMip Database Schema
+-- Mendos Database Schema
 -- MySQL Database
 
-DROP DATABASE IF EXISTS gumip_db;
-CREATE DATABASE gumip_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE gumip_db;
+DROP DATABASE IF EXISTS mendos_db;
+CREATE DATABASE mendos_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE mendos_db;
 
 -- Tabla de Usuarios
 CREATE TABLE users (

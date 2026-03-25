@@ -44,15 +44,15 @@ export function TodoListTab() {
       key={card.id}
       draggable
       onDragStart={(e) => handleDragStart(e, card.id)}
-      className="bg-background cursor-grab active:cursor-grabbing border rounded-lg p-4 shadow-sm flex flex-col gap-3 hover:border-[var(--gm-accent)] transition-colors"
+      className="bg-background cursor-grab active:cursor-grabbing border rounded-lg p-4 shadow-sm flex flex-col gap-3 hover:border-(--md-accent) transition-colors"
     >
       <div className="flex justify-between items-start">
-        <p className="font-semibold text-sm text-[var(--gm-heading)]">{card.userName}</p>
-        <span className="text-xs font-medium text-[var(--gm-body)] bg-[var(--gm-accent)]/40 px-2 py-0.5 rounded">{card.time}</span>
+        <p className="font-semibold text-sm text-(--md-heading)">{card.userName}</p>
+        <span className="text-xs font-medium text-(--md-body) bg-(--md-accent)/40 px-2 py-0.5 rounded">{card.time}</span>
       </div>
       <ul className="space-y-1.5">
         {card.items.map((item: string, idx: number) => (
-          <li key={idx} className="text-xs text-[var(--gm-body)]">
+          <li key={idx} className="text-xs text-(--md-body)">
             • {item}
           </li>
         ))}
@@ -60,7 +60,7 @@ export function TodoListTab() {
       {card.status !== "completed" ? (
         <button
           onClick={() => updateReservationKitchenStatus(card.id, "completed")}
-          className="mt-2 text-xs font-medium w-full bg-[var(--gm-surface)] border border-[var(--gm-accent)] hover:bg-[var(--gm-accent)]/50 text-[var(--gm-heading)] py-2 rounded transition-colors"
+          className="mt-2 text-xs font-medium w-full bg-(--md-surface) border border-(--md-accent) hover:bg-(--md-accent)/50 text-(--md-heading) py-2 rounded transition-colors"
         >
           Marcar como Completado
         </button>
@@ -79,7 +79,7 @@ export function TodoListTab() {
         onDrop={(e) => handleDrop(e, "pending")}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-bold text-[var(--gm-heading)]">Pendientes</h3>
+          <h3 className="font-bold text-(--md-heading)">Pendientes</h3>
           <Badge variant="secondary">{pending.length}</Badge>
         </div>
         <div className="flex flex-col gap-3 flex-1 overflow-y-auto">
@@ -97,7 +97,7 @@ export function TodoListTab() {
         onDrop={(e) => handleDrop(e, "preparing")}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-bold text-[var(--gm-heading)]">Preparando</h3>
+          <h3 className="font-bold text-(--md-heading)">Preparando</h3>
           <Badge variant="secondary" className="bg-blue-100 text-blue-700">
             {preparing.length}
           </Badge>
@@ -118,7 +118,7 @@ export function TodoListTab() {
       >
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-[var(--gm-heading)]">Completados</h3>
+            <h3 className="font-bold text-(--md-heading)">Completados</h3>
             <Badge variant="secondary" className="bg-green-100 text-green-700">
               {completed.length}
             </Badge>
@@ -145,3 +145,4 @@ export function TodoListTab() {
     </div>
   )
 }
+

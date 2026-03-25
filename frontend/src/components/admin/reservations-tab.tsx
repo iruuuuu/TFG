@@ -54,32 +54,39 @@ export function ReservationsTab() {
   }
 
   return (
-    <Card>
+    <Card className="border-md-accent bg-md-surface shadow-sm">
       <CardHeader>
-        <CardTitle>Reservas Recientes</CardTitle>
-        <CardDescription>Gestiona las reservas de los usuarios</CardDescription>
+        <CardTitle className="text-xl font-bold text-md-heading uppercase tracking-tight">Reservas Recientes</CardTitle>
+        <CardDescription className="text-md-body font-medium">Gestiona las reservas de los usuarios</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Usuario</TableHead>
-              <TableHead>Fecha</TableHead>
-              <TableHead>Platos</TableHead>
-              <TableHead>Estado</TableHead>
+          <TableHeader className="bg-md-accent/10">
+            <TableRow className="border-md-accent/20">
+              <TableHead className="font-bold text-md-heading uppercase text-xs tracking-wider">Usuario</TableHead>
+              <TableHead className="font-bold text-md-heading uppercase text-xs tracking-wider">Fecha</TableHead>
+              <TableHead className="font-bold text-md-heading uppercase text-xs tracking-wider">Platos</TableHead>
+              <TableHead className="font-bold text-md-heading uppercase text-xs tracking-wider">Estado</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {reservations.map((reservation) => (
               <TableRow key={reservation.id}>
-                <TableCell className="font-medium">{reservation.userName}</TableCell>
-                <TableCell>{new Date(reservation.date).toLocaleDateString("es-ES")}</TableCell>
+                <TableCell className="font-bold text-md-heading">{reservation.userName}</TableCell>
+                <TableCell className="text-md-body">{new Date(reservation.date).toLocaleDateString("es-ES")}</TableCell>
                 <TableCell>
-                  <div className="max-w-xs truncate text-sm text-muted-foreground">{reservation.items.join(", ")}</div>
+                  <div className="max-w-xs truncate text-sm text-md-body/80 font-medium">{reservation.items.join(", ")}</div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={getStatusVariant(reservation.status)} className="flex w-fit items-center gap-1">
+                  <Badge 
+                    variant={getStatusVariant(reservation.status)} 
+                    className={`flex w-fit items-center gap-1 shadow-sm font-bold ${
+                      reservation.status === 'confirmada' ? 'bg-md-accent text-md-heading' : 
+                      reservation.status === 'cancelada' ? 'bg-md-coral/20 text-md-coral border-md-coral/30' : 
+                      'bg-md-surface text-md-body'
+                    }`}
+                  >
                     {getStatusIcon(reservation.status)}
                     <span className="capitalize">{reservation.status}</span>
                   </Badge>
@@ -106,3 +113,4 @@ export function ReservationsTab() {
     </Card>
   )
 }
+

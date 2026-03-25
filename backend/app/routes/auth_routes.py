@@ -10,8 +10,13 @@ def login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
+    print(f"Login attempt: {email}")
     
     user = Usuario.query.filter_by(email=email).first()
+    if user:
+        print(f"User found: {user.email}, DB pass: {user.password}")
+    else:
+        print(f"User not found: {email}")
     
     if not user:
         return jsonify({"error": "Invalid credentials"}), 401

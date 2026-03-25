@@ -11,13 +11,27 @@ def get_all_ratings():
 
 @rating_bp.route('', methods=['POST'])
 def create_rating():
-    data = request.get_json()
-    new_rating = Valoracion(
-        user_id=data['userId'],
-        dish_id=data['dishId'],
-        rating=data['rating'],
-        comment=data.get('comment')
-    )
-    db.session.add(new_rating)
-    db.session.commit()
-    return jsonify(new_rating.to_dict()), 201
+    try:
+        data = request.get_json()
+        
+        # Flexibilidad en los nombres de los campos
+        user_id = data.get('userId') or data.get('user_id')
+        dish_id = data.get('dishId') or data.get('menuItemId') or data.get('dish_id')
+        rating_value = data.get('rating')
+        comment = data.get('comment')
+
+        if not all([user_id, dish_id, rating_value is not None]):
+            return jsonify({'error': 'Faltan campos obligatorios: userId, dishId o rating'}), 400
+
+        new_rating = Valoracion(
+            user_id=int(user_id),
+            dish_id=int(dish_id),
+            rating=int(rating_value),
+            comment=comment
+        )
+        db.session.add(new_rating)
+        db.session.commit()
+        return jsonify(new_rating.to_dict()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500

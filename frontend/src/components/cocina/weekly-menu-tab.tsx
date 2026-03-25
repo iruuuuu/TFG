@@ -68,8 +68,8 @@ export function WeeklyMenuTab() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--gm-heading)]">Menú Semanal</h2>
-          <p className="text-[var(--gm-body)]">Planifica el menú de la semana y gestiona los platos</p>
+          <h2 className="text-2xl font-bold text-(--md-heading)">Menú Semanal</h2>
+          <p className="text-(--md-body)">Planifica el menú de la semana y gestiona los platos</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {(user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
@@ -77,7 +77,7 @@ export function WeeklyMenuTab() {
               <CreateDishDialog />
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" className="border-[var(--gm-accent)] text-[var(--gm-heading)] hover:bg-[var(--gm-accent)]/50 shadow-sm bg-[var(--gm-surface)]">
+                  <Button variant="outline" className="border-(--md-accent) text-(--md-heading) hover:bg-(--md-accent)/50 shadow-sm bg-(--md-surface)">
                     <Calendar className="mr-2 h-4 w-4" />
                     Nueva Semana
                   </Button>
@@ -100,7 +100,7 @@ export function WeeklyMenuTab() {
                         title: "Semana reiniciada",
                         description: "El menú semanal ha sido limpiado con éxito.",
                       })
-                    }} className="bg-[var(--gm-coral)] text-white hover:bg-[var(--gm-coral-hover)]">
+                    }} className="bg-(--md-coral) text-white hover:bg-(--md-coral-hover)">
                       Sí, vaciar menú
                     </AlertDialogAction>
                   </AlertDialogFooter>
@@ -117,20 +117,20 @@ export function WeeklyMenuTab() {
             variant="outline" 
             size="icon" 
             onClick={scrollLeft}
-            className="absolute left-1 z-10 h-8 w-8 bg-[var(--gm-surface)] border-[var(--gm-accent)] text-[var(--gm-heading)] shadow-sm hover:bg-[var(--gm-accent)]/50 md:hidden"
+            className="absolute left-1 z-10 h-8 w-8 bg-(--md-surface) border-(--md-accent) text-(--md-heading) shadow-sm hover:bg-(--md-accent)/50 md:hidden"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
           <TabsList 
             ref={scrollContainerRef}
-            className="flex w-full overflow-x-auto justify-start h-fit min-h-[48px] items-stretch bg-[var(--gm-surface)] border border-[var(--gm-accent)] p-1 gap-1 rounded-lg px-10 md:px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            className="flex w-full overflow-x-auto justify-start h-fit min-h-[48px] items-stretch bg-(--md-surface) border border-(--md-accent) p-1 gap-1 rounded-lg px-10 md:px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
             {daysOfWeek.map((day) => (
               <TabsTrigger 
                 key={day.key} 
                 value={day.key}
-                className="flex-1 min-w-[110px] h-full data-[state=active]:bg-[var(--gm-accent)] data-[state=active]:text-[var(--gm-heading)] text-[var(--gm-body)] hover:bg-[var(--gm-accent)]/50 hover:text-[var(--gm-heading)] transition-colors py-2 rounded-md font-medium whitespace-nowrap"
+                className="flex-1 min-w-[110px] h-full data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2 rounded-md font-medium whitespace-nowrap"
               >
                 {day.label}
               </TabsTrigger>
@@ -141,7 +141,7 @@ export function WeeklyMenuTab() {
             variant="outline" 
             size="icon" 
             onClick={scrollRight}
-            className="absolute right-1 z-10 h-8 w-8 bg-[var(--gm-surface)] border-[var(--gm-accent)] text-[var(--gm-heading)] shadow-sm hover:bg-[var(--gm-accent)]/50 md:hidden"
+            className="absolute right-1 z-10 h-8 w-8 bg-(--md-surface) border-(--md-accent) text-(--md-heading) shadow-sm hover:bg-(--md-accent)/50 md:hidden"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -188,15 +188,15 @@ export function WeeklyMenuTab() {
                                 <Button
                                   key={item.id}
                                   variant="outline"
-                                  className={`w-full justify-start h-auto p-3 ${selected ? 'bg-[var(--gm-accent)]/50 ring-2 ring-[var(--gm-accent)]' : 'bg-transparent'}`}
+                                  className={`w-full justify-start h-auto p-3 ${selected ? 'bg-(--md-accent)/50 ring-2 ring-(--md-accent)' : 'bg-transparent'}`}
                                   onClick={() => handleSelectItem(day.key, "entrante", item.id)}
                                 >
                                   <div className="text-left w-full flex justify-between items-center">
                                     <div>
-                                      <p className="font-medium text-[var(--gm-heading)]">{item.name}</p>
-                                      <p className="text-xs text-[var(--gm-body)]">{item.description}</p>
+                                      <p className="font-medium text-(--md-heading)">{item.name}</p>
+                                      <p className="text-xs text-(--md-body)">{item.description}</p>
                                     </div>
-                                    {selected && <Badge className="bg-[var(--gm-accent)] text-[var(--gm-heading)] font-semibold hover:bg-[var(--gm-accent)]">Añadido</Badge>}
+                                    {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent)">Añadido</Badge>}
                                   </div>
                                 </Button>
                               )
@@ -262,15 +262,15 @@ export function WeeklyMenuTab() {
                                 <Button
                                   key={item.id}
                                   variant="outline"
-                                  className={`w-full justify-start h-auto p-3 ${selected ? 'bg-[var(--gm-accent)]/50 ring-2 ring-[var(--gm-accent)]' : 'bg-transparent'}`}
+                                  className={`w-full justify-start h-auto p-3 ${selected ? 'bg-(--md-accent)/50 ring-2 ring-(--md-accent)' : 'bg-transparent'}`}
                                   onClick={() => handleSelectItem(day.key, "principal", item.id)}
                                 >
                                   <div className="text-left w-full flex justify-between items-center">
                                     <div>
-                                      <p className="font-medium text-[var(--gm-heading)]">{item.name}</p>
-                                      <p className="text-xs text-[var(--gm-body)]">{item.description}</p>
+                                      <p className="font-medium text-(--md-heading)">{item.name}</p>
+                                      <p className="text-xs text-(--md-body)">{item.description}</p>
                                     </div>
-                                    {selected && <Badge className="bg-[var(--gm-accent)] text-[var(--gm-heading)] font-semibold hover:bg-[var(--gm-accent)]">Añadido</Badge>}
+                                    {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent)">Añadido</Badge>}
                                   </div>
                                 </Button>
                               )
@@ -338,15 +338,15 @@ export function WeeklyMenuTab() {
                                 <Button
                                   key={item.id}
                                   variant="outline"
-                                  className={`w-full justify-start h-auto p-3 ${selected ? 'bg-[var(--gm-accent)]/50 ring-2 ring-[var(--gm-accent)]' : 'bg-transparent'}`}
+                                  className={`w-full justify-start h-auto p-3 ${selected ? 'bg-(--md-accent)/50 ring-2 ring-(--md-accent)' : 'bg-transparent'}`}
                                   onClick={() => handleSelectItem(day.key, "postre", item.id)}
                                 >
                                   <div className="text-left w-full flex justify-between items-center">
                                     <div>
-                                      <p className="font-medium text-[var(--gm-heading)]">{item.name}</p>
-                                      <p className="text-xs text-[var(--gm-body)]">{item.description}</p>
+                                      <p className="font-medium text-(--md-heading)">{item.name}</p>
+                                      <p className="text-xs text-(--md-body)">{item.description}</p>
                                     </div>
-                                    {selected && <Badge className="bg-[var(--gm-accent)] text-[var(--gm-heading)] font-semibold hover:bg-[var(--gm-accent)]">Añadido</Badge>}
+                                    {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent)">Añadido</Badge>}
                                   </div>
                                 </Button>
                               )
@@ -388,3 +388,4 @@ export function WeeklyMenuTab() {
     </div>
   )
 }
+

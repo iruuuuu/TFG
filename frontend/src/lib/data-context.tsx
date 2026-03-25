@@ -352,9 +352,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const addRating = async (rating: Omit<Rating, "id" | "date">) => {
     try {
+      // Sincronizamos con el backend que espera dishId
       const res = await fetchApi<any>('/ratings', {
         method: 'POST',
-        body: JSON.stringify(rating)
+        body: JSON.stringify({
+          userId: rating.userId,
+          dishId: rating.menuItemId,
+          rating: rating.rating,
+          comment: rating.comment
+        })
       });
       setRatings([...ratings, { ...rating, id: res.id, date: new Date() }]);
     } catch(e) { console.error(e) }
@@ -500,3 +506,4 @@ export function useData() {
   if (context === undefined) throw new Error("useData must be used within a DataProvider")
   return context
 }
+

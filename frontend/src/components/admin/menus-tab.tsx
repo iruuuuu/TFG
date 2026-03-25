@@ -93,13 +93,13 @@ export function MenusTab() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--gm-heading)]">Gestión de <span className="text-[var(--gm-coral)]">Platos</span></h2>
-          <p className="text-[var(--gm-body)]">Añade, edita o elimina platos del menú</p>
+          <h2 className="text-2xl font-bold text-md-heading">Gestión de <span className="text-md-coral">Platos</span></h2>
+          <p className="text-md-body font-medium">Añade, edita o elimina platos del menú</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button
-              className="bg-[var(--gm-accent)] text-[var(--gm-heading)] font-semibold hover:bg-[var(--gm-accent-hover)] shadow-sm"
+              className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent-hover) shadow-sm"
               onClick={() => {
                 setEditingItem(null)
                 setFormData({ name: "", description: "", category: "entrante", allergens: "" })
@@ -109,10 +109,10 @@ export function MenusTab() {
               Añadir Plato
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl border-[var(--gm-accent)] bg-[var(--gm-surface)]">
+          <DialogContent className="max-w-2xl border-md-accent bg-md-surface p-8">
             <DialogHeader>
-              <DialogTitle className="text-[var(--gm-heading)]">{editingItem ? "Editar Plato" : "Añadir Nuevo Plato"}</DialogTitle>
-              <DialogDescription className="text-[var(--gm-body)]">Completa la información del plato</DialogDescription>
+              <DialogTitle className="text-2xl font-bold text-md-heading">{editingItem ? "Editar Plato" : "Añadir Nuevo Plato"}</DialogTitle>
+              <DialogDescription className="text-md-body">Completa la información del plato</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
@@ -167,7 +167,7 @@ export function MenusTab() {
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit" className="bg-[var(--gm-accent)] text-[var(--gm-heading)] font-semibold hover:bg-[var(--gm-accent-hover)] shadow-sm">
+                <Button type="submit" className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent-hover) shadow-sm">
                   {editingItem ? "Actualizar Plato" : "Guardar Plato"}
                 </Button>
               </div>
@@ -178,14 +178,14 @@ export function MenusTab() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {menuItems.map((item) => (
-          <Card key={item.id} className="border-[var(--gm-accent)] bg-[var(--gm-surface)]">
+          <Card key={item.id} className="border-(--md-accent) bg-(--md-surface)">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-lg text-[var(--gm-heading)]">{item.name}</CardTitle>
-                  <CardDescription className="mt-1 text-[var(--gm-body)]">{item.description}</CardDescription>
+                  <CardTitle className="text-lg text-(--md-heading)">{item.name}</CardTitle>
+                  <CardDescription className="mt-1 text-(--md-body)">{item.description}</CardDescription>
                 </div>
-                <Badge variant={item.available ? "default" : "secondary"} className={`ml-2 ${item.available ? "bg-[var(--gm-accent)] text-[var(--gm-heading)]" : "bg-[var(--gm-muted-bg)] text-[var(--gm-body)]"}`}>
+                <Badge variant={item.available ? "default" : "secondary"} className={`ml-2 ${item.available ? "bg-(--md-accent) text-(--md-heading)" : "bg-(--md-muted-bg) text-(--md-body)"}`}>
                   {item.available ? "Disponible" : "No disponible"}
                 </Badge>
               </div>
@@ -193,15 +193,15 @@ export function MenusTab() {
             <CardContent>
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs font-medium text-[var(--gm-body)]">Categoría</p>
-                  <p className="text-sm capitalize text-[var(--gm-heading)]">{item.category}</p>
+                  <p className="text-xs font-medium text-(--md-body)">Categoría</p>
+                  <p className="text-sm capitalize text-(--md-heading)">{item.category}</p>
                 </div>
                 {item.allergens.length > 0 && (
                   <div>
-                    <p className="text-xs font-medium text-[var(--gm-coral)]">Alérgenos</p>
+                    <p className="text-xs font-medium text-(--md-coral)">Alérgenos</p>
                     <div className="mt-1 flex flex-wrap gap-1">
                       {item.allergens.map((allergen) => (
-                        <Badge key={allergen} variant="outline" className="text-xs border-[var(--gm-accent)] text-[var(--gm-body)]">
+                        <Badge key={allergen} variant="outline" className="text-xs border-(--md-accent) text-(--md-body)">
                           {allergen}
                         </Badge>
                       ))}
@@ -212,7 +212,7 @@ export function MenusTab() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1 bg-[var(--gm-accent-light)]/50 border-[var(--gm-accent)] text-[var(--gm-heading)] hover:bg-[var(--gm-accent)]"
+                    className="flex-1 bg-(--md-accent-light)/50 border-(--md-accent) text-(--md-heading) hover:bg-(--md-accent)"
                     onClick={() => handleEdit(item)}
                   >
                     <Pencil className="mr-1 h-3 w-3" />
@@ -221,7 +221,7 @@ export function MenusTab() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-[var(--gm-coral)] border-[var(--gm-accent)] bg-transparent hover:bg-[var(--gm-coral-bg)]"
+                    className="text-(--md-coral) border-(--md-accent) bg-transparent hover:bg-(--md-coral-bg)"
                     onClick={() => handleDelete(item)}
                   >
                     <Trash2 className="h-3 w-3" />
@@ -235,3 +235,4 @@ export function MenusTab() {
     </div>
   )
 }
+
