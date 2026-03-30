@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Scanner } from "@yudiel/react-qr-scanner"
 import { useData } from "@/lib/data-context"
+import { useAuth } from "@/lib/auth-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -12,7 +13,8 @@ import { Search, QrCode, ScanLine, XCircle, CheckCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 export function SearchReservationsTab() {
-  const { reservations, eventReservations, menuItems, gastroEvents, users, updateReservationKitchenStatus, markEventAttendance } = useData()
+  const { reservations, eventReservations, menuItems, gastroEvents, updateReservationKitchenStatus, markEventAttendance } = useData()
+  const { allUsers } = useAuth()
   const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
   const [isScanning, setIsScanning] = useState(false)
@@ -28,9 +30,9 @@ export function SearchReservationsTab() {
     setFoundShortCode(null)
 
     // Check if it's an email / maestro user
-    const foundUser = users.find(u => u.email.toLowerCase() === term)
+    const foundUser = allUsers.find(u => u.email.toLowerCase() === term)
     if (foundUser) {
-      setFoundUserId(foundUser.id)
+      setFoundUserId(String(foundUser.id))
       return
     }
 
@@ -38,7 +40,7 @@ export function SearchReservationsTab() {
     const foundRes = reservations.find(r => r.shortCode?.toLowerCase() === term)
     if (foundRes) {
       setFoundShortCode(foundRes.shortCode!)
-      setFoundUserId(foundRes.userId)
+      setFoundUserId(String(foundRes.userId))
       return
     }
 
@@ -51,15 +53,35 @@ export function SearchReservationsTab() {
 
   const handleScan = (text: string) => {
     if (text) {
-      setSearchTerm(text)
+      const cleanText = text.trim();
+      setSearchTerm(cleanText)
       setIsScanning(false)
-      const foundUser = users.find(u => u.email.toLowerCase() === text.toLowerCase())
+      
+      const term = cleanText.toLowerCase();
+
+      // Ensure we match the user correctly and store ID as string just in case
+      const foundUser = allUsers.find(u => u.email.toLowerCase() === term)
       if (foundUser) {
-        setFoundUserId(foundUser.id)
+        setFoundUserId(String(foundUser.id))
+        setFoundShortCode(null)
         toast({ title: "QR Escaneado", description: `Usuario: ${foundUser.name}` })
-      } else {
-        toast({ title: "QR Inválido", description: "El QR no corresponde a un maestro registrado", variant: "destructive" })
+        return
       }
+
+      // Allow QR to be a shortCode as well
+      const foundRes = reservations.find(r => r.shortCode?.toLowerCase() === term)
+      if (foundRes) {
+        setFoundShortCode(foundRes.shortCode!)
+        setFoundUserId(String(foundRes.userId))
+        toast({ title: "QR Escaneado", description: `Código de reserva: ${foundRes.shortCode}` })
+        return
+      }
+
+      toast({ 
+        title: "QR Inválido", 
+        description: "El QR no corresponde a un maestro registrado", 
+        variant: "destructive" 
+      })
     }
   }
 

@@ -146,15 +146,18 @@ export function GastroEventsTab() {
   const handleScanAttendance = (text: string, eventId: string) => {
     if (!text) return
 
+    const cleanText = text.trim()
+    const term = cleanText.toLowerCase()
+
     // Find user by email (from QR)
-    const foundUser = users.find(u => u.email.toLowerCase() === text.toLowerCase())
+    const foundUser = users.find(u => u.email.toLowerCase() === term)
     if (!foundUser) {
       toast({ title: "QR Inválido", description: "El QR no corresponde a un maestro registrado.", variant: "destructive" })
       return
     }
 
     const attendees = getEventAttendees(eventId)
-    const reservation = attendees.find(r => r.userId === foundUser.id)
+    const reservation = attendees.find(r => r.userId === String(foundUser.id))
 
     if (!reservation) {
       toast({ title: "Acceso Denegado", description: `${foundUser.name} no está en la lista de invitados.`, variant: "destructive" })
