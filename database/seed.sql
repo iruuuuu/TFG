@@ -4,10 +4,10 @@ USE mendos_db;
 -- Usuarios (contraseñas hasheadas con bcrypt)
 -- Contraseñas: admin123, cocina123, maestro123
 INSERT INTO users (email, password, roles, name) VALUES
-('admin@iesmendoza.es', '$2y$13$qPz7J9XK8xYxYGH5KZ5B5uqJ9LXqYKH5K8xYxYGH5KZ5B5uqJ9LXq', '["ROLE_ADMIN"]', 'Administrador IES'),
-('cocina@iesmendoza.es', '$2y$13$qPz7J9XK8xYxYGH5KZ5B5uqJ9LXqYKH5K8xYxYGH5KZ5B5uqJ9LXq', '["ROLE_KITCHEN"]', 'Personal de Cocina'),
-('maestro@iesmendoza.es', '$2y$13$qPz7J9XK8xYxYGH5KZ5B5uqJ9LXqYKH5K8xYxYGH5KZ5B5uqJ9LXq', '["ROLE_USER"]', 'Juan Pérez'),
-('maestro2@iesmendoza.es', '$2y$13$qPz7J9XK8xYxYGH5KZ5B5uqJ9LXqYKH5K8xYxYGH5KZ5B5uqJ9LXq', '["ROLE_USER"]', 'María González');
+('admin@iesmendoza.es', '$2b$12$gumM2sKw7yXNq34FSVtq7uDH0z9Ck6hv.STkZVaih0s0b2o8m2bJe', '["ROLE_ADMIN"]', 'Administrador IES'),
+('cocina@iesmendoza.es', '$2b$12$qFlzM.mpPZ0A7PwAISPt7e8XK4DpvWcVQedeGmjZBUeX.GyYVPqlO', '["ROLE_KITCHEN"]', 'Personal de Cocina'),
+('maestro@iesmendoza.es', '$2b$12$MZbMG5bwDDb9MNc0QYoqVOkulOWZxovvK0bfs/CRsdkz3/cPO24KG', '["ROLE_USER"]', 'Juan Pérez'),
+('maestro2@iesmendoza.es', '$2b$12$MZbMG5bwDDb9MNc0QYoqVOkulOWZxovvK0bfs/CRsdkz3/cPO24KG', '["ROLE_USER"]', 'María González');
 
 -- Platos con gestión de stock
 -- Cada plato ahora tiene: fecha de disponibilidad, stock total y stock reservado

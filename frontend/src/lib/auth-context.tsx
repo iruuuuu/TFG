@@ -17,6 +17,30 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+const mapDbRole = (roleStr: any): "admin" | "cocina" | "maestro" | "alumno-cocina" | "alumno-cocina-titular" => {
+  if (!roleStr) return 'alumno-cocina';
+  let r = String(roleStr);
+  
+  // Parse stringified JSON array if needed
+  if (r.startsWith('[') && r.endsWith(']')) {
+    try {
+      const parsed = JSON.parse(r);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        r = String(parsed[0]);
+      }
+    } catch(e) {}
+  }
+
+  // Remove quotes if present
+  r = r.replace(/^"|"$/g, '');
+
+  if (r === 'ROLE_ADMIN' || r === 'admin') return 'admin';
+  if (r === 'ROLE_KITCHEN' || r === 'cocina') return 'cocina';
+  if (r === 'ROLE_USER' || r === 'maestro') return 'maestro';
+  if (r === 'alumno-cocina-titular') return 'alumno-cocina-titular';
+  return 'alumno-cocina';
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -35,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           id: u.id.toString(),
           email: u.email,
           name: u.name,
-          role: Array.isArray(u.roles) ? u.roles[0] : 'alumno-cocina',
+          role: Array.isArray(u.roles) ? mapDbRole(u.roles[0]) : mapDbRole(u.roles),
           createdAt: new Date(),
         }))
         setUsersList(mapped)
@@ -89,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: u.id.toString(),
         email: u.email,
         name: u.name,
-        role: Array.isArray(u.roles) ? u.roles[0] : 'alumno-cocina',
+        role: Array.isArray(u.roles) ? mapDbRole(u.roles[0]) : mapDbRole(u.roles),
         createdAt: new Date(),
       }
       setUser(loggedIn)
@@ -137,7 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: res.id.toString(),
         email: res.email,
         name: res.name,
-        role: Array.isArray(res.roles) ? res.roles[0] : 'alumno-cocina',
+        role: Array.isArray(res.roles) ? mapDbRole(res.roles[0]) : mapDbRole(res.roles),
         createdAt: new Date(),
       }
       setUsersList(prev => [...prev, created])

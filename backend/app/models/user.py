@@ -16,9 +16,17 @@ class Usuario(db.Model):
     valoraciones = db.relationship('Valoracion', back_populates='usuario', lazy=True)
 
     def to_dict(self):
+        import json
+        r = self.roles
+        if isinstance(r, str):
+            try:
+                r = json.loads(r)
+            except:
+                pass
+        
         return {
             'id': str(self.id),
             'email': self.email,
             'name': self.name,
-            'roles': self.roles
+            'roles': r
         }
