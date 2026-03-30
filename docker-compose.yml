@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # 1. Base de datos MySQL
+  db:
+    image: mysql:8.0
+    container_name: mendos_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mysecretpassword
+      MYSQL_DATABASE: mendos_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      # Autocarga de scripts de base de datos
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # 2. API Backend en Flask (Python)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mendos_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      # Modificamos URL de la base de datos para que apunte al contenedor de db
+      - DATABASE_URL=mysql+pymysql://root:mysecretpassword@db:3306/mendos_db
+      - SECRET_KEY=supersecretkey-for-tfg-mendoza
+      - FLASK_ENV=development
+    volumes:
+      # Sincronizamos cambios en tiempo real
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # 3. Web Frontend en Next.js
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mendos_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # Le decimos al frontend dónde encontrar al backend en local
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    volumes:
+      # Sincronizamos código del host con el contenedor
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  # Volumen persistente de Docker para los datos de MySQL
+  db_data:
