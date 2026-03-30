@@ -1,48 +1,19 @@
-"use client"
+import { Routes, Route } from "react-router-dom"
+import { HomePage } from "./pages/HomePage"
+import { LoginPage } from "./pages/LoginPage"
+import { AdminPage } from "./pages/AdminPage"
+import { CocinaPage } from "./pages/CocinaPage"
+import { MenuPage } from "./pages/MenuPage"
 
-import { Routes, Route, Navigate } from "react-router-dom"
-import { useAuth } from "./contexts/AuthContext"
-import Login from "./pages/Login"
-import AdminDashboard from "./pages/AdminDashboard"
-import KitchenDashboard from "./pages/KitchenDashboard"
-import UserDashboard from "./pages/UserDashboard"
-
-function App() {
-  const { user, loading } = useAuth()
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
-      </div>
-    )
-  }
-
+export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
-
-      <Route
-        path="/"
-        element={
-          user ? (
-            user.roles.includes("ROLE_ADMIN") ? (
-              <AdminDashboard />
-            ) : user.roles.includes("ROLE_KITCHEN") ? (
-              <KitchenDashboard />
-            ) : (
-              <UserDashboard />
-            )
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/admin" element={<AdminPage />} />
+      <Route path="/cocina" element={<CocinaPage />} />
+      <Route path="/menu" element={<MenuPage />} />
+      <Route path="*" element={<HomePage />} />
     </Routes>
   )
 }
-
-export default App
-

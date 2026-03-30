@@ -1,32 +1,30 @@
-"use client"
-
 import { useAuth } from "@/lib/auth-context"
 import { LandingHero } from "@/components/landing/landing-hero"
 import { Navbar } from "@/components/navbar"
-import { useRouter } from "next/navigation"
+import { useNavigate } from "react-router-dom"
 import { useEffect } from "react"
 
-export default function HomePage() {
+export function HomePage() {
   const { user, isLoading } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!isLoading && user) {
       switch (user.role) {
         case "admin":
-          router.push("/admin")
+          navigate("/admin")
           break
         case "cocina":
         case "alumno-cocina":
         case "alumno-cocina-titular":
-          router.push("/cocina")
+          navigate("/cocina")
           break
         case "maestro":
-          router.push("/menu")
+          navigate("/menu")
           break
       }
     }
-  }, [user, isLoading, router])
+  }, [user, isLoading, navigate])
 
   if (isLoading) {
     return (
@@ -63,8 +61,7 @@ export default function HomePage() {
     <div className="min-h-screen">
       {user && <Navbar />}
       <LandingHero primaryHref={primaryHref} primaryLabel={primaryLabel} />
-      
-      {/* Footer / Info Section */}
+
       <footer className="bg-md-surface py-12 border-t border-md-accent/30">
         <div className="container mx-auto px-6 text-center">
           <p className="text-md-body text-sm">

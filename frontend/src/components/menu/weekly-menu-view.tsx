@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Calendar, AlertCircle, ChevronLeft, ChevronRight, ChefHat } from "lucide-react"
 import { useData } from "@/lib/data-context"
 import { useAuth } from "@/lib/auth-context"
-import Link from "next/link"
+import { Link } from "react-router-dom"
 import type { MenuItem } from "@/lib/types"
 
 function getStaticInitialDays() {
@@ -355,7 +355,7 @@ export function WeeklyMenuView() {
                   <AlertCircle className="h-5 w-5 text-(--md-coral) shrink-0" />
                   <p className="text-sm text-(--md-heading)">
                     Estás viendo el menú como <span className="font-bold">invitado</span>. 
-                    <Link href="/login" className="ml-1 underline font-bold hover:text-(--md-coral) transition-colors">Inicia sesión</Link> para poder seleccionar platos y realizar tu reserva.
+                    <Link to="/login" className="ml-1 underline font-bold hover:text-(--md-coral) transition-colors">Inicia sesión</Link> para poder seleccionar platos y realizar tu reserva.
                   </p>
                 </div>
               )}

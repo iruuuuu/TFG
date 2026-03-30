@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
@@ -13,26 +11,25 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ChefHat, LogOut, User, QrCode } from "lucide-react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+import { useNavigate, Link } from "react-router-dom"
 import { useState } from "react"
 import QRCode from "react-qr-code"
 
 export function Navbar() {
   const { user, logout } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
   const [isQrOpen, setIsQrOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
-    router.push("/")
+    navigate("/")
   }
 
   return (
     <>
     <nav className="border-b border-md-accent bg-md-surface shadow-md">
       <div className="flex h-16 items-center justify-between px-6">
-        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+        <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-md-accent shadow-sm">
             <ChefHat className="h-6 w-6 text-md-heading" />
           </div>
@@ -73,7 +70,7 @@ export function Navbar() {
           </DropdownMenu>
         ) : (
           <Button asChild variant="outline" className="border-md-accent text-md-heading hover:bg-md-accent/20 font-bold shadow-sm">
-            <Link href="/login">Iniciar Sesión</Link>
+            <Link to="/login">Iniciar Sesión</Link>
           </Button>
         )}
       </div>

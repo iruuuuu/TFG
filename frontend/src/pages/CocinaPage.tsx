@@ -1,7 +1,5 @@
-"use client"
-
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/lib/auth-context"
 import { Navbar } from "@/components/navbar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -16,18 +14,18 @@ import { Menu, CalendarDays, ClipboardList, Utensils, Star, Users, Activity, Sca
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 
-export default function CocinaPage() {
+export function CocinaPage() {
   const { user, isLoading } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState("today")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isPedidosOpen, setIsPedidosOpen] = useState(true)
 
   useEffect(() => {
     if (!isLoading && (!user || (user.role !== "cocina" && user.role !== "alumno-cocina" && user.role !== "alumno-cocina-titular"))) {
-      router.push("/")
+      navigate("/")
     }
-  }, [user, isLoading, router])
+  }, [user, isLoading, navigate])
 
   if (isLoading || !user) {
     return (
@@ -40,19 +38,25 @@ export default function CocinaPage() {
     )
   }
 
+  const navItem = (value: string, label: string, onClick?: () => void) => {
+    const isActive = activeTab === value
+    const handleClick = () => {
+      setActiveTab(value)
+      onClick?.()
+    }
+    return { isActive, handleClick }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-(--md-page-bg) to-(--md-accent-light)/20">
       <Navbar />
       <main className="px-6 py-6 md:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col md:flex-row gap-8">
           
-          {/* Mobile Sticky Header Wrapper */}
+          {/* Mobile Sticky Header */}
           <div className="md:hidden sticky top-0 z-40 -mx-6 px-6 pt-[10px] pb-0 mb-6 bg-(--md-page-bg)/80 backdrop-blur-xl">
-            {/* Menu Box */}
             <div className="bg-(--md-surface)/95 border border-(--md-accent)/80 rounded-2xl p-4 flex items-center justify-between shadow-sm shadow-(--md-accent)/20">
-              <div>
-                <h1 className="text-xl font-bold text-(--md-heading)">Panel <span className="text-(--md-coral)">Cocina</span></h1>
-              </div>
+              <h1 className="text-xl font-bold text-(--md-heading)">Panel <span className="text-(--md-coral)">Cocina</span></h1>
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
                   <Button variant="outline" size="icon" className="border-(--md-accent) bg-(--md-surface) text-(--md-heading) hover:bg-(--md-accent)/50">
@@ -66,66 +70,45 @@ export default function CocinaPage() {
                     </SheetTitle>
                   </SheetHeader>
                   <div className="flex flex-col h-auto w-full bg-(--md-surface) border border-(--md-accent) p-1 gap-1 rounded-md">
-                    <button 
-                      onClick={() => { setActiveTab("today"); setIsMobileMenuOpen(false) }} 
-                      className={`text-left px-4 py-3 rounded-sm font-semibold flex items-center gap-3 transition-colors ${activeTab === "today" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-heading) hover:bg-(--md-accent)/20"}`}
-                    >
-                      <CalendarDays className="h-4 w-4 text-(--md-coral)" />
-                      Previsión y Totales
+                    <button onClick={() => { setActiveTab("today"); setIsMobileMenuOpen(false) }}
+                      className={`text-left px-4 py-3 rounded-sm font-semibold flex items-center gap-3 transition-colors ${activeTab === "today" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-heading) hover:bg-(--md-accent)/20"}`}>
+                      <CalendarDays className="h-4 w-4 text-(--md-coral)" /> Previsión y Totales
                     </button>
 
                     <div className="flex flex-col gap-1 mt-1">
-                      <button 
-                        onClick={() => setIsPedidosOpen(!isPedidosOpen)} 
-                        className="text-left px-4 py-3 rounded-sm font-semibold flex items-center justify-between text-(--md-heading) hover:bg-(--md-accent)/20 transition-colors"
-                      >
+                      <button onClick={() => setIsPedidosOpen(!isPedidosOpen)}
+                        className="text-left px-4 py-3 rounded-sm font-semibold flex items-center justify-between text-(--md-heading) hover:bg-(--md-accent)/20 transition-colors">
                         <div className="flex items-center gap-3">
-                          <PackageOpen className="h-4 w-4 text-(--md-coral)" />
-                          Pedidos
+                          <PackageOpen className="h-4 w-4 text-(--md-coral)" /> Pedidos
                         </div>
                         {isPedidosOpen ? <ChevronDown className="h-4 w-4 text-(--md-body)" /> : <ChevronRight className="h-4 w-4 text-(--md-body)" />}
                       </button>
-                      
                       {isPedidosOpen && (
                         <div className="flex flex-col gap-1 pl-4 ml-2 border-l-2 border-(--md-accent)/30 mt-1">
-                          <button 
-                            onClick={() => { setActiveTab("todo"); setIsMobileMenuOpen(false) }} 
-                            className={`text-left px-4 py-2 rounded-sm font-medium flex items-center gap-3 transition-colors ${activeTab === "todo" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading)"}`}
-                          >
-                            <ClipboardList className="h-4 w-4" />
-                            Gestión de Pedidos
+                          <button onClick={() => { setActiveTab("todo"); setIsMobileMenuOpen(false) }}
+                            className={`text-left px-4 py-2 rounded-sm font-medium flex items-center gap-3 transition-colors ${activeTab === "todo" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading)"}`}>
+                            <ClipboardList className="h-4 w-4" /> Gestión de Pedidos
                           </button>
-                          <button 
-                            onClick={() => { setActiveTab("search"); setIsMobileMenuOpen(false) }} 
-                            className={`text-left px-4 py-2 rounded-sm font-medium flex items-center gap-3 transition-colors ${activeTab === "search" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading)"}`}
-                          >
-                            <ScanLine className="h-4 w-4" />
-                            Pasaplatos / Entregas
+                          <button onClick={() => { setActiveTab("search"); setIsMobileMenuOpen(false) }}
+                            className={`text-left px-4 py-2 rounded-sm font-medium flex items-center gap-3 transition-colors ${activeTab === "search" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading)"}`}>
+                            <ScanLine className="h-4 w-4" /> Pasaplatos / Entregas
                           </button>
                         </div>
                       )}
                     </div>
-                    <button 
-                      onClick={() => { setActiveTab("menu"); setIsMobileMenuOpen(false) }} 
-                      className={`text-left px-4 py-3 rounded-sm font-semibold flex items-center gap-3 transition-colors ${activeTab === "menu" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-heading) hover:bg-(--md-accent)/20"}`}
-                    >
-                      <Utensils className="h-4 w-4 text-(--md-coral)" />
-                      Menú Semanal
+
+                    <button onClick={() => { setActiveTab("menu"); setIsMobileMenuOpen(false) }}
+                      className={`text-left px-4 py-3 rounded-sm font-semibold flex items-center gap-3 transition-colors ${activeTab === "menu" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-heading) hover:bg-(--md-accent)/20"}`}>
+                      <Utensils className="h-4 w-4 text-(--md-coral)" /> Menú Semanal
                     </button>
-                    <button 
-                      onClick={() => { setActiveTab("events"); setIsMobileMenuOpen(false) }} 
-                      className={`text-left px-4 py-3 rounded-sm font-semibold flex items-center gap-3 transition-colors ${activeTab === "events" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-heading) hover:bg-(--md-accent)/20"}`}
-                    >
-                      <Star className="h-4 w-4 text-(--md-coral)" />
-                      Eventos
+                    <button onClick={() => { setActiveTab("events"); setIsMobileMenuOpen(false) }}
+                      className={`text-left px-4 py-3 rounded-sm font-semibold flex items-center gap-3 transition-colors ${activeTab === "events" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-heading) hover:bg-(--md-accent)/20"}`}>
+                      <Star className="h-4 w-4 text-(--md-coral)" /> Eventos
                     </button>
                     {user?.role === "cocina" && (
-                      <button 
-                        onClick={() => { setActiveTab("alumnos"); setIsMobileMenuOpen(false) }} 
-                        className={`text-left px-4 py-3 rounded-sm font-semibold flex items-center gap-3 transition-colors ${activeTab === "alumnos" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-heading) hover:bg-(--md-accent)/20"}`}
-                      >
-                        <Users className="h-4 w-4 text-(--md-coral)" />
-                        Alumnos
+                      <button onClick={() => { setActiveTab("alumnos"); setIsMobileMenuOpen(false) }}
+                        className={`text-left px-4 py-3 rounded-sm font-semibold flex items-center gap-3 transition-colors ${activeTab === "alumnos" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-heading) hover:bg-(--md-accent)/20"}`}>
+                        <Users className="h-4 w-4 text-(--md-coral)" /> Alumnos
                       </button>
                     )}
                   </div>
@@ -141,35 +124,27 @@ export default function CocinaPage() {
             </div>
 
             <TabsList className="flex flex-col h-auto w-full bg-(--md-surface) border border-(--md-accent) p-2 gap-1 rounded-xl shadow-sm">
-              
               <TabsTrigger value="today" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-heading) font-semibold hover:bg-(--md-accent)/20 transition-colors py-2 px-3 gap-3 rounded-md">
-                <CalendarDays className="h-4 w-4 text-(--md-coral)" />
-                Previsión y Totales
+                <CalendarDays className="h-4 w-4 text-(--md-coral)" /> Previsión y Totales
               </TabsTrigger>
 
               <div className="h-px bg-(--md-accent)/30 w-full my-1"></div>
-              
+
               <div className="w-full flex flex-col gap-1">
-                <button 
-                  onClick={() => setIsPedidosOpen(!isPedidosOpen)}
-                  className="w-full flex items-center justify-between px-3 py-2 text-(--md-heading) font-semibold rounded-md hover:bg-(--md-accent)/20 transition-colors"
-                >
+                <button onClick={() => setIsPedidosOpen(!isPedidosOpen)}
+                  className="w-full flex items-center justify-between px-3 py-2 text-(--md-heading) font-semibold rounded-md hover:bg-(--md-accent)/20 transition-colors">
                   <div className="flex items-center gap-3">
-                    <PackageOpen className="h-4 w-4 text-(--md-coral)" />
-                    Pedidos
+                    <PackageOpen className="h-4 w-4 text-(--md-coral)" /> Pedidos
                   </div>
                   {isPedidosOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
                 </button>
-                
                 {isPedidosOpen && (
                   <div className="flex flex-col gap-1 pl-4 ml-4 border-l-2 border-(--md-accent)/40 mt-1">
                     <TabsTrigger value="todo" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2 gap-3 rounded-md">
-                      <ClipboardList className="h-4 w-4" />
-                      Gestión de Pedidos
+                      <ClipboardList className="h-4 w-4" /> Gestión de Pedidos
                     </TabsTrigger>
                     <TabsTrigger value="search" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2 gap-3 rounded-md">
-                      <ScanLine className="h-4 w-4" />
-                      Pasaplatos / Entregas
+                      <ScanLine className="h-4 w-4" /> Pasaplatos / Entregas
                     </TabsTrigger>
                   </div>
                 )}
@@ -178,63 +153,34 @@ export default function CocinaPage() {
               <div className="h-px bg-(--md-accent)/30 w-full my-1"></div>
 
               <TabsTrigger value="menu" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-heading) font-semibold hover:bg-(--md-accent)/20 transition-colors py-2 px-3 gap-3 rounded-md">
-                <Utensils className="h-4 w-4 text-(--md-coral)" />
-                Menú Semanal
+                <Utensils className="h-4 w-4 text-(--md-coral)" /> Menú Semanal
               </TabsTrigger>
               <TabsTrigger value="events" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-heading) font-semibold hover:bg-(--md-accent)/20 transition-colors py-2 px-3 gap-3 rounded-md">
-                <Star className="h-4 w-4 text-(--md-coral)" />
-                Eventos
+                <Star className="h-4 w-4 text-(--md-coral)" /> Eventos
               </TabsTrigger>
-                {user?.role === "cocina" && (
-                  <>
-                    <TabsTrigger
-                      value="alumnos"
-                      className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-heading) font-semibold hover:bg-(--md-accent)/20 transition-colors py-2 px-3 gap-3 rounded-md"
-                    >
-                      <Users className="h-4 w-4 text-(--md-coral)" />
-                      Alumnos
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="activity"
-                      className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-heading) font-semibold hover:bg-(--md-accent)/20 transition-colors py-2 px-3 gap-3 rounded-md"
-                    >
-                      <Activity className="h-4 w-4 text-(--md-coral)" />
-                      Actividad
-                    </TabsTrigger>
-                  </>
-                )}
-              </TabsList>
+              {user?.role === "cocina" && (
+                <>
+                  <TabsTrigger value="alumnos" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-heading) font-semibold hover:bg-(--md-accent)/20 transition-colors py-2 px-3 gap-3 rounded-md">
+                    <Users className="h-4 w-4 text-(--md-coral)" /> Alumnos
+                  </TabsTrigger>
+                  <TabsTrigger value="activity" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-heading) font-semibold hover:bg-(--md-accent)/20 transition-colors py-2 px-3 gap-3 rounded-md">
+                    <Activity className="h-4 w-4 text-(--md-coral)" /> Actividad
+                  </TabsTrigger>
+                </>
+              )}
+            </TabsList>
           </aside>
 
           <div className="flex-1 w-full min-w-0">
-            <TabsContent value="todo" className="mt-0">
-              <TodoListTab />
-            </TabsContent>
-
-            <TabsContent value="today" className="mt-0">
-              <TodayReservationsTab />
-            </TabsContent>
-
-            <TabsContent value="search" className="mt-0">
-              <SearchReservationsTab />
-            </TabsContent>
-
-            <TabsContent value="menu" className="mt-0">
-              <WeeklyMenuTab />
-            </TabsContent>
-
-            <TabsContent value="events" className="mt-0">
-              <GastroEventsTab />
-            </TabsContent>
-
+            <TabsContent value="todo" className="mt-0"><TodoListTab /></TabsContent>
+            <TabsContent value="today" className="mt-0"><TodayReservationsTab /></TabsContent>
+            <TabsContent value="search" className="mt-0"><SearchReservationsTab /></TabsContent>
+            <TabsContent value="menu" className="mt-0"><WeeklyMenuTab /></TabsContent>
+            <TabsContent value="events" className="mt-0"><GastroEventsTab /></TabsContent>
             {user?.role === "cocina" && (
               <>
-                <TabsContent value="alumnos" className="mt-0">
-                  <AlumnosTab />
-                </TabsContent>
-                <TabsContent value="activity" className="mt-0">
-                  <ActivityLogsTab />
-                </TabsContent>
+                <TabsContent value="alumnos" className="mt-0"><AlumnosTab /></TabsContent>
+                <TabsContent value="activity" className="mt-0"><ActivityLogsTab /></TabsContent>
               </>
             )}
           </div>
@@ -243,4 +189,3 @@ export default function CocinaPage() {
     </div>
   )
 }
-

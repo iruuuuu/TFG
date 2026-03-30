@@ -1,9 +1,6 @@
-"use client"
-
 import type React from "react"
-
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,13 +9,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ChefHat } from "lucide-react"
 
-export default function LoginPage() {
+export function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const { login } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,16 +23,16 @@ export default function LoginPage() {
     setIsLoading(true)
 
     const user = await login(email, password)
-    
+
     if (user) {
-      if (user.role === 'admin') {
-        router.push("/admin")
-      } else if (user.role === 'cocina' || user.role.startsWith('alumno-cocina')) {
-        router.push("/cocina")
-      } else if (user.role === 'maestro') {
-        router.push("/menu")
+      if (user.role === "admin") {
+        navigate("/admin")
+      } else if (user.role === "cocina" || user.role.startsWith("alumno-cocina")) {
+        navigate("/cocina")
+      } else if (user.role === "maestro") {
+        navigate("/menu")
       } else {
-        router.push("/")
+        navigate("/")
       }
     } else {
       setError("Credenciales incorrectas. Por favor, inténtalo de nuevo.")
@@ -108,8 +105,8 @@ export default function LoginPage() {
             <div className="space-y-1 text-[var(--gm-body)]">
               <p><span className="text-[var(--gm-coral)] font-medium">Admin:</span> admin@iesmendoza.es / admin123</p>
               <p><span className="text-[var(--gm-coral)] font-medium">Cocina:</span> cocina@iesmendoza.es / cocina123</p>
-              <p><span className="text-[var(--gm-coral)] font-medium">Alumno:</span> alumno@iesmendoza.es / alumno123</p>
               <p><span className="text-[var(--gm-coral)] font-medium">Maestro:</span> maestro@iesmendoza.es / maestro123</p>
+              <p><span className="text-[var(--gm-coral)] font-medium">Alumno:</span> alumno@iesmendoza.es / alumno123</p>
             </div>
           </div>
         </CardContent>

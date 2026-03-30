@@ -1,8 +1,6 @@
-"use client"
-
 import { Button } from "@/components/ui/button"
 import { ChefHat, ArrowRight, Utensils, Calendar } from "lucide-react"
-import Link from "next/link"
+import { Link } from "react-router-dom"
 
 export function LandingHero({ 
   primaryHref = "/login", 
@@ -45,13 +43,13 @@ export function LandingHero({
 
           <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
             <Button asChild size="lg" className="h-14 px-8 bg-[var(--gm-accent)] text-[var(--gm-heading)] hover:bg-[var(--gm-accent-hover)] text-lg font-bold shadow-md transition-all hover:scale-105">
-              <Link href={primaryHref} className="flex items-center gap-2">
+              <Link to={primaryHref} className="flex items-center gap-2">
                 {primaryLabel} <ArrowRight className="h-5 w-5" />
               </Link>
             </Button>
             
             <Button asChild variant="outline" size="lg" className="h-14 px-8 border-2 border-[var(--gm-accent)] text-[var(--gm-heading)] hover:bg-[var(--gm-accent)]/20 text-lg font-semibold transition-all">
-              <Link href="/menu" className="flex items-center gap-2">
+              <Link to="/menu" className="flex items-center gap-2">
                 Consultar Menú <Utensils className="h-5 w-5 text-[var(--gm-coral)]" />
               </Link>
             </Button>
