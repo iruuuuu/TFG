@@ -34,7 +34,14 @@ export function GastroEventsTab() {
   const [selectedEvent, setSelectedEvent] = useState<GastroEvent | null>(null)
   const [selectedAttendanceEvent, setSelectedAttendanceEvent] = useState<GastroEvent | null>(null)
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    description: string;
+    date: string;
+    time: string;
+    maxCapacity: number | string;
+    dishes: string[];
+  }>({
     name: "",
     description: "",
     date: "",
@@ -60,7 +67,7 @@ export function GastroEventsTab() {
       name: formData.name,
       description: formData.description,
       date: eventDate,
-      maxCapacity: formData.maxCapacity,
+      maxCapacity: Number(formData.maxCapacity) || 20,
       dishes: validDishes,
       status: "active",
       createdBy: "cocina@iesmendoza.es",
@@ -96,7 +103,7 @@ export function GastroEventsTab() {
       name: formData.name,
       description: formData.description,
       date: eventDate,
-      maxCapacity: formData.maxCapacity,
+      maxCapacity: Number(formData.maxCapacity) || 20,
       dishes: validDishes,
     })
 
@@ -258,7 +265,7 @@ export function GastroEventsTab() {
                     min="1"
                     max="100"
                     value={formData.maxCapacity}
-                    onChange={(e) => setFormData({ ...formData, maxCapacity: Number.parseInt(e.target.value) })}
+                    onChange={(e) => setFormData({ ...formData, maxCapacity: e.target.value === "" ? "" : Number(e.target.value) })}
                   />
                 </div>
 
@@ -441,7 +448,7 @@ export function GastroEventsTab() {
                 min="1"
                 max="100"
                 value={formData.maxCapacity}
-                onChange={(e) => setFormData({ ...formData, maxCapacity: Number.parseInt(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, maxCapacity: e.target.value === "" ? "" : Number(e.target.value) })}
               />
             </div>
 

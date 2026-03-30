@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { UserPlus, Pencil, Trash2, ShieldCheck, ChefHat, GraduationCap, Users, AlertTriangle } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useState } from "react"
+import { useAuth } from "@/lib/auth-context"
 import { useToast } from "@/hooks/use-toast"
 import {
   AlertDialog,
@@ -34,56 +35,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export function UsersTab() {
   const { toast } = useToast()
-  const [users, setUsers] = useState([
-    {
-      id: "1",
-      name: "Administrador Sistema",
-      email: "admin@iesmendoza.es",
-      role: "admin" as const,
-    },
-    {
-      id: "2",
-      name: "Juan Cocina",
-      email: "juan.cocina@iesmendoza.es",
-      role: "cocina" as const,
-    },
-    {
-      id: "3",
-      name: "Marta Cocina",
-      email: "marta.cocina@iesmendoza.es",
-      role: "cocina" as const,
-    },
-    {
-      id: "4",
-      name: "Profesor García",
-      email: "garcia@iesmendoza.es",
-      role: "maestro" as const,
-    },
-    {
-      id: "5",
-      name: "Profesora Martínez",
-      email: "martinez@iesmendoza.es",
-      role: "maestro" as const,
-    },
-    {
-      id: "6",
-      name: "Profesor López",
-      email: "lopez@iesmendoza.es",
-      role: "maestro" as const,
-    },
-    {
-      id: "101",
-      name: "Carlos Estudiante",
-      email: "carlos.alum@iesmendoza.es",
-      role: "alumno-cocina" as const,
-    },
-  ])
+  const { allUsers: users, addUser, updateUser, deleteUser } = useAuth()
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<{ id: string; name: string; email: string; role: string; password?: string } | null>(null)
+  const [newUser, setNewUser] = useState({ name: "", email: "", password: "", role: "alumno-cocina" })
 
   const filteredUsers = (role: string | "all") => {
     if (role === "all") return users
+    if (role === "alumno-cocina") {
+      return users.filter(u => u.role === "alumno-cocina" || u.role === "alumno-cocina-titular")
+    }
     return users.filter((u) => u.role === role)
   }
 
@@ -98,7 +61,7 @@ export function UsersTab() {
   }
 
   const handleDeleteUser = (id: string, name: string) => {
-    setUsers((prev) => prev.filter((u) => u.id !== id))
+    deleteUser(id)
     toast({
       title: "Usuario eliminado",
       description: `El usuario ${name} ha sido eliminado correctamente.`,
@@ -115,9 +78,12 @@ export function UsersTab() {
     e.preventDefault()
     if (!editingUser) return
 
-    setUsers((prev) => 
-      prev.map((u) => u.id === editingUser.id ? { ...u, ...editingUser, role: editingUser.role as any } : u)
-    )
+    updateUser(editingUser.id, {
+      name: editingUser.name,
+      email: editingUser.email,
+      role: editingUser.role,
+      ...(editingUser.password ? { password: editingUser.password } : {})
+    })
     
     setIsEditDialogOpen(false)
     setEditingUser(null)
@@ -125,6 +91,25 @@ export function UsersTab() {
     toast({
       title: "Usuario actualizado",
       description: `Los datos de ${editingUser.name} han sido guardados.`,
+    })
+  }
+
+  const handleAddUser = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    await addUser({
+      name: newUser.name,
+      email: newUser.email,
+      password: newUser.password,
+      role: newUser.role as "admin" | "cocina" | "maestro" | "alumno-cocina",
+    })
+
+    setIsAddDialogOpen(false)
+    setNewUser({ name: "", email: "", password: "", role: "alumno-cocina" })
+
+    toast({
+      title: "Usuario creado",
+      description: `El usuario ${newUser.name} ha sido registrado exitosamente.`,
     })
   }
 
@@ -292,10 +277,86 @@ export function UsersTab() {
               <CardTitle className="text-2xl text-(--md-heading)">Gestión de <span className="text-(--md-coral)">Usuarios</span></CardTitle>
               <CardDescription className="text-(--md-body)">Administra y organiza los perfiles del centro</CardDescription>
             </div>
-            <Button className="bg-(--md-accent) text-(--md-heading) hover:bg-(--md-accent-light) gap-2 w-full sm:w-auto">
-              <UserPlus className="h-4 w-4" />
-              Nuevo Usuario
-            </Button>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-(--md-accent) text-(--md-heading) hover:bg-(--md-accent-light) gap-2 w-full sm:w-auto">
+                  <UserPlus className="h-4 w-4" />
+                  Nuevo Usuario
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-(--md-surface) border-(--md-accent)">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl text-(--md-heading)">Nuevo <span className="text-(--md-coral)">Usuario</span></DialogTitle>
+                  <DialogDescription className="text-(--md-body)">
+                    Crea un nuevo usuario y asígnale un rol en el sistema.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleAddUser} className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="add-name" className="text-(--md-heading)">Nombre Completo</Label>
+                    <Input 
+                      id="add-name" 
+                      value={newUser.name} 
+                      onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                      className="border-(--md-accent) focus-visible:ring-(--md-coral)/20"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="add-email" className="text-(--md-heading)">Correo Electrónico</Label>
+                    <Input 
+                      id="add-email" 
+                      type="email"
+                      value={newUser.email} 
+                      onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                      className="border-(--md-accent) focus-visible:ring-(--md-coral)/20"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="add-password" className="text-(--md-heading)">Contraseña</Label>
+                    <Input 
+                      id="add-password" 
+                      type="password"
+                      value={newUser.password} 
+                      onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                      className="border-(--md-accent) focus-visible:ring-(--md-coral)/20"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="add-role" className="text-(--md-heading)">Rol de Usuario</Label>
+                    <Select 
+                      value={newUser.role} 
+                      onValueChange={(val) => setNewUser({ ...newUser, role: val })}
+                    >
+                      <SelectTrigger className="border-(--md-accent) focus:ring-(--md-coral)/20">
+                        <SelectValue placeholder="Seleccionar rol" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="admin">Administrador</SelectItem>
+                        <SelectItem value="cocina">Cocina</SelectItem>
+                        <SelectItem value="alumno-cocina">Alumno Cocina</SelectItem>
+                        <SelectItem value="maestro">Profesor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <DialogFooter className="pt-4">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setIsAddDialogOpen(false)}
+                      className="border-(--md-accent) text-(--md-body) hover:bg-(--md-accent)/50"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button type="submit" className="bg-(--md-accent) text-(--md-heading) hover:bg-(--md-accent-light)">
+                      Crear Usuario
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardHeader>
         <CardContent>
