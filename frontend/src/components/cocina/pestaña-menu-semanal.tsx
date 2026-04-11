@@ -8,10 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Calendar, Plus, ChevronLeft, ChevronRight } from "lucide-react"
-import { useData } from "@/lib/data-context"
+import { useDatos } from "@/lib/data-context"
 import { useAuth } from "@/lib/auth-context"
 import { useToast } from "@/hooks/use-toast"
-import { CreateDishDialog } from "./create-dish-dialog"
+import { CreateDishDialog } from "./dialogo-crear-plato"
 
 const daysOfWeek = [
   { key: "Lunes", label: "Lunes" },
@@ -24,10 +24,10 @@ const daysOfWeek = [
 type Category = "entrante" | "principal" | "postre"
 
 export function WeeklyMenuTab() {
-  const { menuItems, weeklyMenu, toggleWeeklyMenuItem, clearWeeklyMenu, logActivity } = useData()
-  const { user } = useAuth()
+  const { platosMenu, menuSemanal, alternarPlatoMenuSemanal, limpiarMenuSemanal, registrarActividad } = useDatos()
+  const { usuario } = useAuth()
   const { toast } = useToast()
-  const [openDialog, setOpenDialog] = useState<{ day: string; category: Category } | null>(null)
+  const [openDialog, setOpenDialog] = useState<{ day: string; categoria: Category } | null>(null)
   
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
@@ -43,24 +43,24 @@ export function WeeklyMenuTab() {
     }
   }
 
-  const getItemsByCategory = (category: string) => {
-    return menuItems.filter((item) => item.category === category)
+  const getItemsByCategory = (categoria: string) => {
+    return platosMenu.filter((item) => item.categoria === categoria)
   }
 
-  const getCurrentItems = (day: string, category: Category) => {
-    const itemIds = weeklyMenu[day]?.[category] || []
-    return menuItems.filter((item) => itemIds.includes(item.id))
+  const getCurrentItems = (day: string, categoria: Category) => {
+    const itemIds = menuSemanal[day]?.[categoria] || []
+    return platosMenu.filter((item) => itemIds.includes(item.id))
   }
 
-  const isItemSelected = (day: string, category: Category, itemId: string) => {
-    return weeklyMenu[day]?.[category]?.includes(itemId) || false
+  const isItemSelected = (day: string, categoria: Category, itemId: string) => {
+    return menuSemanal[day]?.[categoria]?.includes(itemId) || false
   }
 
-  const handleSelectItem = (day: string, category: Category, itemId: string) => {
-    toggleWeeklyMenuItem(day, category, itemId)
+  const handleSelectItem = (day: string, categoria: Category, itemId: string) => {
+    alternarPlatoMenuSemanal(day, categoria, itemId)
     toast({
       title: "Menú actualizado",
-      description: `Se ha actualizado el ${category} del ${day}`,
+      description: `Se ha actualizado el ${categoria} del ${day}`,
     })
   }
 
@@ -72,7 +72,7 @@ export function WeeklyMenuTab() {
           <p className="text-(--md-body)">Planifica el menú de la semana y gestiona los platos</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {(user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
+          {(usuario?.rol === "cocina" || usuario?.rol === "alumno-cocina-titular") && (
             <>
               <CreateDishDialog />
               <AlertDialog>
@@ -92,9 +92,9 @@ export function WeeklyMenuTab() {
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
                     <AlertDialogAction onClick={() => {
-                      clearWeeklyMenu()
-                      if (user) {
-                        logActivity("Vació el Menú Semanal", "Se reinició el menú completo", user.name, user.role)
+                      limpiarMenuSemanal()
+                      if (usuario) {
+                        registrarActividad("Vació el Menú Semanal", "Se reinició el menú completo", usuario.nombre, usuario.rol)
                       }
                       toast({
                         title: "Semana reiniciada",
@@ -160,12 +160,12 @@ export function WeeklyMenuTab() {
                 <div>
                   <div className="mb-3 flex items-center justify-between">
                     <h3 className="font-semibold">Entrantes</h3>
-                    {(user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
+                    {(usuario?.rol === "cocina" || usuario?.rol === "alumno-cocina-titular") && (
                       <Dialog
-                        open={openDialog?.day === day.key && openDialog?.category === "entrante"}
+                        open={openDialog?.day === day.key && openDialog?.categoria === "entrante"}
                         onOpenChange={(open) => {
                           if (open) {
-                            setOpenDialog({ day: day.key, category: "entrante" })
+                            setOpenDialog({ day: day.key, categoria: "entrante" })
                           } else {
                             setOpenDialog(null)
                           }
@@ -193,8 +193,8 @@ export function WeeklyMenuTab() {
                                 >
                                   <div className="text-left w-full flex justify-between items-center">
                                     <div>
-                                      <p className="font-medium text-(--md-heading)">{item.name}</p>
-                                      <p className="text-xs text-(--md-body)">{item.description}</p>
+                                      <p className="font-medium text-(--md-heading)">{item.nombre}</p>
+                                      <p className="text-xs text-(--md-body)">{item.descripcion}</p>
                                     </div>
                                     {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent)">Añadido</Badge>}
                                   </div>
@@ -211,12 +211,12 @@ export function WeeklyMenuTab() {
                       getCurrentItems(day.key, "entrante").map((item) => (
                         <div key={item.id} className="flex items-center justify-between rounded-lg border bg-background p-3">
                           <div>
-                            <p className="font-medium">{item.name}</p>
-                            <p className="text-sm text-muted-foreground">{item.description}</p>
+                            <p className="font-medium">{item.nombre}</p>
+                            <p className="text-sm text-muted-foreground">{item.descripcion}</p>
                           </div>
-                          {item.allergens && item.allergens.length > 0 && (
+                          {item.alergenos && item.alergenos.length > 0 && (
                             <div className="flex gap-1">
-                              {item.allergens.map((allergen) => (
+                              {item.alergenos.map((allergen) => (
                                 <Badge key={allergen} variant="outline" className="text-xs">
                                   {allergen}
                                 </Badge>
@@ -234,12 +234,12 @@ export function WeeklyMenuTab() {
                 <div>
                   <div className="mb-3 flex items-center justify-between">
                     <h3 className="font-semibold">Principales</h3>
-                    {(user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
+                    {(usuario?.rol === "cocina" || usuario?.rol === "alumno-cocina-titular") && (
                       <Dialog
-                        open={openDialog?.day === day.key && openDialog?.category === "principal"}
+                        open={openDialog?.day === day.key && openDialog?.categoria === "principal"}
                         onOpenChange={(open) => {
                           if (open) {
-                            setOpenDialog({ day: day.key, category: "principal" })
+                            setOpenDialog({ day: day.key, categoria: "principal" })
                           } else {
                             setOpenDialog(null)
                           }
@@ -267,8 +267,8 @@ export function WeeklyMenuTab() {
                                 >
                                   <div className="text-left w-full flex justify-between items-center">
                                     <div>
-                                      <p className="font-medium text-(--md-heading)">{item.name}</p>
-                                      <p className="text-xs text-(--md-body)">{item.description}</p>
+                                      <p className="font-medium text-(--md-heading)">{item.nombre}</p>
+                                      <p className="text-xs text-(--md-body)">{item.descripcion}</p>
                                     </div>
                                     {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent)">Añadido</Badge>}
                                   </div>
@@ -285,12 +285,12 @@ export function WeeklyMenuTab() {
                       getCurrentItems(day.key, "principal").map((item) => (
                         <div key={item.id} className="flex items-center justify-between rounded-lg border bg-background p-3">
                           <div>
-                            <p className="font-medium">{item.name}</p>
-                            <p className="text-sm text-muted-foreground">{item.description}</p>
+                            <p className="font-medium">{item.nombre}</p>
+                            <p className="text-sm text-muted-foreground">{item.descripcion}</p>
                           </div>
-                          {item.allergens && item.allergens.length > 0 && (
+                          {item.alergenos && item.alergenos.length > 0 && (
                             <div className="flex gap-1">
-                              {item.allergens.map((allergen) => (
+                              {item.alergenos.map((allergen) => (
                                 <Badge key={allergen} variant="outline" className="text-xs">
                                   {allergen}
                                 </Badge>
@@ -310,12 +310,12 @@ export function WeeklyMenuTab() {
                 <div>
                   <div className="mb-3 flex items-center justify-between">
                     <h3 className="font-semibold">Postres</h3>
-                    {(user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
+                    {(usuario?.rol === "cocina" || usuario?.rol === "alumno-cocina-titular") && (
                       <Dialog
-                        open={openDialog?.day === day.key && openDialog?.category === "postre"}
+                        open={openDialog?.day === day.key && openDialog?.categoria === "postre"}
                         onOpenChange={(open) => {
                           if (open) {
-                            setOpenDialog({ day: day.key, category: "postre" })
+                            setOpenDialog({ day: day.key, categoria: "postre" })
                           } else {
                             setOpenDialog(null)
                           }
@@ -343,8 +343,8 @@ export function WeeklyMenuTab() {
                                 >
                                   <div className="text-left w-full flex justify-between items-center">
                                     <div>
-                                      <p className="font-medium text-(--md-heading)">{item.name}</p>
-                                      <p className="text-xs text-(--md-body)">{item.description}</p>
+                                      <p className="font-medium text-(--md-heading)">{item.nombre}</p>
+                                      <p className="text-xs text-(--md-body)">{item.descripcion}</p>
                                     </div>
                                     {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent)">Añadido</Badge>}
                                   </div>
@@ -361,12 +361,12 @@ export function WeeklyMenuTab() {
                       getCurrentItems(day.key, "postre").map((item) => (
                         <div key={item.id} className="flex items-center justify-between rounded-lg border bg-background p-3">
                           <div>
-                            <p className="font-medium">{item.name}</p>
-                            <p className="text-sm text-muted-foreground">{item.description}</p>
+                            <p className="font-medium">{item.nombre}</p>
+                            <p className="text-sm text-muted-foreground">{item.descripcion}</p>
                           </div>
-                          {item.allergens && item.allergens.length > 0 && (
+                          {item.alergenos && item.alergenos.length > 0 && (
                             <div className="flex gap-1">
-                              {item.allergens.map((allergen) => (
+                              {item.alergenos.map((allergen) => (
                                 <Badge key={allergen} variant="outline" className="text-xs">
                                   {allergen}
                                 </Badge>

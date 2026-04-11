@@ -19,72 +19,72 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, Pencil, Trash2 } from "lucide-react"
-import { useData } from "@/lib/data-context"
+import { useDatos } from "@/lib/data-context"
 import { useToast } from "@/hooks/use-toast"
-import type { MenuItem } from "@/lib/types"
+import type { PlatoMenu } from "@/lib/types"
 
 export function MenusTab() {
-  const { menuItems, addMenuItem, updateMenuItem, deleteMenuItem } = useData()
+  const { platosMenu, añadirPlatoMenu, actualizarPlatoMenu, eliminarPlatoMenu } = useDatos()
   const { toast } = useToast()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingItem, setEditingItem] = useState<MenuItem | null>(null)
+  const [editingItem, setEditingItem] = useState<PlatoMenu | null>(null)
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    category: "entrante" as "entrante" | "principal" | "postre",
-    allergens: "",
+    nombre: "",
+    descripcion: "",
+    categoria: "entrante" as "entrante" | "principal" | "postre",
+    alergenos: "",
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
     const itemData = {
-      name: formData.name,
-      description: formData.description,
-      category: formData.category,
-      allergens: formData.allergens
+      nombre: formData.nombre,
+      descripcion: formData.descripcion,
+      categoria: formData.categoria,
+      alergenos: formData.alergenos
         .split(",")
         .map((a) => a.trim())
         .filter(Boolean),
-      available: true,
+      disponible: true,
     }
 
     if (editingItem) {
-      updateMenuItem(editingItem.id, itemData)
+      actualizarPlatoMenu(editingItem.id, itemData)
       toast({
         title: "Plato actualizado",
-        description: `${formData.name} ha sido actualizado correctamente.`,
+        description: `${formData.nombre} ha sido actualizado correctamente.`,
       })
     } else {
-      addMenuItem(itemData)
+      añadirPlatoMenu(itemData)
       toast({
         title: "Plato añadido",
-        description: `${formData.name} ha sido añadido al menú.`,
+        description: `${formData.nombre} ha sido añadido al menú.`,
       })
     }
 
     setIsDialogOpen(false)
     setEditingItem(null)
-    setFormData({ name: "", description: "", category: "entrante", allergens: "" })
+    setFormData({ nombre: "", descripcion: "", categoria: "entrante", alergenos: "" })
   }
 
-  const handleEdit = (item: MenuItem) => {
+  const handleEdit = (item: PlatoMenu) => {
     setEditingItem(item)
     setFormData({
-      name: item.name,
-      description: item.description,
-      category: item.category,
-      allergens: item.allergens.join(", "),
+      nombre: item.nombre,
+      descripcion: item.descripcion,
+      categoria: item.categoria,
+      alergenos: item.alergenos.join(", "),
     })
     setIsDialogOpen(true)
   }
 
-  const handleDelete = (item: MenuItem) => {
-    if (confirm(`¿Estás seguro de que quieres eliminar "${item.name}"?`)) {
-      deleteMenuItem(item.id)
+  const handleDelete = (item: PlatoMenu) => {
+    if (confirm(`¿Estás seguro de que quieres eliminar "${item.nombre}"?`)) {
+      eliminarPlatoMenu(item.id)
       toast({
         title: "Plato eliminado",
-        description: `${item.name} ha sido eliminado del menú.`,
+        description: `${item.nombre} ha sido eliminado del menú.`,
       })
     }
   }
@@ -102,7 +102,7 @@ export function MenusTab() {
               className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent-hover) shadow-sm"
               onClick={() => {
                 setEditingItem(null)
-                setFormData({ name: "", description: "", category: "entrante", allergens: "" })
+                setFormData({ nombre: "", descripcion: "", categoria: "entrante", alergenos: "" })
               }}
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -121,18 +121,18 @@ export function MenusTab() {
                   <Input
                     id="name"
                     placeholder="Ej: Paella valenciana"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    value={formData.nombre}
+                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="category">Categoría</Label>
+                  <Label htmlFor="categoria">Categoría</Label>
                   <Select
-                    value={formData.category}
-                    onValueChange={(value) => setFormData({ ...formData, category: value as any })}
+                    value={formData.categoria}
+                    onValueChange={(value) => setFormData({ ...formData, categoria: value as any })}
                   >
-                    <SelectTrigger id="category">
+                    <SelectTrigger id="categoria">
                       <SelectValue placeholder="Selecciona categoría" />
                     </SelectTrigger>
                     <SelectContent>
@@ -149,8 +149,8 @@ export function MenusTab() {
                   id="description"
                   placeholder="Describe el plato..."
                   rows={3}
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  value={formData.descripcion}
+                  onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                   required
                 />
               </div>
@@ -159,8 +159,8 @@ export function MenusTab() {
                 <Input
                   id="allergens"
                   placeholder="Ej: gluten, lácteos (separados por comas)"
-                  value={formData.allergens}
-                  onChange={(e) => setFormData({ ...formData, allergens: e.target.value })}
+                  value={formData.alergenos}
+                  onChange={(e) => setFormData({ ...formData, alergenos: e.target.value })}
                 />
               </div>
               <div className="flex justify-end gap-2">
@@ -177,16 +177,16 @@ export function MenusTab() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {menuItems.map((item) => (
+        {platosMenu.map((item) => (
           <Card key={item.id} className="border-(--md-accent) bg-(--md-surface)">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-lg text-(--md-heading)">{item.name}</CardTitle>
-                  <CardDescription className="mt-1 text-(--md-body)">{item.description}</CardDescription>
+                  <CardTitle className="text-lg text-(--md-heading)">{item.nombre}</CardTitle>
+                  <CardDescription className="mt-1 text-(--md-body)">{item.descripcion}</CardDescription>
                 </div>
-                <Badge variant={item.available ? "default" : "secondary"} className={`ml-2 ${item.available ? "bg-(--md-accent) text-(--md-heading)" : "bg-(--md-muted-bg) text-(--md-body)"}`}>
-                  {item.available ? "Disponible" : "No disponible"}
+                <Badge variant={item.disponible ? "default" : "secondary"} className={`ml-2 ${item.disponible ? "bg-(--md-accent) text-(--md-heading)" : "bg-(--md-muted-bg) text-(--md-body)"}`}>
+                  {item.disponible ? "Disponible" : "No disponible"}
                 </Badge>
               </div>
             </CardHeader>
@@ -194,13 +194,13 @@ export function MenusTab() {
               <div className="space-y-3">
                 <div>
                   <p className="text-xs font-medium text-(--md-body)">Categoría</p>
-                  <p className="text-sm capitalize text-(--md-heading)">{item.category}</p>
+                  <p className="text-sm capitalize text-(--md-heading)">{item.categoria}</p>
                 </div>
-                {item.allergens.length > 0 && (
+                {item.alergenos.length > 0 && (
                   <div>
                     <p className="text-xs font-medium text-(--md-coral)">Alérgenos</p>
                     <div className="mt-1 flex flex-wrap gap-1">
-                      {item.allergens.map((allergen) => (
+                      {item.alergenos.map((allergen) => (
                         <Badge key={allergen} variant="outline" className="text-xs border-(--md-accent) text-(--md-body)">
                           {allergen}
                         </Badge>

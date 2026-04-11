@@ -19,25 +19,25 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/lib/auth-context"
-import { useData } from "@/lib/data-context"
+import { useDatos } from "@/lib/data-context"
 import { Star, MessageSquare, Plus } from "lucide-react"
-import type { Rating } from "@/lib/types"
+import type { Valoracion } from "@/lib/types"
 
 export function RatingsView() {
   const { toast } = useToast()
-  const { user } = useAuth()
-  const { ratings, menuItems, addRating } = useData()
+  const { usuario } = useAuth()
+  const { valoraciones, platosMenu, añadirValoracion } = useDatos()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [newRating, setNewRating] = useState({
-    menuItemId: "",
-    rating: 0,
-    comment: "",
+    idPlatoMenu: "",
+    puntuacion: 0,
+    comentario: "",
   })
 
   const handleSubmitRating = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!newRating.menuItemId || newRating.rating === 0) {
+    if (!newRating.idPlatoMenu || newRating.puntuacion === 0) {
       toast({
         title: "Error",
         description: "Por favor, selecciona un plato y una puntuación.",
@@ -46,37 +46,37 @@ export function RatingsView() {
       return
     }
 
-    const menuItem = menuItems.find((item) => item.id === newRating.menuItemId)
+    const menuItem = platosMenu.find((item) => item.id === newRating.idPlatoMenu)
 
-    const rating: Omit<Rating, "id" | "date"> = {
-      userId: user?.id || "",
-      userName: user?.name || "",
-      menuItemId: newRating.menuItemId,
-      rating: newRating.rating,
-      comment: newRating.comment,
+    const puntuacion: Omit<Valoracion, "id" | "fecha"> = {
+      idUsuario: usuario?.id || "",
+      nombreUsuario: usuario?.nombre || "",
+      idPlatoMenu: newRating.idPlatoMenu,
+      puntuacion: newRating.puntuacion,
+      comentario: newRating.comentario,
     }
 
-    addRating(rating)
+    añadirValoracion(puntuacion)
     setIsDialogOpen(false)
-    setNewRating({ menuItemId: "", rating: 0, comment: "" })
+    setNewRating({ idPlatoMenu: "", puntuacion: 0, comentario: "" })
 
     toast({
       title: "Valoración enviada",
-      description: `Tu valoración de "${menuItem?.name}" ha sido registrada.`,
+      description: `Tu valoración de "${menuItem?.nombre}" ha sido registrada.`,
     })
   }
 
-  const getAverageRating = (menuItemId: string) => {
-    const itemRatings = ratings.filter((r) => r.menuItemId === menuItemId)
+  const getAverageRating = (idPlatoMenu: string) => {
+    const itemRatings = valoraciones.filter((r) => r.idPlatoMenu === idPlatoMenu)
     if (itemRatings.length === 0) return 0
-    return itemRatings.reduce((acc, r) => acc + r.rating, 0) / itemRatings.length
+    return itemRatings.reduce((acc, r) => acc + r.puntuacion, 0) / itemRatings.length
   }
 
   const StarRating = ({
-    rating,
+    puntuacion,
     onRatingChange,
     interactive = false,
-  }: { rating: number; onRatingChange?: (rating: number) => void; interactive?: boolean }) => {
+  }: { puntuacion: number; onRatingChange?: (puntuacion: number) => void; interactive?: boolean }) => {
     const [hover, setHover] = useState(0)
 
     return (
@@ -85,7 +85,7 @@ export function RatingsView() {
           <Star
             key={star}
             className={`h-5 w-5 ${interactive ? "cursor-pointer" : ""} ${
-              star <= (interactive ? hover || rating : rating) ? "fill-md-accent text-md-accent" : "text-[#E5E5E5]"
+              star <= (interactive ? hover || puntuacion : puntuacion) ? "fill-md-accent text-md-accent" : "text-[#E5E5E5]"
             }`}
             onClick={() => interactive && onRatingChange?.(star)}
             onMouseEnter={() => interactive && setHover(star)}
@@ -124,16 +124,16 @@ export function RatingsView() {
                   <div className="space-y-2">
                     <Label htmlFor="dish">Plato</Label>
                     <Select
-                      value={newRating.menuItemId}
-                      onValueChange={(value) => setNewRating({ ...newRating, menuItemId: value })}
+                      value={newRating.idPlatoMenu}
+                      onValueChange={(value) => setNewRating({ ...newRating, idPlatoMenu: value })}
                     >
                       <SelectTrigger id="dish">
                         <SelectValue placeholder="Selecciona un plato" />
                       </SelectTrigger>
                       <SelectContent>
-                        {menuItems.map((item) => (
+                        {platosMenu.map((item) => (
                           <SelectItem key={item.id} value={item.id}>
-                            {item.name}
+                            {item.nombre}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -143,8 +143,8 @@ export function RatingsView() {
                   <div className="space-y-2">
                     <Label>Puntuación</Label>
                     <StarRating
-                      rating={newRating.rating}
-                      onRatingChange={(rating) => setNewRating({ ...newRating, rating })}
+                      puntuacion={newRating.puntuacion}
+                      onRatingChange={(puntuacion) => setNewRating({ ...newRating, puntuacion })}
                       interactive
                     />
                   </div>
@@ -154,8 +154,8 @@ export function RatingsView() {
                     <Textarea
                       id="comment"
                       placeholder="Cuéntanos tu experiencia..."
-                      value={newRating.comment}
-                      onChange={(e) => setNewRating({ ...newRating, comment: e.target.value })}
+                      value={newRating.comentario}
+                      onChange={(e) => setNewRating({ ...newRating, comentario: e.target.value })}
                       rows={4}
                     />
                   </div>
@@ -176,19 +176,19 @@ export function RatingsView() {
       </Card>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {menuItems
-          .filter((item) => ratings.some((r) => r.menuItemId === item.id))
+        {platosMenu
+          .filter((item) => valoraciones.some((r) => r.idPlatoMenu === item.id))
           .map((item) => {
-            const itemRatings = ratings.filter((r) => r.menuItemId === item.id)
+            const itemRatings = valoraciones.filter((r) => r.idPlatoMenu === item.id)
           const avgRating = getAverageRating(item.id)
 
           return (
             <Card key={item.id}>
               <CardHeader>
-                <CardTitle className="text-lg">{item.name}</CardTitle>
-                <CardDescription>{item.description}</CardDescription>
+                <CardTitle className="text-lg">{item.nombre}</CardTitle>
+                <CardDescription>{item.descripcion}</CardDescription>
                 <div className="flex items-center justify-between pt-2">
-                  <StarRating rating={Math.round(avgRating)} />
+                  <StarRating puntuacion={Math.round(avgRating)} />
                   <Badge variant="outline">{avgRating > 0 ? avgRating.toFixed(1) : "Sin valorar"}</Badge>
                 </div>
               </CardHeader>
@@ -202,15 +202,15 @@ export function RatingsView() {
                   {itemRatings.length > 0 && (
                     <div className="space-y-2 border-t pt-3">
                       <p className="text-sm font-medium">Últimas opiniones:</p>
-                      {itemRatings.slice(0, 2).map((rating) => (
-                        <div key={rating.id} className="rounded-lg bg-muted p-3 text-sm">
+                      {itemRatings.slice(0, 2).map((puntuacion) => (
+                        <div key={puntuacion.id} className="rounded-lg bg-muted p-3 text-sm">
                           <div className="mb-1 flex items-center justify-between">
-                            <span className="font-medium">{rating.userName}</span>
-                            <StarRating rating={rating.rating} />
+                            <span className="font-medium">{puntuacion.nombreUsuario}</span>
+                            <StarRating puntuacion={puntuacion.puntuacion} />
                           </div>
-                          {rating.comment && <p className="text-muted-foreground">{rating.comment}</p>}
+                          {puntuacion.comentario && <p className="text-muted-foreground">{puntuacion.comentario}</p>}
                           <p className="mt-1 text-xs text-muted-foreground">
-                            {rating.date.toLocaleDateString("es-ES")}
+                            {puntuacion.fecha.toLocaleDateString("es-ES")}
                           </p>
                         </div>
                       ))}
@@ -233,28 +233,28 @@ export function RatingsView() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {ratings.length === 0 ? (
+            {valoraciones.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <Star className="h-12 w-12 text-muted-foreground" />
                 <p className="mt-4 text-muted-foreground">Todavía no hay valoraciones</p>
               </div>
             ) : (
-              ratings.map((rating) => {
-                const menuItem = menuItems.find((item) => item.id === rating.menuItemId)
+              valoraciones.map((puntuacion) => {
+                const menuItem = platosMenu.find((item) => item.id === puntuacion.idPlatoMenu)
                 return (
-                  <div key={rating.id} className="rounded-lg border bg-background p-4">
+                  <div key={puntuacion.id} className="rounded-lg border bg-background p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold">{rating.userName}</span>
+                          <span className="font-semibold">{puntuacion.nombreUsuario}</span>
                           <span className="text-sm text-muted-foreground">valoró</span>
-                          <span className="font-medium text-md-coral">{menuItem?.name}</span>
+                          <span className="font-medium text-md-coral">{menuItem?.nombre}</span>
                         </div>
-                        <StarRating rating={rating.rating} />
-                        {rating.comment && <p className="text-sm text-muted-foreground">{rating.comment}</p>}
+                        <StarRating puntuacion={puntuacion.puntuacion} />
+                        {puntuacion.comentario && <p className="text-sm text-muted-foreground">{puntuacion.comentario}</p>}
                         <p className="text-xs text-muted-foreground">
-                          {rating.date.toLocaleDateString("es-ES")} a las{" "}
-                          {rating.date.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
+                          {puntuacion.fecha.toLocaleDateString("es-ES")} a las{" "}
+                          {puntuacion.fecha.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
                         </p>
                       </div>
                     </div>

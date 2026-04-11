@@ -2,96 +2,104 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type {
-  MenuItem,
-  Reservation,
-  InventoryItem,
-  Rating,
-  User,
-  WeeklyMenu,
-  GastroEvent,
-  EventReservation,
-  ActivityLog,
+  PlatoMenu,
+  Reserva,
+  ArticuloInventario,
+  Valoracion,
+  Usuario,
+  MenuSemanal,
+  EventoGastro,
+  ReservaEvento,
+  RegistroActividad,
 } from "./types"
-import { fetchApi } from "./api"
+import { peticionApi } from "./api"
 
-interface DataContextType {
-  menuItems: MenuItem[]
-  addMenuItem: (item: Omit<MenuItem, "id">) => void
-  updateMenuItem: (id: string, item: Partial<MenuItem>) => void
-  deleteMenuItem: (id: string) => void
-  reservations: Reservation[]
-  addReservation: (reservation: Omit<Reservation, "id" | "shortCode">) => void
-  updateReservation: (id: string, updates: Partial<Reservation>) => void
-  updateReservationKitchenStatus: (id: string, status: "pending" | "preparing" | "completed") => void
-  cancelReservation: (id: string) => void
-  clearCompletedReservations: () => void
-  inventory: InventoryItem[]
-  updateInventoryItem: (id: string, quantity: number) => void
-  addInventoryItem: (item: Omit<InventoryItem, "id" | "lastUpdated">) => void
-  ratings: Rating[]
-  addRating: (rating: Omit<Rating, "id" | "date">) => void
-  users: User[]
-  addUser: (user: Omit<User, "id" | "createdAt">) => void
-  updateUser: (id: string, updates: Partial<User>) => void
-  deleteUser: (id: string) => void
-  weeklyMenu: WeeklyMenu
-  toggleWeeklyMenuItem: (day: string, category: "entrante" | "principal" | "postre", itemId: string) => void
-  clearWeeklyMenu: () => void
-  gastroEvents: GastroEvent[]
-  addGastroEvent: (event: Omit<GastroEvent, "id" | "createdAt" | "currentAttendees">) => void
-  updateGastroEvent: (id: string, updates: Partial<GastroEvent>) => void
-  cancelGastroEvent: (id: string) => void
-  eventReservations: EventReservation[]
-  reserveEventSpot: (eventId: string, userId: string, userName: string) => boolean
-  cancelEventReservation: (eventId: string, userId: string) => void
-  getEventAttendees: (eventId: string) => EventReservation[]
-  markEventAttendance: (reservationId: string, attended: boolean) => void
-  activityLogs: ActivityLog[]
-  logActivity: (action: string, details: string, userName: string, userRole: string) => void
+interface TipoContextoDatos {
+  platosMenu: PlatoMenu[]
+  añadirPlatoMenu: (item: Omit<PlatoMenu, "id">) => void
+  actualizarPlatoMenu: (id: string, item: Partial<PlatoMenu>) => void
+  eliminarPlatoMenu: (id: string) => void
+  
+  reservas: Reserva[]
+  añadirReserva: (reserva: Omit<Reserva, "id" | "codigoCorto">) => void
+  actualizarReserva: (id: string, actualizaciones: Partial<Reserva>) => void
+  actualizarEstadoCocinaReserva: (id: string, estado: "pendiente" | "preparando" | "completada") => void
+  cancelarReserva: (id: string) => void
+  limpiarReservasCompletadas: () => void
+  
+  inventario: ArticuloInventario[]
+  actualizarArticuloInventario: (id: string, cantidad: number) => void
+  añadirArticuloInventario: (item: Omit<ArticuloInventario, "id" | "ultimaActualizacion">) => void
+  
+  valoraciones: Valoracion[]
+  añadirValoracion: (valoracion: Omit<Valoracion, "id" | "fecha">) => void
+  
+  usuarios: Usuario[]
+  añadirUsuario: (usuario: Omit<Usuario, "id" | "creadoEn">) => void
+  actualizarUsuario: (id: string, actualizaciones: Partial<Usuario>) => void
+  eliminarUsuario: (id: string) => void
+  
+  menuSemanal: MenuSemanal
+  alternarPlatoMenuSemanal: (dia: string, categoria: "entrante" | "principal" | "postre", idItem: string) => void
+  limpiarMenuSemanal: () => void
+  
+  eventosGastro: EventoGastro[]
+  añadirEventoGastro: (evento: Omit<EventoGastro, "id" | "creadoEn" | "asistentesActuales">) => void
+  actualizarEventoGastro: (id: string, actualizaciones: Partial<EventoGastro>) => void
+  cancelarEventoGastro: (id: string) => void
+  
+  reservasEventos: ReservaEvento[]
+  reservarPuestoEvento: (idEvento: string, idUsuario: string, nombreUsuario: string) => boolean
+  cancelarReservaEvento: (idEvento: string, idUsuario: string) => void
+  obtenerAsistentesEvento: (idEvento: string) => ReservaEvento[]
+  marcarAsistenciaEvento: (idReserva: string, asistio: boolean) => void
+  
+  registrosActividad: RegistroActividad[]
+  registrarActividad: (accion: string, detalles: string, nombreUsuario: string, rolUsuario: string) => void
 }
 
-const DataContext = createContext<DataContextType | undefined>(undefined)
+const ContextoDatos = createContext<TipoContextoDatos | undefined>(undefined)
 
-export function DataProvider({ children }: { children: ReactNode }) {
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([])
-  const [reservations, setReservations] = useState<Reservation[]>([])
-  const [inventory, setInventory] = useState<InventoryItem[]>([])
-  const [ratings, setRatings] = useState<Rating[]>([])
-  const [users, setUsers] = useState<User[]>([])
-  const [weeklyMenu, setWeeklyMenu] = useState<WeeklyMenu>({
+export function ProveedorDatos({ children }: { children: ReactNode }) {
+  const [platosMenu, setPlatosMenu] = useState<PlatoMenu[]>([])
+  const [reservas, setReservas] = useState<Reserva[]>([])
+  const [inventario, setInventario] = useState<ArticuloInventario[]>([])
+  const [valoraciones, setValoraciones] = useState<Valoracion[]>([])
+  const [usuarios, setUsuarios] = useState<Usuario[]>([])
+  const [menuSemanal, setMenuSemanal] = useState<MenuSemanal>({
     Lunes: { entrante: [], principal: [], postre: [] },
     Martes: { entrante: [], principal: [], postre: [] },
     Miércoles: { entrante: [], principal: [], postre: [] },
     Jueves: { entrante: [], principal: [], postre: [] },
     Viernes: { entrante: [], principal: [], postre: [] },
   })
-  const [gastroEvents, setGastroEvents] = useState<GastroEvent[]>([])
-  const [eventReservations, setEventReservations] = useState<EventReservation[]>([])
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([])
+  const [eventosGastro, setEventosGastro] = useState<EventoGastro[]>([])
+  const [reservasEventos, setReservasEventos] = useState<ReservaEvento[]>([])
+  const [registrosActividad, setRegistrosActividad] = useState<RegistroActividad[]>([])
 
   useEffect(() => {
     const initData = async () => {
       try {
         const [dishesRes, resRes, invRes, ratRes, evtRes, logRes, usrRes] = await Promise.all([
-          fetchApi<any[]>('/dishes').catch(() => []),
-          fetchApi<any[]>('/reservations').catch(() => []),
-          fetchApi<any[]>('/inventory').catch(() => []),
-          fetchApi<any[]>('/ratings').catch(() => []),
-          fetchApi<any[]>('/events').catch(() => []),
-          fetchApi<any[]>('/logs').catch(() => []),
-          fetchApi<any[]>('/auth/users').catch(() => [])
+          peticionApi<any[]>('/dishes').catch(() => []),
+          peticionApi<any[]>('/reservations').catch(() => []),
+          peticionApi<any[]>('/inventory').catch(() => []),
+          peticionApi<any[]>('/ratings').catch(() => []),
+          peticionApi<any[]>('/events').catch(() => []),
+          peticionApi<any[]>('/logs').catch(() => []),
+          peticionApi<any[]>('/auth/usuarios').catch(() => [])
         ]);
 
-        const mappedUsers = usrRes.map(u => ({
-          id: u.id,
+        const mappedUsers: Usuario[] = usrRes.map(u => ({
+          id: u.id.toString(),
           email: u.email,
-          name: u.name,
-          role: Array.isArray(u.roles) ? u.roles[0].replace('ROLE_', '').toLowerCase() : 'user',
-          createdAt: new Date()
+          nombre: u.nombre,
+          rol: Array.isArray(u.roles) ? u.roles[0].replace('ROLE_', '').toLowerCase() : 'usuario',
+          creadoEn: new Date()
         }));
-        setUsers(mappedUsers);
+        setUsuarios(mappedUsers);
 
-        const newWeeklyMenu: WeeklyMenu = {
+        const newWeeklyMenu: MenuSemanal = {
           Lunes: { entrante: [], principal: [], postre: [] },
           Martes: { entrante: [], principal: [], postre: [] },
           Miércoles: { entrante: [], principal: [], postre: [] },
@@ -101,9 +109,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         const daysMap = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
-        const mappedDishes = dishesRes.map(d => {
+        const mappedDishes: PlatoMenu[] = dishesRes.map(d => {
           const dishId = d.id.toString();
-          const backendCat = (d.categoria || d.category || "main").toLowerCase();
+          const backendCat = (d.categoria || d.categoria || "main").toLowerCase();
           const categoryMap: Record<string, "entrante" | "principal" | "postre"> = {
             "starter": "entrante",
             "main": "principal", 
@@ -112,7 +120,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             "principal": "principal",
             "postre": "postre"
           };
-          const category = categoryMap[backendCat] || "principal";
+          const categoria = categoryMap[backendCat] || "principal";
           
           let date = new Date();
           if (d.fecha_disponibilidad) {
@@ -121,92 +129,89 @@ export function DataProvider({ children }: { children: ReactNode }) {
           }
           const dayName = daysMap[date.getDay()];
           
-          if (newWeeklyMenu[dayName as keyof WeeklyMenu]) {
-             if (!newWeeklyMenu[dayName as keyof WeeklyMenu][category]) {
-                newWeeklyMenu[dayName as keyof WeeklyMenu][category] = [];
+          if (newWeeklyMenu[dayName as keyof MenuSemanal]) {
+             if (!newWeeklyMenu[dayName as keyof MenuSemanal][categoria]) {
+                newWeeklyMenu[dayName as keyof MenuSemanal][categoria] = [];
              }
-             newWeeklyMenu[dayName as keyof WeeklyMenu][category].push(dishId);
+             newWeeklyMenu[dayName as keyof MenuSemanal][categoria].push(dishId);
           }
 
           return {
             id: dishId,
-            name: d.nombre,
-            description: d.descripcion || "",
-            category: category,
-            imageUrl: d.url_imagen || "/placeholder.jpg",
-            allergens: d.alergenos || [],
-            available: d.esta_activo
+            nombre: d.nombre,
+            descripcion: d.descripcion || "",
+            categoria: categoria,
+            urlImagen: d.url_imagen || "/placeholder.jpg",
+            alergenos: d.alergenos || [],
+            disponible: d.esta_activo
           }
         });
 
-        setMenuItems(mappedDishes);
-        setWeeklyMenu(newWeeklyMenu);
+        setPlatosMenu(mappedDishes);
+        setMenuSemanal(newWeeklyMenu);
 
         const groupedRes = resRes.reduce((acc, curr) => {
           const key = `${curr.id_usuario}_${curr.fecha_reserva.split('T')[0]}`;
           if (!acc[key]) {
             acc[key] = {
               id: curr.id.toString(),
-              userId: curr.id_usuario.toString(),
-              userName: mappedUsers.find(u => u.id === curr.id_usuario.toString())?.name || "Usuario",
-              date: new Date(curr.fecha_reserva),
-              menuItems: [],
-              status: curr.estado,
-              kitchenStatus: curr.estado === 'completed' ? 'completed' : curr.estado === 'confirmed' ? 'preparing' : 'pending',
-              createdAt: new Date(curr.creado_en),
-              shortCode: curr.id.toString().padStart(6, '0')
+              idUsuario: curr.id_usuario.toString(),
+              nombreUsuario: mappedUsers.find(u => u.id === curr.id_usuario.toString())?.nombre || "Usuario",
+              fecha: new Date(curr.fecha_reserva),
+              platosMenu: [],
+              estado: curr.estado,
+              estadoCocina: (curr.estado === "completed" || curr.estado === "completada") ? 'completada' : (curr.estado === 'confirmed' || curr.estado === 'preparando') ? 'preparando' : 'pendiente',
+              creadoEn: new Date(curr.creado_en),
+              codigoCorto: curr.id.toString().padStart(6, '0')
             };
           }
-          acc[key].menuItems.push(curr.id_plato.toString());
+          acc[key].platosMenu.push(curr.id_plato.toString());
           return acc;
-        }, {} as Record<string, Reservation>);
-        setReservations(Object.values(groupedRes));
+        }, {} as Record<string, Reserva>);
+        setReservas(Object.values(groupedRes));
 
-        setInventory(invRes.map(i => ({
+        setInventario(invRes.map(i => ({
           id: i.id.toString(),
-          name: i.ingredient_name,
-          quantity: i.quantity,
-          unit: i.unit,
-          minStock: i.minimum_stock,
-          category: 'General',
-          lastUpdated: new Date(i.created_at || new Date())
+          nombre: i.ingredient_name,
+          cantidad: i.quantity,
+          unidad: i.unit,
+          stockMinimo: i.minimum_stock,
+          categoria: 'General',
+          ultimaActualizacion: new Date(i.created_at || new Date())
         })));
 
-        setRatings(ratRes.map(r => ({
+        setValoraciones(ratRes.map(r => ({
           id: r.id.toString(),
-          userId: r.user_id?.toString() || "0",
-          userName: "Usuario",
-          menuItemId: r.dish_id?.toString() || "0",
-          rating: r.rating,
-          comment: r.comment || "",
-          date: new Date(r.created_at || new Date())
+          idUsuario: r.user_id?.toString() || "0",
+          nombreUsuario: "Usuario",
+          idPlatoMenu: r.dish_id?.toString() || "0",
+          puntuacion: r.puntuacion,
+          comentario: r.comment || "",
+          fecha: new Date(r.created_at || new Date())
         })));
 
-        setGastroEvents(evtRes.map(e => ({
-          id: e.id,
-          name: e.name,
-          description: e.description || "",
-          date: new Date(e.date),
-          maxCapacity: e.maxCapacity,
-          currentAttendees: e.currentAttendees,
-          dishes: e.dishes || [],
-          status: e.status,
-          createdBy: e.createdBy || "admin",
-          createdAt: new Date(e.createdAt),
-          lastModified: e.lastModified ? new Date(e.lastModified) : new Date(e.createdAt)
+        setEventosGastro(evtRes.map(e => ({
+          id: e.id.toString(),
+          nombre: e.nombre,
+          descripcion: e.description || "",
+          fecha: new Date(e.date),
+          capacidadMaxima: e.maxCapacity,
+          asistentesActuales: e.currentAttendees,
+          platos: e.dishes || [],
+          estado: e.estado,
+          creadoPor: e.createdBy || "admin",
+          creadoEn: new Date(e.createdAt),
+          ultimaModificacion: e.lastModified ? new Date(e.lastModified) : new Date(e.createdAt)
         })));
 
-        setActivityLogs(logRes.map(l => ({
-          id: l.id,
-          action: l.action,
-          details: l.details || "",
-          userName: l.userName || "System",
-          userRole: l.userRole || "User",
-          timestamp: new Date(l.timestamp)
+        setRegistrosActividad(logRes.map(l => ({
+          id: l.id.toString(),
+          accion: l.action,
+          detalles: l.details || "",
+          nombreUsuario: l.userName || l.nombreUsuario || "System",
+          rolUsuario: l.userRole || l.rolUsuario || "Usuario",
+          marcaTemporal: new Date(l.timestamp)
         })));
-
-        // Event Reservations are fetched on demand or dynamically mapped here if needed.
-        // For simplicity, we just won't load global eventReservations initially, or we fetch them when entering event view.
 
       } catch (err) {
         console.error("Failed to fetch initial data", err);
@@ -215,180 +220,186 @@ export function DataProvider({ children }: { children: ReactNode }) {
     initData();
   }, [])
 
-  const logActivity = async (action: string, details: string, userName: string, userRole: string) => {
+  const registrarActividad = async (accion: string, detalles: string, nombreUsuario: string, rolUsuario: string) => {
     try {
-      const res = await fetchApi<any>('/logs', {
+      const res = await peticionApi<any>('/logs', {
         method: 'POST',
-        body: JSON.stringify({ action, details, userName, userRole })
+        body: JSON.stringify({ action: accion, details: detalles, userName: nombreUsuario, userRole: rolUsuario })
       });
-      const newLog: ActivityLog = { ...res, timestamp: new Date(res.timestamp) };
-      setActivityLogs(prev => [newLog, ...prev]);
+      const newLog: RegistroActividad = {
+        id: res.id.toString(),
+        accion: res.action,
+        detalles: res.details || "",
+        nombreUsuario: res.userName || "System",
+        rolUsuario: res.userRole || "Usuario",
+        marcaTemporal: new Date(res.timestamp)
+      };
+      setRegistrosActividad(prev => [newLog, ...prev]);
     } catch (e) { console.error(e) }
   }
 
-  const addMenuItem = async (item: Omit<MenuItem, "id">) => {
+  const añadirPlatoMenu = async (item: Omit<PlatoMenu, "id">) => {
     try {
-      const res = await fetchApi<any>('/dishes', {
+      const res = await peticionApi<any>('/dishes', {
         method: 'POST',
         body: JSON.stringify({
-          nombre: item.name,
-          descripcion: item.description,
-          categoria: item.category,
+          nombre: item.nombre,
+          descripcion: item.descripcion,
+          categoria: item.categoria,
           precio: 0,
-          url_imagen: item.imageUrl,
-          alergenos: item.allergens,
+          url_imagen: item.urlImagen,
+          alergenos: item.alergenos,
           informacion_nutricional: {},
         })
       });
-      setMenuItems([...menuItems, { ...item, id: res.id.toString(), available: res.esta_activo }]);
+      setPlatosMenu([...platosMenu, { ...item, id: res.id.toString(), disponible: res.esta_activo }]);
     } catch (e) { console.error(e) }
   }
 
-  const updateMenuItem = async (id: string, updates: Partial<MenuItem>) => {
+  const actualizarPlatoMenu = async (id: string, actualizaciones: Partial<PlatoMenu>) => {
     try {
-      await fetchApi(`/dishes/${id}`, {
+      await peticionApi(`/dishes/${id}`, {
         method: 'PUT',
         body: JSON.stringify({
-          nombre: updates.name,
-          descripcion: updates.description,
-          categoria: updates.category,
-          esta_activo: updates.available
+          nombre: actualizaciones.nombre,
+          descripcion: actualizaciones.descripcion,
+          categoria: actualizaciones.categoria,
+          esta_activo: actualizaciones.disponible
         })
       });
-      setMenuItems(menuItems.map(item => (item.id === id ? { ...item, ...updates } : item)));
+      setPlatosMenu(platosMenu.map(item => (item.id === id ? { ...item, ...actualizaciones } : item)));
     } catch (e) { console.error(e) }
   }
 
-  const deleteMenuItem = async (id: string) => {
+  const eliminarPlatoMenu = async (id: string) => {
     try {
-      await fetchApi(`/dishes/${id}`, { method: 'DELETE' });
-      setMenuItems(menuItems.filter(item => item.id !== id));
+      await peticionApi(`/dishes/${id}`, { method: 'DELETE' });
+      setPlatosMenu(platosMenu.filter(item => item.id !== id));
     } catch (e) { console.error(e) }
   }
 
-  const addReservation = async (reservation: Omit<Reservation, "id" | "shortCode">) => {
+  const añadirReserva = async (reserva: Omit<Reserva, "id" | "codigoCorto">) => {
     try {
-      const promises = reservation.menuItems.map(dishId => 
-        fetchApi<any>('/reservations', {
+      const promises = reserva.platosMenu.map(dishId => 
+        peticionApi<any>('/reservations', {
           method: 'POST',
           body: JSON.stringify({
-            id_usuario: reservation.userId,
+            id_usuario: reserva.idUsuario,
             id_plato: dishId,
-            fecha_reserva: reservation.date.toISOString(),
+            fecha_reserva: reserva.fecha.toISOString(),
             cantidad: 1,
-            estado: 'pending'
+            estado: "pending"
           })
         })
       );
       const results = await Promise.all(promises);
       if (results.length > 0) {
-        setReservations([...reservations, { 
-          ...reservation, 
+        setReservas([...reservas, { 
+          ...reserva, 
           id: results[0].id.toString(), 
-          shortCode: results[0].id.toString().padStart(6, '0') 
+          codigoCorto: results[0].id.toString().padStart(6, '0') 
         }]);
       }
     } catch(e) { console.error(e) }
   }
 
-  const updateReservation = (id: string, updates: Partial<Reservation>) => {
-    setReservations(reservations.map(res => (res.id === id ? { ...res, ...updates } : res)))
+  const actualizarReserva = (id: string, actualizaciones: Partial<Reserva>) => {
+    setReservas(reservas.map(res => (res.id === id ? { ...res, ...actualizaciones } : res)))
   }
 
-  const updateReservationKitchenStatus = async (id: string, status: "pending" | "preparing" | "completed") => {
+  const actualizarEstadoCocinaReserva = async (id: string, estado: "pendiente" | "preparando" | "completada") => {
     try {
-      const stateMapping = { "pending": "pending", "preparing": "confirmed", "completed": "completed" };
-      await fetchApi(`/reservations/${id}`, {
+      const stateMapping: any = { "pendiente": "pending", "preparando": "confirmed", "completada": "completed" };
+      await peticionApi(`/reservations/${id}`, {
         method: 'PUT',
-        body: JSON.stringify({ estado: stateMapping[status] })
+        body: JSON.stringify({ estado: stateMapping[estado] })
       });
-      setReservations(reservations.map(res => {
+      setReservas(reservas.map(res => {
         if (res.id === id) {
-          return { ...res, kitchenStatus: status, status: status === "completed" ? "confirmed" : res.status }
+          return { ...res, estadoCocina: estado, estado: estado === "completada" ? "confirmada" : res.estado }
         }
         return res
       }))
     } catch(e) { console.error(e) }
   }
 
-  const cancelReservation = async (id: string) => {
+  const cancelarReserva = async (id: string) => {
     try {
-      await fetchApi(`/reservations/${id}`, {
+      await peticionApi(`/reservations/${id}`, {
         method: 'PUT',
         body: JSON.stringify({ estado: 'cancelled' })
       });
-      setReservations(reservations.map(res => (res.id === id ? { ...res, status: "cancelled" } : res)))
+      setReservas(reservas.map(res => (res.id === id ? { ...res, estado: "cancelada" } : res)))
     } catch(e) { console.error(e) }
   }
 
-  const clearCompletedReservations = () => {
-    setReservations(prev => prev.filter(r => r.kitchenStatus !== "completed"))
+  const limpiarReservasCompletadas = () => {
+    setReservas(prev => prev.filter(r => r.estadoCocina !== "completada"))
   }
 
-  const updateInventoryItem = async (id: string, quantity: number) => {
+  const actualizarArticuloInventario = async (id: string, cantidad: number) => {
     try {
-      await fetchApi(`/inventory/${id}`, {
+      await peticionApi(`/inventory/${id}`, {
         method: 'PUT',
-        body: JSON.stringify({ quantity })
+        body: JSON.stringify({ quantity: cantidad })
       });
-      setInventory(inventory.map(item => (item.id === id ? { ...item, quantity, lastUpdated: new Date() } : item)))
+      setInventario(inventario.map(item => (item.id === id ? { ...item, cantidad, ultimaActualizacion: new Date() } : item)))
     } catch(e) { console.error(e) }
   }
 
-  const addInventoryItem = async (item: Omit<InventoryItem, "id" | "lastUpdated">) => {
+  const añadirArticuloInventario = async (item: Omit<ArticuloInventario, "id" | "ultimaActualizacion">) => {
     try {
-      const res = await fetchApi<any>('/inventory', {
+      const res = await peticionApi<any>('/inventory', {
         method: 'POST',
         body: JSON.stringify({
-          ingredient_name: item.name,
-          quantity: item.quantity,
-          unit: item.unit,
-          minimum_stock: item.minStock
+          ingredient_name: item.nombre,
+          quantity: item.cantidad,
+          unit: item.unidad,
+          minimum_stock: item.stockMinimo
         })
       });
-      setInventory([...inventory, { ...item, id: res.id.toString(), lastUpdated: new Date() }]);
+      setInventario([...inventario, { ...item, id: res.id.toString(), ultimaActualizacion: new Date() }]);
     } catch(e) { console.error(e) }
   }
 
-  const addRating = async (rating: Omit<Rating, "id" | "date">) => {
+  const añadirValoracion = async (valoracion: Omit<Valoracion, "id" | "fecha">) => {
     try {
-      // Sincronizamos con el backend que espera dishId
-      const res = await fetchApi<any>('/ratings', {
+      const res = await peticionApi<any>('/ratings', {
         method: 'POST',
         body: JSON.stringify({
-          userId: rating.userId,
-          dishId: rating.menuItemId,
-          rating: rating.rating,
-          comment: rating.comment
+          userId: valoracion.idUsuario,
+          dishId: valoracion.idPlatoMenu,
+          puntuacion: valoracion.puntuacion,
+          comment: valoracion.comentario
         })
       });
-      setRatings([...ratings, { ...rating, id: res.id, date: new Date() }]);
+      setValoraciones([...valoraciones, { ...valoracion, id: res.id.toString(), fecha: new Date() }]);
     } catch(e) { console.error(e) }
   }
 
-  const addUser = (user: Omit<User, "id" | "createdAt">) => {
-    const newUser = { ...user, id: Date.now().toString(), createdAt: new Date() }
-    setUsers([...users, newUser])
+  const añadirUsuario = (usuario: Omit<Usuario, "id" | "creadoEn">) => {
+    const nuevoUsuario = { ...usuario, id: Date.now().toString(), creadoEn: new Date() }
+    setUsuarios([...usuarios, nuevoUsuario])
   }
 
-  const updateUser = (id: string, updates: Partial<User>) => {
-    setUsers(users.map(user => (user.id === id ? { ...user, ...updates } : user)))
+  const actualizarUsuario = (id: string, actualizaciones: Partial<Usuario>) => {
+    setUsuarios(usuarios.map(usuario => (usuario.id === id ? { ...usuario, ...actualizaciones } : usuario)))
   }
 
-  const deleteUser = (id: string) => {
-    setUsers(users.filter(user => user.id !== id))
+  const eliminarUsuario = (id: string) => {
+    setUsuarios(usuarios.filter(usuario => usuario.id !== id))
   }
 
-  const toggleWeeklyMenuItem = (day: string, category: "entrante" | "principal" | "postre", itemId: string) => {
-    setWeeklyMenu(prevMenu => {
-      const curr = prevMenu[day]?.[category] || []
-      const next = curr.includes(itemId) ? curr.filter(id => id !== itemId) : [...curr, itemId]
-      return { ...prevMenu, [day]: { ...prevMenu[day], [category]: next } }
+  const alternarPlatoMenuSemanal = (dia: string, categoria: "entrante" | "principal" | "postre", idItem: string) => {
+    setMenuSemanal(prevMenu => {
+      const curr = prevMenu[dia]?.[categoria] || []
+      const next = curr.includes(idItem) ? curr.filter(id => id !== idItem) : [...curr, idItem]
+      return { ...prevMenu, [dia]: { ...prevMenu[dia], [categoria]: next } }
     })
   }
 
-  const clearWeeklyMenu = () => {
-    setWeeklyMenu({
+  const limpiarMenuSemanal = () => {
+    setMenuSemanal({
       Lunes: { entrante: [], principal: [], postre: [] },
       Martes: { entrante: [], principal: [], postre: [] },
       Miércoles: { entrante: [], principal: [], postre: [] },
@@ -397,113 +408,127 @@ export function DataProvider({ children }: { children: ReactNode }) {
     })
   }
 
-  const addGastroEvent = async (event: Omit<GastroEvent, "id" | "createdAt" | "currentAttendees">) => {
+  const añadirEventoGastro = async (evento: Omit<EventoGastro, "id" | "creadoEn" | "asistentesActuales">) => {
     try {
-      const res = await fetchApi<any>('/events', {
+      const res = await peticionApi<any>('/events', {
         method: 'POST',
-        body: JSON.stringify({ ...event, maxCapacity: event.maxCapacity })
+        body: JSON.stringify({ 
+          name: evento.nombre, 
+          description: evento.descripcion, 
+          date: evento.fecha.toISOString(), 
+          maxCapacity: evento.capacidadMaxima, 
+          dishes: evento.platos, 
+          status: evento.estado, 
+          createdBy: evento.creadoPor 
+        })
       });
-      setGastroEvents([...gastroEvents, { ...event, id: res.id, currentAttendees: 0, createdAt: new Date() }]);
+      setEventosGastro([...eventosGastro, { ...evento, id: res.id.toString(), asistentesActuales: 0, creadoEn: new Date() }]);
     } catch(e) { console.error(e) }
   }
 
-  const updateGastroEvent = async (id: string, updates: Partial<GastroEvent>) => {
+  const actualizarEventoGastro = async (id: string, actualizaciones: Partial<EventoGastro>) => {
     try {
-      await fetchApi(`/events/${id}`, {
+      const bodyUpdate: any = {};
+      if(actualizaciones.nombre) bodyUpdate.name = actualizaciones.nombre;
+      if(actualizaciones.descripcion !== undefined) bodyUpdate.description = actualizaciones.descripcion;
+      if(actualizaciones.fecha) bodyUpdate.date = actualizaciones.fecha.toISOString();
+      if(actualizaciones.capacidadMaxima !== undefined) bodyUpdate.maxCapacity = actualizaciones.capacidadMaxima;
+      if(actualizaciones.platos) bodyUpdate.dishes = actualizaciones.platos;
+      if(actualizaciones.estado) bodyUpdate.status = actualizaciones.estado;
+
+      await peticionApi(`/events/${id}`, {
         method: 'PUT',
-        body: JSON.stringify(updates)
+        body: JSON.stringify(bodyUpdate)
       });
-      setGastroEvents(gastroEvents.map(event =>
-        event.id === id ? { ...event, ...updates, lastModified: new Date(), status: updates.status || "modified" } : event
+      setEventosGastro(eventosGastro.map(event =>
+        event.id === id ? { ...event, ...actualizaciones, ultimaModificacion: new Date(), estado: actualizaciones.estado || "modificado" } : event
       ))
     } catch(e) { console.error(e) }
   }
 
-  const cancelGastroEvent = async (id: string) => {
+  const cancelarEventoGastro = async (id: string) => {
     try {
-      await fetchApi(`/events/${id}`, { method: 'DELETE' });
-      setGastroEvents(gastroEvents.map(event =>
-        event.id === id ? { ...event, status: "cancelled", lastModified: new Date() } : event
+      await peticionApi(`/events/${id}`, { method: 'DELETE' });
+      setEventosGastro(eventosGastro.map(event =>
+        event.id === id ? { ...event, estado: "cancelado", ultimaModificacion: new Date() } : event
       ))
     } catch(e) { console.error(e) }
   }
 
-  const reserveEventSpot = (eventId: string, userId: string, userName: string): boolean => {
-    const event = gastroEvents.find((e) => e.id === eventId)
-    if (!event || event.status !== "active" || event.currentAttendees >= event.maxCapacity) return false
+  const reservarPuestoEvento = (idEvento: string, idUsuario: string, nombreUsuario: string): boolean => {
+    const evento = eventosGastro.find((e) => e.id === idEvento)
+    if (!evento || evento.estado !== "activo" || evento.asistentesActuales >= evento.capacidadMaxima) return false
     
-    // Fire and forget API call for simplicity mapping 
-    fetchApi(`/events/${eventId}/reservations`, {
+    peticionApi(`/events/${idEvento}/reservations`, {
       method: 'POST',
-      body: JSON.stringify({ userId, userName })
+      body: JSON.stringify({ userId: idUsuario, userName: nombreUsuario })
     }).catch(console.error);
 
-    setEventReservations([...eventReservations, {
+    setReservasEventos([...reservasEventos, {
       id: Date.now().toString(),
-      eventId, userId, userName,
-      reservedAt: new Date(),
-      status: "confirmed",
-      attended: false
+      idEvento, idUsuario, nombreUsuario,
+      reservadoEn: new Date(),
+      estado: "confirmada",
+      asistio: false
     }]);
 
-    setGastroEvents(gastroEvents.map(e =>
-      e.id === eventId ? { ...e, currentAttendees: e.currentAttendees + 1, status: (e.currentAttendees + 1) >= e.maxCapacity ? "full" : "active" } : e
+    setEventosGastro(eventosGastro.map(e =>
+      e.id === idEvento ? { ...e, asistentesActuales: e.asistentesActuales + 1, estado: (e.asistentesActuales + 1) >= e.capacidadMaxima ? "lleno" : "activo" } : e
     ));
 
     return true
   }
 
-  const cancelEventReservation = (eventId: string, userId: string) => {
-    setEventReservations(eventReservations.map(res =>
-      res.eventId === eventId && res.userId === userId ? { ...res, status: "cancelled" } : res
+  const cancelarReservaEvento = (idEvento: string, idUsuario: string) => {
+    setReservasEventos(reservasEventos.map(res =>
+      res.idEvento === idEvento && res.idUsuario === idUsuario ? { ...res, estado: "cancelada" } : res
     ))
-    setGastroEvents(gastroEvents.map(event => {
-      if (event.id === eventId) {
-        const newAttendees = Math.max(0, event.currentAttendees - 1)
-        return { ...event, currentAttendees: newAttendees, status: newAttendees < event.maxCapacity ? "active" : event.status }
+    setEventosGastro(eventosGastro.map(evento => {
+      if (evento.id === idEvento) {
+        const nuevosAsistentes = Math.max(0, evento.asistentesActuales - 1)
+        return { ...evento, asistentesActuales: nuevosAsistentes, estado: nuevosAsistentes < evento.capacidadMaxima ? "activo" : evento.estado }
       }
-      return event
+      return evento
     }))
   }
 
-  const getEventAttendees = (eventId: string): EventReservation[] => {
-    return eventReservations.filter((r) => r.eventId === eventId && r.status === "confirmed")
+  const obtenerAsistentesEvento = (idEvento: string): ReservaEvento[] => {
+    return reservasEventos.filter((r) => r.idEvento === idEvento && r.estado === "confirmada")
   }
 
-  const markEventAttendance = async (reservationId: string, attended: boolean) => {
+  const marcarAsistenciaEvento = async (idReserva: string, asistio: boolean) => {
     try {
-      await fetchApi(`/events/reservations/${reservationId}`, {
+      await peticionApi(`/events/reservations/${idReserva}`, {
         method: 'PUT',
-        body: JSON.stringify({ attended })
+        body: JSON.stringify({ attended: asistio })
       });
-      setEventReservations(prev => prev.map(res => 
-        res.id === reservationId ? { ...res, attended } : res
+      setReservasEventos(prev => prev.map(res => 
+        res.id === idReserva ? { ...res, asistio } : res
       ))
     } catch(e) { console.error(e) }
   }
 
   return (
-    <DataContext.Provider
+    <ContextoDatos.Provider
       value={{
-        menuItems, addMenuItem, updateMenuItem, deleteMenuItem,
-        reservations, addReservation, updateReservation, updateReservationKitchenStatus, cancelReservation, clearCompletedReservations,
-        inventory, updateInventoryItem, addInventoryItem,
-        ratings, addRating,
-        users, addUser, updateUser, deleteUser,
-        weeklyMenu, toggleWeeklyMenuItem, clearWeeklyMenu,
-        gastroEvents, addGastroEvent, updateGastroEvent, cancelGastroEvent,
-        eventReservations, reserveEventSpot, cancelEventReservation, getEventAttendees, markEventAttendance,
-        activityLogs, logActivity
+        platosMenu, añadirPlatoMenu, actualizarPlatoMenu, eliminarPlatoMenu,
+        reservas, añadirReserva, actualizarReserva, actualizarEstadoCocinaReserva, cancelarReserva, limpiarReservasCompletadas,
+        inventario, actualizarArticuloInventario, añadirArticuloInventario,
+        valoraciones, añadirValoracion,
+        usuarios, añadirUsuario, actualizarUsuario, eliminarUsuario,
+        menuSemanal, alternarPlatoMenuSemanal, limpiarMenuSemanal,
+        eventosGastro, añadirEventoGastro, actualizarEventoGastro, cancelarEventoGastro,
+        reservasEventos, reservarPuestoEvento, cancelarReservaEvento, obtenerAsistentesEvento, marcarAsistenciaEvento,
+        registrosActividad, registrarActividad
       }}
     >
       {children}
-    </DataContext.Provider>
+    </ContextoDatos.Provider>
   )
 }
 
-export function useData() {
-  const context = useContext(DataContext)
-  if (context === undefined) throw new Error("useData must be used within a DataProvider")
-  return context
+export function useDatos() {
+  const contexto = useContext(ContextoDatos)
+  if (contexto === undefined) throw new Error("useDatos debe usarse dentro de un ProveedorDatos")
+  return contexto
 }
-

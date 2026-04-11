@@ -35,42 +35,42 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export function UsersTab() {
   const { toast } = useToast()
-  const { allUsers: users, addUser, updateUser, deleteUser } = useAuth()
+  const { todosLosUsuarios: usuarios, añadirUsuario, actualizarUsuario, eliminarUsuario } = useAuth()
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [editingUser, setEditingUser] = useState<{ id: string; name: string; email: string; role: string; password?: string } | null>(null)
-  const [newUser, setNewUser] = useState({ name: "", email: "", password: "", role: "alumno-cocina" })
+  const [editingUser, setEditingUser] = useState<{ id: string; nombre: string; email: string; rol: string; password?: string } | null>(null)
+  const [newUser, setNewUser] = useState({ nombre: "", email: "", password: "", rol: "alumno-cocina" })
 
-  const filteredUsers = (role: string | "all") => {
-    if (role === "all") return users
-    if (role === "alumno-cocina") {
-      return users.filter(u => u.role === "alumno-cocina" || u.role === "alumno-cocina-titular")
+  const filteredUsers = (rol: string | "all") => {
+    if (rol === "all") return usuarios
+    if (rol === "alumno-cocina") {
+      return usuarios.filter(u => u.rol === "alumno-cocina" || u.rol === "alumno-cocina-titular")
     }
-    return users.filter((u) => u.role === role)
+    return usuarios.filter((u) => u.rol === rol)
   }
 
-  const getRoleBadge = (role: string) => {
+  const getRoleBadge = (rol: string) => {
     const variants = {
       admin: "bg-(--md-coral)/10 text-(--md-coral)",
       cocina: "bg-(--md-accent) text-(--md-body)",
       "alumno-cocina": "bg-(--md-success-bg) text-[#2E7D32]",
       maestro: "bg-(--md-accent-light) text-(--md-body)",
     }
-    return variants[role as keyof typeof variants] || "bg-(--md-muted-bg) text-(--md-body)"
+    return variants[rol as keyof typeof variants] || "bg-(--md-muted-bg) text-(--md-body)"
   }
 
-  const handleDeleteUser = (id: string, name: string) => {
-    deleteUser(id)
+  const handleDeleteUser = (id: string, nombre: string) => {
+    eliminarUsuario(id)
     toast({
       title: "Usuario eliminado",
-      description: `El usuario ${name} ha sido eliminado correctamente.`,
+      description: `El usuario ${nombre} ha sido eliminado correctamente.`,
       variant: "destructive",
     })
   }
 
-  const handleEditUser = (user: typeof users[0]) => {
-    setEditingUser({ ...user, password: "" })
+  const handleEditUser = (usuario: typeof usuarios[0]) => {
+    setEditingUser({ ...usuario, password: "" })
     setIsEditDialogOpen(true)
   }
 
@@ -78,10 +78,10 @@ export function UsersTab() {
     e.preventDefault()
     if (!editingUser) return
 
-    updateUser(editingUser.id, {
-      name: editingUser.name,
+    actualizarUsuario(editingUser.id, {
+      nombre: editingUser.nombre,
       email: editingUser.email,
-      role: editingUser.role,
+      rol: editingUser.rol as any,
       ...(editingUser.password ? { password: editingUser.password } : {})
     })
     
@@ -90,30 +90,30 @@ export function UsersTab() {
 
     toast({
       title: "Usuario actualizado",
-      description: `Los datos de ${editingUser.name} han sido guardados.`,
+      description: `Los datos de ${editingUser.nombre} han sido guardados.`,
     })
   }
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    await addUser({
-      name: newUser.name,
+    await añadirUsuario({
+      nombre: newUser.nombre,
       email: newUser.email,
       password: newUser.password,
-      role: newUser.role as "admin" | "cocina" | "maestro" | "alumno-cocina",
+      rol: newUser.rol as "admin" | "cocina" | "maestro" | "alumno-cocina",
     })
 
     setIsAddDialogOpen(false)
-    setNewUser({ name: "", email: "", password: "", role: "alumno-cocina" })
+    setNewUser({ nombre: "", email: "", password: "", rol: "alumno-cocina" })
 
     toast({
       title: "Usuario creado",
-      description: `El usuario ${newUser.name} ha sido registrado exitosamente.`,
+      description: `El usuario ${newUser.nombre} ha sido registrado exitosamente.`,
     })
   }
 
-  const UserTable = ({ role }: { role: string | "all" }) => (
+  const UserTable = ({ rol }: { rol: string | "all" }) => (
     <div className="rounded-md border border-(--md-accent)/50 overflow-x-auto">
       <Table className="min-w-[600px] sm:min-w-0">
         <TableHeader className="bg-(--md-surface)">
@@ -125,25 +125,25 @@ export function UsersTab() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredUsers(role).map((user) => (
-            <TableRow key={user.id} className="border-(--md-accent)/30 hover:bg-(--md-accent-light)/10 transition-colors">
-              <TableCell className="font-medium text-(--md-heading)">{user.name}</TableCell>
-              <TableCell className="text-(--md-body)">{user.email}</TableCell>
+          {filteredUsers(rol).map((usuario) => (
+            <TableRow key={usuario.id} className="border-(--md-accent)/30 hover:bg-(--md-accent-light)/10 transition-colors">
+              <TableCell className="font-medium text-(--md-heading)">{usuario.nombre}</TableCell>
+              <TableCell className="text-(--md-body)">{usuario.email}</TableCell>
               <TableCell>
-                <Badge className={`${getRoleBadge(user.role)} shadow-none border-none`}>
-                  <span className="capitalize">{user.role}</span>
+                <Badge className={`${getRoleBadge(usuario.rol)} shadow-none border-none`}>
+                  <span className="capitalize">{usuario.rol}</span>
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   <Dialog 
-                    open={isEditDialogOpen && editingUser?.id === user.id} 
+                    open={isEditDialogOpen && editingUser?.id === usuario.id} 
                     onOpenChange={(open) => {
                       if (!open) {
                         setIsEditDialogOpen(false);
                         setTimeout(() => setEditingUser(null), 150);
                       } else {
-                        handleEditUser(user);
+                        handleEditUser(usuario);
                       }
                     }}
                   >
@@ -156,7 +156,7 @@ export function UsersTab() {
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
                     </DialogTrigger>
-                    {editingUser?.id === user.id && (
+                    {editingUser?.id === usuario.id && (
                       <DialogContent className="bg-(--md-surface) border-(--md-accent)">
                         <DialogHeader>
                           <DialogTitle className="text-2xl text-(--md-heading)">Editar <span className="text-(--md-coral)">Usuario</span></DialogTitle>
@@ -169,8 +169,8 @@ export function UsersTab() {
                             <Label htmlFor="name" className="text-(--md-heading)">Nombre Completo</Label>
                             <Input 
                               id="name" 
-                              value={editingUser.name} 
-                              onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                              value={editingUser.nombre} 
+                              onChange={(e) => setEditingUser({ ...editingUser, nombre: e.target.value })}
                               className="border-(--md-accent) focus-visible:ring-(--md-coral)/20"
                               required
                             />
@@ -198,10 +198,10 @@ export function UsersTab() {
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="role" className="text-(--md-heading)">Rol de Usuario</Label>
+                            <Label htmlFor="rol" className="text-(--md-heading)">Rol de Usuario</Label>
                             <Select 
-                              value={editingUser.role} 
-                              onValueChange={(val) => setEditingUser({ ...editingUser, role: val })}
+                              value={editingUser.rol} 
+                              onValueChange={(val) => setEditingUser({ ...editingUser, rol: val })}
                             >
                               <SelectTrigger className="border-(--md-accent) focus:ring-(--md-coral)/20">
                                 <SelectValue placeholder="Seleccionar rol" />
@@ -245,13 +245,13 @@ export function UsersTab() {
                           <AlertDialogTitle>¿Eliminar usuario?</AlertDialogTitle>
                         </div>
                         <AlertDialogDescription className="text-(--md-body)">
-                          ¿Estás seguro de que deseas eliminar a <span className="font-bold text-(--md-heading)">{user.name}</span>? Esta acción no se puede deshacer.
+                          ¿Estás seguro de que deseas eliminar a <span className="font-bold text-(--md-heading)">{usuario.nombre}</span>? Esta acción no se puede deshacer.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel className="border-(--md-accent) text-(--md-body) hover:bg-(--md-accent)/50">Cancelar</AlertDialogCancel>
                         <AlertDialogAction 
-                          onClick={() => handleDeleteUser(user.id, user.name)}
+                          onClick={() => handleDeleteUser(usuario.id, usuario.nombre)}
                           className="bg-(--md-coral) text-white hover:bg-(--md-coral-hover)"
                         >
                           Eliminar Permanentemente
@@ -296,8 +296,8 @@ export function UsersTab() {
                     <Label htmlFor="add-name" className="text-(--md-heading)">Nombre Completo</Label>
                     <Input 
                       id="add-name" 
-                      value={newUser.name} 
-                      onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                      value={newUser.nombre} 
+                      onChange={(e) => setNewUser({ ...newUser, nombre: e.target.value })}
                       className="border-(--md-accent) focus-visible:ring-(--md-coral)/20"
                       required
                     />
@@ -325,10 +325,10 @@ export function UsersTab() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="add-role" className="text-(--md-heading)">Rol de Usuario</Label>
+                    <Label htmlFor="add-rol" className="text-(--md-heading)">Rol de Usuario</Label>
                     <Select 
-                      value={newUser.role} 
-                      onValueChange={(val) => setNewUser({ ...newUser, role: val })}
+                      value={newUser.rol} 
+                      onValueChange={(val) => setNewUser({ ...newUser, rol: val })}
                     >
                       <SelectTrigger className="border-(--md-accent) focus:ring-(--md-coral)/20">
                         <SelectValue placeholder="Seleccionar rol" />
@@ -385,19 +385,19 @@ export function UsersTab() {
             </TabsList>
 
             <TabsContent value="all" className="mt-0">
-              <UserTable role="all" />
+              <UserTable rol="all" />
             </TabsContent>
             <TabsContent value="cocina" className="mt-0">
-              <UserTable role="cocina" />
+              <UserTable rol="cocina" />
             </TabsContent>
             <TabsContent value="alumno-cocina" className="mt-0">
-              <UserTable role="alumno-cocina" />
+              <UserTable rol="alumno-cocina" />
             </TabsContent>
             <TabsContent value="maestro" className="mt-0">
-              <UserTable role="maestro" />
+              <UserTable rol="maestro" />
             </TabsContent>
             <TabsContent value="admin" className="mt-0">
-              <UserTable role="admin" />
+              <UserTable rol="admin" />
             </TabsContent>
           </Tabs>
         </CardContent>

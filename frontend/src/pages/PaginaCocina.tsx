@@ -1,33 +1,33 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/lib/auth-context"
-import { Navbar } from "@/components/navbar"
+import { BarraNavegacion } from "@/components/barra-navegacion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { TodayReservationsTab } from "@/components/cocina/today-reservations-tab"
-import { WeeklyMenuTab } from "@/components/cocina/weekly-menu-tab"
-import { GastroEventsTab } from "@/components/cocina/gastro-events-tab"
-import { TodoListTab } from "@/components/cocina/todo-list-tab"
-import { AlumnosTab } from "@/components/cocina/alumnos-tab"
-import { ActivityLogsTab } from "@/components/cocina/activity-logs-tab"
-import { SearchReservationsTab } from "@/components/cocina/search-reservations-tab"
+import { TodayReservationsTab } from "@/components/cocina/pestaña-reservas-hoy"
+import { WeeklyMenuTab } from "@/components/cocina/pestaña-menu-semanal"
+import { GastroEventsTab } from "@/components/cocina/pestaña-eventos-gastro"
+import { TodoListTab } from "@/components/cocina/pestaña-lista-tareas"
+import { AlumnosTab } from "@/components/cocina/pestaña-alumnos"
+import { ActivityLogsTab } from "@/components/cocina/pestaña-registros-actividad"
+import { SearchReservationsTab } from "@/components/cocina/pestaña-buscar-reservas"
 import { Menu, CalendarDays, ClipboardList, Utensils, Star, Users, Activity, ScanLine, ChevronDown, ChevronRight, PackageOpen } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 
-export function CocinaPage() {
-  const { user, isLoading } = useAuth()
+export function PaginaCocina() {
+  const { usuario, cargando } = useAuth()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState("today")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isPedidosOpen, setIsPedidosOpen] = useState(true)
 
   useEffect(() => {
-    if (!isLoading && (!user || (user.role !== "cocina" && user.role !== "alumno-cocina" && user.role !== "alumno-cocina-titular"))) {
+    if (!cargando && (!usuario || (usuario.rol !== "cocina" && usuario.rol !== "alumno-cocina" && usuario.rol !== "alumno-cocina-titular"))) {
       navigate("/")
     }
-  }, [user, isLoading, navigate])
+  }, [usuario, cargando, navigate])
 
-  if (isLoading || !user) {
+  if (cargando || !usuario) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-(--md-page-bg)">
         <div className="text-center">
@@ -49,7 +49,7 @@ export function CocinaPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-(--md-page-bg) to-(--md-accent-light)/20">
-      <Navbar />
+      <BarraNavegacion />
       <main className="px-6 py-6 md:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col md:flex-row gap-8">
           
@@ -105,7 +105,7 @@ export function CocinaPage() {
                       className={`text-left px-4 py-3 rounded-sm font-semibold flex items-center gap-3 transition-colors ${activeTab === "events" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-heading) hover:bg-(--md-accent)/20"}`}>
                       <Star className="h-4 w-4 text-(--md-coral)" /> Eventos
                     </button>
-                    {user?.role === "cocina" && (
+                    {usuario?.rol === "cocina" && (
                       <button onClick={() => { setActiveTab("alumnos"); setIsMobileMenuOpen(false) }}
                         className={`text-left px-4 py-3 rounded-sm font-semibold flex items-center gap-3 transition-colors ${activeTab === "alumnos" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-heading) hover:bg-(--md-accent)/20"}`}>
                         <Users className="h-4 w-4 text-(--md-coral)" /> Alumnos
@@ -158,7 +158,7 @@ export function CocinaPage() {
               <TabsTrigger value="events" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-heading) font-semibold hover:bg-(--md-accent)/20 transition-colors py-2 px-3 gap-3 rounded-md">
                 <Star className="h-4 w-4 text-(--md-coral)" /> Eventos
               </TabsTrigger>
-              {user?.role === "cocina" && (
+              {usuario?.rol === "cocina" && (
                 <>
                   <TabsTrigger value="alumnos" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-heading) font-semibold hover:bg-(--md-accent)/20 transition-colors py-2 px-3 gap-3 rounded-md">
                     <Users className="h-4 w-4 text-(--md-coral)" /> Alumnos
@@ -177,7 +177,7 @@ export function CocinaPage() {
             <TabsContent value="search" className="mt-0"><SearchReservationsTab /></TabsContent>
             <TabsContent value="menu" className="mt-0"><WeeklyMenuTab /></TabsContent>
             <TabsContent value="events" className="mt-0"><GastroEventsTab /></TabsContent>
-            {user?.role === "cocina" && (
+            {usuario?.rol === "cocina" && (
               <>
                 <TabsContent value="alumnos" className="mt-0"><AlumnosTab /></TabsContent>
                 <TabsContent value="activity" className="mt-0"><ActivityLogsTab /></TabsContent>

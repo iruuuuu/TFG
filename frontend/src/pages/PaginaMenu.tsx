@@ -1,29 +1,29 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/lib/auth-context"
-import { Navbar } from "@/components/navbar"
+import { BarraNavegacion } from "@/components/barra-navegacion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { WeeklyMenuView } from "@/components/menu/weekly-menu-view"
-import { MyReservations } from "@/components/menu/my-reservations"
-import { RatingsView } from "@/components/menu/ratings-view"
-import { GastroEventsView } from "@/components/menu/gastro-events-view"
+import { WeeklyMenuView } from "@/components/menu/vista-menu-semanal"
+import { MyReservations } from "@/components/menu/mis-reservas"
+import { RatingsView } from "@/components/menu/vista-valoraciones"
+import { GastroEventsView } from "@/components/menu/vista-eventos-gastro"
 import { Menu } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 
-export function MenuPage() {
-  const { user, isLoading } = useAuth()
+export function PaginaMenu() {
+  const { usuario, cargando } = useAuth()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState("menu")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
-    if (!isLoading && user && user.role !== "maestro" && user.role !== "alumno" && user.role !== "admin") {
-      navigate("/login")
+    if (!cargando && usuario && usuario.rol !== "maestro" && usuario.rol !== "alumno-cocina" && usuario.rol !== "admin") {
+      navigate("/iniciarSesion")
     }
-  }, [user, isLoading, navigate])
+  }, [usuario, cargando, navigate])
 
-  if (isLoading) {
+  if (cargando) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-(--md-page-bg)">
         <div className="text-center">
@@ -36,7 +36,7 @@ export function MenuPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-(--md-page-bg) to-(--md-accent-light)/20">
-      <Navbar />
+      <BarraNavegacion />
       <main className="px-6 py-6 md:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col md:flex-row gap-8">
 
@@ -65,14 +65,14 @@ export function MenuPage() {
                       className={`text-left px-4 py-3 rounded-sm font-medium transition-colors ${activeTab === "events" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading)"}`}>
                       Eventos
                     </button>
-                    {user && (
+                    {usuario && (
                       <>
-                        <button onClick={() => { setActiveTab("reservations"); setIsMobileMenuOpen(false) }}
-                          className={`text-left px-4 py-3 rounded-sm font-medium transition-colors ${activeTab === "reservations" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading)"}`}>
+                        <button onClick={() => { setActiveTab("reservas"); setIsMobileMenuOpen(false) }}
+                          className={`text-left px-4 py-3 rounded-sm font-medium transition-colors ${activeTab === "reservas" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading)"}`}>
                           Mis Reservas
                         </button>
-                        <button onClick={() => { setActiveTab("ratings"); setIsMobileMenuOpen(false) }}
-                          className={`text-left px-4 py-3 rounded-sm font-medium transition-colors ${activeTab === "ratings" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading)"}`}>
+                        <button onClick={() => { setActiveTab("valoraciones"); setIsMobileMenuOpen(false) }}
+                          className={`text-left px-4 py-3 rounded-sm font-medium transition-colors ${activeTab === "valoraciones" ? "bg-(--md-accent) text-(--md-heading)" : "text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading)"}`}>
                           Valoraciones
                         </button>
                       </>
@@ -92,10 +92,10 @@ export function MenuPage() {
             <TabsList className="flex flex-col h-auto w-full bg-(--md-surface) border border-(--md-accent) p-1 gap-1">
               <TabsTrigger value="menu" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2.5">Menú de la Semana</TabsTrigger>
               <TabsTrigger value="events" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2.5">Eventos</TabsTrigger>
-              {user && (
+              {usuario && (
                 <>
-                  <TabsTrigger value="reservations" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2.5">Mis Reservas</TabsTrigger>
-                  <TabsTrigger value="ratings" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2.5">Valoraciones</TabsTrigger>
+                  <TabsTrigger value="reservas" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2.5">Mis Reservas</TabsTrigger>
+                  <TabsTrigger value="valoraciones" className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2.5">Valoraciones</TabsTrigger>
                 </>
               )}
             </TabsList>
@@ -104,8 +104,8 @@ export function MenuPage() {
           <div className="flex-1 w-full min-w-0">
             <TabsContent value="menu" className="mt-0"><WeeklyMenuView /></TabsContent>
             <TabsContent value="events" className="mt-0"><GastroEventsView /></TabsContent>
-            <TabsContent value="reservations" className="mt-0"><MyReservations /></TabsContent>
-            <TabsContent value="ratings" className="mt-0"><RatingsView /></TabsContent>
+            <TabsContent value="reservas" className="mt-0"><MyReservations /></TabsContent>
+            <TabsContent value="valoraciones" className="mt-0"><RatingsView /></TabsContent>
           </div>
         </Tabs>
       </main>

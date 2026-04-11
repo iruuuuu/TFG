@@ -5,19 +5,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Calendar, Users, UtensilsCrossed } from "lucide-react"
-import { useData } from "@/lib/data-context"
+import { useDatos } from "@/lib/data-context"
 
 export function TodayReservationsTab() {
-  const { reservations, menuItems } = useData()
+  const { reservas, platosMenu } = useDatos()
 
-  // Filter reservations for today. In a real app we'd compare dates properly
-  const todayReservations = reservations.map(res => {
+  // Filter reservas for today. In a real app we'd compare dates properly
+  const todayReservations = reservas.map(res => {
     return {
       id: res.id,
-      userName: res.userName,
-      time: new Date(res.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      items: res.menuItems.map(itemId => menuItems.find(m => m.id === itemId)?.name || "Plato desconocido"),
-      prepared: res.kitchenStatus === "completed",
+      nombreUsuario: res.nombreUsuario,
+      time: new Date(res.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      items: res.platosMenu.map(itemId => platosMenu.find(m => m.id === itemId)?.nombre || "Plato desconocido"),
+      prepared: res.estadoCocina === "completada",
     }
   })
 
@@ -83,7 +83,7 @@ export function TodayReservationsTab() {
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold">{reservation.userName}</p>
+                      <p className="font-semibold">{reservation.nombreUsuario}</p>
                       <p className="text-sm text-muted-foreground">Hora: {reservation.time}</p>
                     </div>
                     {reservation.prepared && <Badge className="bg-green-600 text-white">Preparada</Badge>}

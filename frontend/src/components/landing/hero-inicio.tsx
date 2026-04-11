@@ -3,7 +3,7 @@ import { ChefHat, ArrowRight, Utensils, Calendar } from "lucide-react"
 import { Link } from "react-router-dom"
 
 export function LandingHero({ 
-  primaryHref = "/login", 
+  primaryHref = "/iniciarSesion", 
   primaryLabel = "Acceder al Panel" 
 }: { 
   primaryHref?: string, 

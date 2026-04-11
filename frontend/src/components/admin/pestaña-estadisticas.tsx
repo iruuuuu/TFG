@@ -8,7 +8,7 @@ export function StatsTab() {
     {
       title: "Reservas Hoy",
       value: "24",
-      description: "+12% desde ayer",
+      descripcion: "+12% desde ayer",
       icon: Calendar,
       color: "text-(--md-heading)",
       bgColor: "bg-(--md-accent)",
@@ -17,7 +17,7 @@ export function StatsTab() {
     {
       title: "Total Usuarios",
       value: "156",
-      description: "3 nuevos esta semana",
+      descripcion: "3 nuevos esta semana",
       icon: Users,
       color: "text-(--md-heading)",
       bgColor: "bg-(--md-accent-light)",
@@ -26,7 +26,7 @@ export function StatsTab() {
     {
       title: "Platos Disponibles",
       value: "8",
-      description: "Menú de esta semana",
+      descripcion: "Menú de esta semana",
       icon: UtensilsCrossed,
       color: "text-(--md-heading)",
       bgColor: "bg-(--md-accent)",
@@ -35,7 +35,7 @@ export function StatsTab() {
     {
       title: "Valoración Media",
       value: "4.5",
-      description: "Basado en 48 opiniones",
+      descripcion: "Basado en 48 opiniones",
       icon: Star,
       color: "text-(--md-heading)",
       bgColor: "bg-(--md-accent-light)",
@@ -58,7 +58,7 @@ export function StatsTab() {
               </CardHeader>
               <CardContent>
                 <div className={`text-2xl font-bold ${stat.highlight ? "text-md-coral" : "text-md-heading"}`}>{stat.value}</div>
-                <p className="text-xs text-md-body/80 font-medium">{stat.description}</p>
+                <p className="text-xs text-md-body/80 font-medium">{stat.descripcion}</p>
               </CardContent>
             </Card>
           )
@@ -74,12 +74,12 @@ export function StatsTab() {
           <CardContent>
             <div className="space-y-4">
               {[
-                { name: "Pollo al Horno con Patatas", orders: 45 },
-                { name: "Paella de Verduras", orders: 38 },
-                { name: "Ensalada Mediterránea", orders: 32 },
+                { nombre: "Pollo al Horno con Patatas", orders: 45 },
+                { nombre: "Paella de Verduras", orders: 38 },
+                { nombre: "Ensalada Mediterránea", orders: 32 },
               ].map((item, idx) => (
-                <div key={item.name} className="flex items-center justify-between">
-                  <span className="text-sm text-(--md-heading)">{item.name}</span>
+                <div key={item.nombre} className="flex items-center justify-between">
+                  <span className="text-sm text-(--md-heading)">{item.nombre}</span>
                   <span className={`text-sm font-semibold ${idx === 0 ? "text-(--md-coral)" : "text-(--md-body)"}`}>{item.orders} pedidos</span>
                 </div>
               ))}

@@ -1,19 +1,19 @@
 import { Routes, Route } from "react-router-dom"
-import { HomePage } from "./pages/HomePage"
-import { LoginPage } from "./pages/LoginPage"
-import { AdminPage } from "./pages/AdminPage"
-import { CocinaPage } from "./pages/CocinaPage"
-import { MenuPage } from "./pages/MenuPage"
+import { PaginaInicio } from "./pages/PaginaInicio"
+import { PaginaLogin } from "./pages/PaginaLogin"
+import { PaginaAdmin } from "./pages/PaginaAdmin"
+import { PaginaCocina } from "./pages/PaginaCocina"
+import { PaginaMenu } from "./pages/PaginaMenu"
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/admin" element={<AdminPage />} />
-      <Route path="/cocina" element={<CocinaPage />} />
-      <Route path="/menu" element={<MenuPage />} />
-      <Route path="*" element={<HomePage />} />
+      <Route path="/" element={<PaginaInicio />} />
+      <Route path="/iniciarSesion" element={<PaginaLogin />} />
+      <Route path="/admin" element={<PaginaAdmin />} />
+      <Route path="/cocina" element={<PaginaCocina />} />
+      <Route path="/menu" element={<PaginaMenu />} />
+      <Route path="*" element={<PaginaInicio />} />
     </Routes>
   )
 }

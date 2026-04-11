@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useData } from "@/lib/data-context"
+import { useDatos } from "@/lib/data-context"
 import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -21,37 +21,37 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, Users, ChefHat, Edit, XCircle, Plus, QrCode, CheckCircle } from "lucide-react"
 import { Scanner } from "@yudiel/react-qr-scanner"
 import { useToast } from "@/hooks/use-toast"
-import type { GastroEvent } from "@/lib/types"
+import type { EventoGastro } from "@/lib/types"
 
 export function GastroEventsTab() {
-  const { gastroEvents, addGastroEvent, updateGastroEvent, cancelGastroEvent, getEventAttendees, markEventAttendance, users, logActivity } = useData()
-  const { user } = useAuth()
+  const { eventosGastro, añadirEventoGastro, actualizarEventoGastro, cancelarEventoGastro, obtenerAsistentesEvento, marcarAsistenciaEvento, usuarios, registrarActividad } = useDatos()
+  const { usuario } = useAuth()
   const { toast } = useToast()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isAttendanceDialogOpen, setIsAttendanceDialogOpen] = useState(false)
   const [isScanning, setIsScanning] = useState(false)
-  const [selectedEvent, setSelectedEvent] = useState<GastroEvent | null>(null)
-  const [selectedAttendanceEvent, setSelectedAttendanceEvent] = useState<GastroEvent | null>(null)
+  const [selectedEvent, setSelectedEvent] = useState<EventoGastro | null>(null)
+  const [selectedAttendanceEvent, setSelectedAttendanceEvent] = useState<EventoGastro | null>(null)
 
   const [formData, setFormData] = useState<{
-    name: string;
-    description: string;
-    date: string;
+    nombre: string;
+    descripcion: string;
+    fecha: string;
     time: string;
-    maxCapacity: number | string;
-    dishes: string[];
+    capacidadMaxima: number | string;
+    platos: string[];
   }>({
-    name: "",
-    description: "",
-    date: "",
+    nombre: "",
+    descripcion: "",
+    fecha: "",
     time: "",
-    maxCapacity: 20,
-    dishes: ["", "", "", "", ""],
+    capacidadMaxima: 20,
+    platos: ["", "", "", "", ""],
   })
 
   const handleAddEvent = () => {
-    if (!formData.name || !formData.date || !formData.time) {
+    if (!formData.nombre || !formData.fecha || !formData.time) {
       toast({
         title: "Error",
         description: "Por favor completa todos los campos obligatorios",
@@ -60,51 +60,51 @@ export function GastroEventsTab() {
       return
     }
 
-    const eventDate = new Date(`${formData.date}T${formData.time}:00`)
-    const validDishes = formData.dishes.filter((d) => d.trim() !== "")
+    const eventDate = new Date(`${formData.fecha}T${formData.time}:00`)
+    const validDishes = formData.platos.filter((d) => d.trim() !== "")
 
-    addGastroEvent({
-      name: formData.name,
-      description: formData.description,
-      date: eventDate,
-      maxCapacity: Number(formData.maxCapacity) || 20,
-      dishes: validDishes,
-      status: "active",
-      createdBy: "cocina@iesmendoza.es",
+    añadirEventoGastro({
+      nombre: formData.nombre,
+      descripcion: formData.descripcion,
+      fecha: eventDate,
+      capacidadMaxima: Number(formData.capacidadMaxima) || 20,
+      platos: validDishes,
+      estado: "activo",
+      creadoPor: "cocina@iesmendoza.es",
     })
 
-    if (user) {
-      logActivity("Publicó Nuevo Evento", `Evento: ${formData.name}`, user.name, user.role)
+    if (usuario) {
+      registrarActividad("Publicó Nuevo Evento", `Evento: ${formData.nombre}`, usuario.nombre, usuario.rol)
     }
 
     toast({
       title: "Evento creado",
-      description: `${formData.name} ha sido publicado correctamente`,
+      description: `${formData.nombre} ha sido publicado correctamente`,
     })
 
     setIsAddDialogOpen(false)
     setFormData({
-      name: "",
-      description: "",
-      date: "",
+      nombre: "",
+      descripcion: "",
+      fecha: "",
       time: "",
-      maxCapacity: 20,
-      dishes: ["", "", "", "", ""],
+      capacidadMaxima: 20,
+      platos: ["", "", "", "", ""],
     })
   }
 
   const handleEditEvent = () => {
     if (!selectedEvent) return
 
-    const eventDate = new Date(`${formData.date}T${formData.time}:00`)
-    const validDishes = formData.dishes.filter((d) => d.trim() !== "")
+    const eventDate = new Date(`${formData.fecha}T${formData.time}:00`)
+    const validDishes = formData.platos.filter((d) => d.trim() !== "")
 
-    updateGastroEvent(selectedEvent.id, {
-      name: formData.name,
-      description: formData.description,
-      date: eventDate,
-      maxCapacity: Number(formData.maxCapacity) || 20,
-      dishes: validDishes,
+    actualizarEventoGastro(selectedEvent.id, {
+      nombre: formData.nombre,
+      descripcion: formData.descripcion,
+      fecha: eventDate,
+      capacidadMaxima: Number(formData.capacidadMaxima) || 20,
+      platos: validDishes,
     })
 
     toast({
@@ -116,25 +116,25 @@ export function GastroEventsTab() {
     setSelectedEvent(null)
   }
 
-  const openEditDialog = (event: GastroEvent) => {
+  const openEditDialog = (event: EventoGastro) => {
     setSelectedEvent(event)
-    const date = new Date(event.date)
+    const date = new Date(event.fecha)
     setFormData({
-      name: event.name,
-      description: event.description,
-      date: date.toISOString().split("T")[0],
+      nombre: event.nombre,
+      descripcion: event.descripcion,
+      fecha: date.toISOString().split("T")[0],
       time: date.toTimeString().slice(0, 5),
-      maxCapacity: event.maxCapacity,
-      dishes: [...event.dishes, "", "", "", "", ""].slice(0, 5),
+      capacidadMaxima: event.capacidadMaxima,
+      platos: [...event.platos, "", "", "", "", ""].slice(0, 5),
     })
     setIsEditDialogOpen(true)
   }
 
-  const handleCancelEvent = (eventId: string, eventName: string) => {
+  const handleCancelEvent = (idEvento: string, eventName: string) => {
     if (confirm(`¿Estás seguro de cancelar el evento "${eventName}"?`)) {
-      cancelGastroEvent(eventId)
-      if (user) {
-        logActivity("Canceló Evento", `Evento: ${eventName}`, user.name, user.role)
+      cancelarEventoGastro(idEvento)
+      if (usuario) {
+        registrarActividad("Canceló Evento", `Evento: ${eventName}`, usuario.nombre, usuario.rol)
       }
       toast({
         title: "Evento cancelado",
@@ -143,57 +143,57 @@ export function GastroEventsTab() {
     }
   }
 
-  const handleScanAttendance = (text: string, eventId: string) => {
+  const handleScanAttendance = (text: string, idEvento: string) => {
     if (!text) return
 
     const cleanText = text.trim()
     const term = cleanText.toLowerCase()
 
-    // Find user by email (from QR)
-    const foundUser = users.find(u => u.email.toLowerCase() === term)
+    // Find usuario by email (from QR)
+    const foundUser = usuarios.find(u => u.email.toLowerCase() === term)
     if (!foundUser) {
       toast({ title: "QR Inválido", description: "El QR no corresponde a un maestro registrado.", variant: "destructive" })
       return
     }
 
-    const attendees = getEventAttendees(eventId)
-    const reservation = attendees.find(r => r.userId === String(foundUser.id))
+    const attendees = obtenerAsistentesEvento(idEvento)
+    const reservation = attendees.find(r => r.idUsuario === String(foundUser.id))
 
     if (!reservation) {
-      toast({ title: "Acceso Denegado", description: `${foundUser.name} no está en la lista de invitados.`, variant: "destructive" })
+      toast({ title: "Acceso Denegado", description: `${foundUser.nombre} no está en la lista de invitados.`, variant: "destructive" })
       return
     }
 
-    if (reservation.attended) {
-      toast({ title: "Aviso", description: `${foundUser.name} ya había hecho el Check-In.`, variant: "default" })
+    if (reservation.asistio) {
+      toast({ title: "Aviso", description: `${foundUser.nombre} ya había hecho el Check-In.`, variant: "default" })
       return
     }
 
     // Mark as attended
-    markEventAttendance(reservation.id, true)
+    marcarAsistenciaEvento(reservation.id, true)
     
     // Auto-close scanner and show success
     setIsScanning(false)
     toast({
       title: "Check-In Exitoso",
-      description: `Acceso concedido a ${foundUser.name}.`,
+      description: `Acceso concedido a ${foundUser.nombre}.`,
     })
   }
 
-  const getStatusBadge = (status: GastroEvent["status"]) => {
+  const getStatusBadge = (estado: EventoGastro["estado"]) => {
     const styles = {
-      active: "bg-(--md-accent-light) text-(--md-body)",
-      full: "bg-(--md-accent) text-(--md-body)",
-      modified: "bg-(--md-coral-hover)/20 text-(--md-coral-hover)",
-      cancelled: "bg-(--md-coral)/10 text-(--md-coral)",
+      activo: "bg-(--md-accent-light) text-(--md-body)",
+      lleno: "bg-(--md-accent) text-(--md-body)",
+      modificado: "bg-(--md-coral-hover)/20 text-(--md-coral-hover)",
+      cancelado: "bg-(--md-coral)/10 text-(--md-coral)",
     }
     const labels = {
-      active: "Activo",
-      full: "Completo",
-      modified: "Modificado",
-      cancelled: "Cancelado",
+      activo: "Activo",
+      lleno: "Completo",
+      modificado: "Modificado",
+      cancelado: "Cancelado",
     }
-    return <Badge className={styles[status]}>{labels[status]}</Badge>
+    return <Badge className={styles[estado]}>{labels[estado]}</Badge>
   }
 
   return (
@@ -203,7 +203,7 @@ export function GastroEventsTab() {
           <h2 className="text-2xl font-bold">Eventos Gastronómicos</h2>
           <p className="text-muted-foreground">Gestiona menús degustación y experiencias especiales</p>
         </div>
-        {(user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
+        {(usuario?.rol === "cocina" || usuario?.rol === "alumno-cocina-titular") && (
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)">
@@ -223,8 +223,8 @@ export function GastroEventsTab() {
                   <Input
                     id="name"
                     placeholder="Ej: Menú Degustación Mediterráneo"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    value={formData.nombre}
+                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                   />
                 </div>
 
@@ -233,8 +233,8 @@ export function GastroEventsTab() {
                   <Textarea
                     id="description"
                     placeholder="Describe la experiencia gastronómica..."
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    value={formData.descripcion}
+                    onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                     rows={3}
                   />
                 </div>
@@ -245,8 +245,8 @@ export function GastroEventsTab() {
                     <Input
                       id="date"
                       type="date"
-                      value={formData.date}
-                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      value={formData.fecha}
+                      onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
@@ -267,23 +267,23 @@ export function GastroEventsTab() {
                     type="number"
                     min="1"
                     max="100"
-                    value={formData.maxCapacity}
-                    onChange={(e) => setFormData({ ...formData, maxCapacity: e.target.value === "" ? "" : Number(e.target.value) })}
+                    value={formData.capacidadMaxima}
+                    onChange={(e) => setFormData({ ...formData, capacidadMaxima: e.target.value === "" ? "" : Number(e.target.value) })}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Platos del Menú</Label>
                   <p className="text-sm text-muted-foreground">Añade hasta 5 platos para el menú degustación</p>
-                  {formData.dishes.map((dish, index) => (
+                  {formData.platos.map((dish, index) => (
                     <Input
                       key={index}
                       placeholder={`Plato ${index + 1}`}
                       value={dish}
                       onChange={(e) => {
-                        const newDishes = [...formData.dishes]
+                        const newDishes = [...formData.platos]
                         newDishes[index] = e.target.value
-                        setFormData({ ...formData, dishes: newDishes })
+                        setFormData({ ...formData, platos: newDishes })
                       }}
                     />
                   ))}
@@ -304,19 +304,19 @@ export function GastroEventsTab() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {gastroEvents.map((event) => {
-          const attendees = getEventAttendees(event.id)
-          const availableSpots = event.maxCapacity - event.currentAttendees
+        {eventosGastro.map((event) => {
+          const attendees = obtenerAsistentesEvento(event.id)
+          const availableSpots = event.capacidadMaxima - event.asistentesActuales
 
           return (
             <Card key={event.id}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1 flex-1">
-                    <CardTitle className="text-xl">{event.name}</CardTitle>
-                    <CardDescription>{event.description}</CardDescription>
+                    <CardTitle className="text-xl">{event.nombre}</CardTitle>
+                    <CardDescription>{event.descripcion}</CardDescription>
                   </div>
-                  {getStatusBadge(event.status)}
+                  {getStatusBadge(event.estado)}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -324,7 +324,7 @@ export function GastroEventsTab() {
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span>
-                      {new Date(event.date).toLocaleDateString("es-ES", {
+                      {new Date(event.fecha).toLocaleDateString("es-ES", {
                         day: "numeric",
                         month: "long",
                         year: "numeric",
@@ -336,7 +336,7 @@ export function GastroEventsTab() {
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4 text-muted-foreground" />
                     <span className="font-semibold">
-                      {event.currentAttendees}/{event.maxCapacity}
+                      {event.asistentesActuales}/{event.capacidadMaxima}
                     </span>
                     {availableSpots > 0 ? (
                       <span className="text-green-600">({availableSpots} disponibles)</span>
@@ -352,7 +352,7 @@ export function GastroEventsTab() {
                     Platos del menú:
                   </div>
                   <ul className="text-sm space-y-1 ml-6 list-disc">
-                    {event.dishes.map((dish, idx) => (
+                    {event.platos.map((dish, idx) => (
                       <li key={idx}>{dish}</li>
                     ))}
                   </ul>
@@ -360,7 +360,7 @@ export function GastroEventsTab() {
 
                 <div className="text-xs text-muted-foreground mb-4">{attendees.length} reservas confirmadas</div>
 
-                {event.status !== "cancelled" && (user?.role === "cocina" || user?.role === "alumno-cocina-titular") && (
+                {event.estado !== "cancelado" && (usuario?.rol === "cocina" || usuario?.rol === "alumno-cocina-titular") && (
                   <div className="space-y-2">
                     <Button 
                       onClick={() => {
@@ -380,7 +380,7 @@ export function GastroEventsTab() {
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => handleCancelEvent(event.id, event.name)}
+                        onClick={() => handleCancelEvent(event.id, event.nombre)}
                         className="flex-1"
                       >
                         <XCircle className="mr-2 h-3 w-3" />
@@ -407,8 +407,8 @@ export function GastroEventsTab() {
               <Label htmlFor="edit-name">Nombre del Evento *</Label>
               <Input
                 id="edit-name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                value={formData.nombre}
+                onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
               />
             </div>
 
@@ -416,8 +416,8 @@ export function GastroEventsTab() {
               <Label htmlFor="edit-description">Descripción</Label>
               <Textarea
                 id="edit-description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                value={formData.descripcion}
+                onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                 rows={3}
               />
             </div>
@@ -428,8 +428,8 @@ export function GastroEventsTab() {
                 <Input
                   id="edit-date"
                   type="date"
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  value={formData.fecha}
+                  onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
@@ -450,22 +450,22 @@ export function GastroEventsTab() {
                 type="number"
                 min="1"
                 max="100"
-                value={formData.maxCapacity}
-                onChange={(e) => setFormData({ ...formData, maxCapacity: e.target.value === "" ? "" : Number(e.target.value) })}
+                value={formData.capacidadMaxima}
+                onChange={(e) => setFormData({ ...formData, capacidadMaxima: e.target.value === "" ? "" : Number(e.target.value) })}
               />
             </div>
 
             <div className="space-y-2">
               <Label>Platos del Menú</Label>
-              {formData.dishes.map((dish, index) => (
+              {formData.platos.map((dish, index) => (
                 <Input
                   key={index}
                   placeholder={`Plato ${index + 1}`}
                   value={dish}
                   onChange={(e) => {
-                    const newDishes = [...formData.dishes]
+                    const newDishes = [...formData.platos]
                     newDishes[index] = e.target.value
-                    setFormData({ ...formData, dishes: newDishes })
+                    setFormData({ ...formData, platos: newDishes })
                   }}
                 />
               ))}
@@ -486,7 +486,7 @@ export function GastroEventsTab() {
       <Dialog open={isAttendanceDialogOpen} onOpenChange={setIsAttendanceDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{`Asistencia: ${selectedAttendanceEvent?.name || ""}`}</DialogTitle>
+            <DialogTitle>{`Asistencia: ${selectedAttendanceEvent?.nombre || ""}`}</DialogTitle>
             <DialogDescription>
               Escanea el QR del invitado o marca su asistencia manualmente.
             </DialogDescription>
@@ -524,32 +524,32 @@ export function GastroEventsTab() {
               <div className="space-y-4">
                 <h4 className="text-lg font-bold border-b pb-2 text-(--md-heading)">Lista de Invitados</h4>
                 {(() => {
-                  const attendees = getEventAttendees(selectedAttendanceEvent.id)
+                  const attendees = obtenerAsistentesEvento(selectedAttendanceEvent.id)
                   if (attendees.length === 0) {
                     return <p className="text-sm text-muted-foreground text-center py-4">No hay reservas confirmadas para este evento.</p>
                   }
                   return (
                     <div className="space-y-2">
                       {attendees.map(res => (
-                        <div key={res.id} className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${res.attended ? "bg-blue-50/50 border-blue-200" : "bg-background"}`}>
+                        <div key={res.id} className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${res.asistio ? "bg-blue-50/50 border-blue-200" : "bg-background"}`}>
                           <div>
-                            <p className="font-semibold text-sm">{res.userName}</p>
-                            <p className="text-xs text-muted-foreground">ID: {res.userId}</p>
+                            <p className="font-semibold text-sm">{res.nombreUsuario}</p>
+                            <p className="text-xs text-muted-foreground">ID: {res.idUsuario}</p>
                           </div>
                           <Button 
-                            variant={res.attended ? "outline" : "default"}
-                            className={res.attended ? "" : "bg-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)"}
+                            variant={res.asistio ? "outline" : "default"}
+                            className={res.asistio ? "" : "bg-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)"}
                             size="sm"
                             onClick={() => {
-                              markEventAttendance(res.id, !res.attended)
+                              marcarAsistenciaEvento(res.id, !res.asistio)
                               toast({ 
                                 title: "Actualizado", 
-                                description: res.attended ? "Asistencia cancelada" : "Check-In realizado",
+                                description: res.asistio ? "Asistencia cancelada" : "Check-In realizado",
                               })
                             }}
                           >
                             <CheckCircle className="mr-2 h-4 w-4" />
-                            {res.attended ? "Desmarcar" : "Hacer Check-In"}
+                            {res.asistio ? "Desmarcar" : "Hacer Check-In"}
                           </Button>
                         </div>
                       ))}

@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, X } from "lucide-react"
-import { useData } from "@/lib/data-context"
+import { useDatos } from "@/lib/data-context"
 import { useAuth } from "@/lib/auth-context"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
@@ -20,67 +20,67 @@ const COMMON_ALLERGENS = [
 ]
 
 export function CreateDishDialog() {
-  const { addMenuItem, logActivity } = useData()
-  const { user, allUsers } = useAuth()
+  const { añadirPlatoMenu, registrarActividad } = useDatos()
+  const { usuario, todosLosUsuarios } = useAuth()
   const { toast } = useToast()
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState<{
-    name: string;
-    description: string;
-    category: string;
-    allergens: string[];
-    authorId?: string;
+    nombre: string;
+    descripcion: string;
+    categoria: string;
+    alergenos: string[];
+    idAutor?: string;
   }>({
-    name: "",
-    description: "",
-    category: "entrante",
-    allergens: [],
+    nombre: "",
+    descripcion: "",
+    categoria: "entrante",
+    alergenos: [],
   })
 
   // Students available for attribution
-  const students = allUsers.filter(u => parseInt(u.id) > 3)
+  const students = todosLosUsuarios.filter(u => parseInt(u.id) > 3)
 
   const toggleAllergen = (allergen: string) => {
     setFormData(prev => ({
       ...prev,
-      allergens: prev.allergens.includes(allergen) 
-        ? prev.allergens.filter(a => a !== allergen)
-        : [...prev.allergens, allergen]
+      alergenos: prev.alergenos.includes(allergen) 
+        ? prev.alergenos.filter(a => a !== allergen)
+        : [...prev.alergenos, allergen]
     }))
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
-    const authorName = formData.authorId 
-      ? allUsers.find(u => u.id === formData.authorId)?.name 
+    const authorName = formData.idAutor 
+      ? todosLosUsuarios.find(u => u.id === formData.idAutor)?.nombre 
       : undefined
 
-    addMenuItem({
-      name: formData.name,
-      description: formData.description,
-      category: formData.category as "entrante" | "principal" | "postre",
-      allergens: formData.allergens,
-      authorId: formData.authorId,
-      authorName: authorName,
-      available: true,
+    añadirPlatoMenu({
+      nombre: formData.nombre,
+      descripcion: formData.descripcion,
+      categoria: formData.categoria as "entrante" | "principal" | "postre",
+      alergenos: formData.alergenos,
+      idAutor: formData.idAutor,
+      nombreAutor: authorName,
+      disponible: true,
     })
 
-    if (user) {
-      logActivity(
+    if (usuario) {
+      registrarActividad(
         "Añadió Plato al Catálogo", 
-        `Plato: ${formData.name} (${formData.category})`, 
-        user.name, 
-        user.role
+        `Plato: ${formData.nombre} (${formData.categoria})`, 
+        usuario.nombre, 
+        usuario.rol
       )
     }
 
     toast({
       title: "Plato creado",
-      description: `Se ha añadido "${formData.name}" al catálogo.`,
+      description: `Se ha añadido "${formData.nombre}" al catálogo.`,
     })
 
-    setFormData({ name: "", description: "", category: "entrante", allergens: [], authorId: undefined })
+    setFormData({ nombre: "", descripcion: "", categoria: "entrante", alergenos: [], idAutor: undefined })
     setOpen(false)
   }
 
@@ -102,8 +102,8 @@ export function CreateDishDialog() {
             <Input 
               id="name" 
               required 
-              value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              value={formData.nombre}
+              onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
             />
           </div>
           <div className="space-y-2">
@@ -111,15 +111,15 @@ export function CreateDishDialog() {
             <Textarea 
               id="description" 
               required 
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              value={formData.descripcion}
+              onChange={(e) => setFormData(prev => ({ ...prev, descripcion: e.target.value }))}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="category" className="text-(--md-heading)">Categoría</Label>
+            <Label htmlFor="categoria" className="text-(--md-heading)">Categoría</Label>
             <Select 
-              value={formData.category} 
-              onValueChange={(val) => setFormData(prev => ({ ...prev, category: val }))}
+              value={formData.categoria} 
+              onValueChange={(val) => setFormData(prev => ({ ...prev, categoria: val }))}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona una categoría" />
@@ -136,7 +136,7 @@ export function CreateDishDialog() {
             <Select 
               value="" 
               onValueChange={(val) => {
-                if (val && !formData.allergens.includes(val)) {
+                if (val && !formData.alergenos.includes(val)) {
                   toggleAllergen(val)
                 }
               }}
@@ -145,19 +145,19 @@ export function CreateDishDialog() {
                 <SelectValue placeholder="Seleccionar alérgeno para añadir" />
               </SelectTrigger>
               <SelectContent className="max-h-56">
-                {COMMON_ALLERGENS.filter(a => !formData.allergens.includes(a)).map(a => (
+                {COMMON_ALLERGENS.filter(a => !formData.alergenos.includes(a)).map(a => (
                   <SelectItem key={a} value={a}>{a}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <div className="flex flex-wrap gap-2 pt-2">
-              {formData.allergens.map(a => (
+              {formData.alergenos.map(a => (
                 <Badge key={a} variant="secondary" className="bg-(--md-accent) text-(--md-heading) hover:bg-(--md-accent-hover) flex items-center gap-1 px-3 py-1">
                   {a}
                   <X className="h-3 w-3 cursor-pointer" onClick={() => toggleAllergen(a)} />
                 </Badge>
               ))}
-              {formData.allergens.length === 0 && (
+              {formData.alergenos.length === 0 && (
                 <span className="text-xs text-muted-foreground">Ningún alérgeno seleccionado</span>
               )}
             </div>
@@ -165,8 +165,8 @@ export function CreateDishDialog() {
           <div className="space-y-2">
             <Label htmlFor="author" className="text-(--md-heading)">Autor (Opcional - Atribuir a un Alumno)</Label>
             <Select 
-              value={formData.authorId || "none"} 
-              onValueChange={(val) => setFormData(prev => ({ ...prev, authorId: val === "none" ? undefined : val }))}
+              value={formData.idAutor || "none"} 
+              onValueChange={(val) => setFormData(prev => ({ ...prev, idAutor: val === "none" ? undefined : val }))}
             >
               <SelectTrigger>
                 <SelectValue placeholder="No atribuido / Plato Tradicional" />
@@ -174,7 +174,7 @@ export function CreateDishDialog() {
               <SelectContent>
                 <SelectItem value="none">No atribuido / Plato Tradicional</SelectItem>
                 {students.map(s => (
-                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  <SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

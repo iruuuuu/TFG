@@ -10,18 +10,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ChefHat, LogOut, User, QrCode } from "lucide-react"
+import { ChefHat, LogOut, User as Usuario, QrCode } from "lucide-react"
 import { useNavigate, Link } from "react-router-dom"
 import { useState } from "react"
 import QRCode from "react-qr-code"
 
-export function Navbar() {
-  const { user, logout } = useAuth()
+export function BarraNavegacion() {
+  const { usuario, cerrarSesion } = useAuth()
   const navigate = useNavigate()
   const [isQrOpen, setIsQrOpen] = useState(false)
 
   const handleLogout = () => {
-    logout()
+    cerrarSesion()
     navigate("/")
   }
 
@@ -39,21 +39,21 @@ export function Navbar() {
           </div>
         </Link>
 
-        {user ? (
+        {usuario ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full text-md-heading hover:bg-md-accent/50">
-                <User className="h-5 w-5" />
+                <Usuario className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 border-md-accent bg-md-surface shadow-xl">
               <DropdownMenuLabel className="pb-3 border-b border-md-accent/20">
                 <div className="flex flex-col">
-                  <span className="font-bold text-md-heading">{user?.name}</span>
-                  <span className="text-xs text-md-body/80">{user?.email}</span>
+                  <span className="font-bold text-md-heading">{usuario?.nombre}</span>
+                  <span className="text-xs text-md-body/80">{usuario?.email}</span>
                 </div>
               </DropdownMenuLabel>
-              {user?.role === "maestro" && (
+              {usuario?.rol === "maestro" && (
                 <>
                   <DropdownMenuItem onClick={() => setIsQrOpen(true)} className="text-[var(--gm-body)] font-medium focus:bg-[var(--gm-accent)]/50 cursor-pointer">
                     <QrCode className="mr-2 h-4 w-4" />
@@ -70,13 +70,13 @@ export function Navbar() {
           </DropdownMenu>
         ) : (
           <Button asChild variant="outline" className="border-md-accent text-md-heading hover:bg-md-accent/20 font-bold shadow-sm">
-            <Link to="/login">Iniciar Sesión</Link>
+            <Link to="/iniciarSesion">Iniciar Sesión</Link>
           </Button>
         )}
       </div>
     </nav>
       
-    {user && (
+    {usuario && (
       <Dialog open={isQrOpen} onOpenChange={setIsQrOpen}>
         <DialogContent className="sm:max-w-md border-md-accent bg-md-surface p-8">
           <DialogHeader>
@@ -84,11 +84,11 @@ export function Navbar() {
           </DialogHeader>
           <div className="flex flex-col items-center justify-center p-6 gap-4">
             <div className="bg-white p-4 rounded-xl shadow-sm">
-              <QRCode value={user?.email || "maestro"} size={200} />
+              <QRCode value={usuario?.email || "maestro"} size={200} />
             </div>
             <div className="text-center mt-2">
-              <p className="font-medium text-lg text-[var(--gm-heading)]">{user?.name}</p>
-              <p className="text-sm text-[var(--gm-body)]">{user?.email}</p>
+              <p className="font-medium text-lg text-[var(--gm-heading)]">{usuario?.nombre}</p>
+              <p className="text-sm text-[var(--gm-body)]">{usuario?.email}</p>
             </div>
           </div>
         </DialogContent>

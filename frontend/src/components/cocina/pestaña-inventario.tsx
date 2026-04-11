@@ -14,29 +14,29 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { AlertCircle, Plus, Minus, Package } from "lucide-react"
-import { useData } from "@/lib/data-context"
-import type { InventoryItem } from "@/lib/types"
+import { useDatos } from "@/lib/data-context"
+import type { ArticuloInventario } from "@/lib/types"
 
 export function InventoryTab() {
-  const { inventory, updateInventoryItem } = useData()
+  const { inventario, actualizarArticuloInventario } = useDatos()
 
   const updateQuantity = (id: string, change: number) => {
-    const item = inventory.find(i => i.id === id)
-    if (item) updateInventoryItem(id, Math.max(0, item.quantity + change))
+    const item = inventario.find(i => i.id === id)
+    if (item) actualizarArticuloInventario(id, Math.max(0, item.cantidad + change))
   }
 
 
-  const getStockStatus = (item: InventoryItem) => {
-    if (item.quantity <= item.minStock) {
+  const getStockStatus = (item: ArticuloInventario) => {
+    if (item.cantidad <= item.stockMinimo) {
       return { label: "Bajo", color: "bg-(--md-coral)/10 text-(--md-coral)", icon: true }
     }
-    if (item.quantity <= item.minStock * 1.5) {
+    if (item.cantidad <= item.stockMinimo * 1.5) {
       return { label: "Medio", color: "bg-(--md-accent) text-(--md-body)", icon: true }
     }
     return { label: "Óptimo", color: "bg-(--md-accent-light) text-(--md-body)", icon: false }
   }
 
-  const lowStockItems = inventory.filter((item) => item.quantity <= item.minStock)
+  const lowStockItems = inventario.filter((item) => item.cantidad <= item.stockMinimo)
 
   return (
     <div className="space-y-6">
@@ -56,9 +56,9 @@ export function InventoryTab() {
               {lowStockItems.map((item) => (
                 <div key={item.id} className="flex items-center justify-between rounded-md bg-(--md-accent-light)/30 border border-(--md-accent) p-3">
                   <div>
-                    <p className="font-medium text-(--md-heading)">{item.name}</p>
+                    <p className="font-medium text-(--md-heading)">{item.nombre}</p>
                     <p className="text-sm text-(--md-body)">
-                      Stock actual: <span className="text-(--md-coral) font-medium">{item.quantity} {item.unit}</span> (Mínimo: {item.minStock} {item.unit})
+                      Stock actual: <span className="text-(--md-coral) font-medium">{item.cantidad} {item.unidad}</span> (Mínimo: {item.stockMinimo} {item.unidad})
                     </p>
                   </div>
                   <Badge className="bg-(--md-coral-bg) text-(--md-coral) font-semibold">Reponer</Badge>
@@ -93,8 +93,8 @@ export function InventoryTab() {
                   <Input id="product-name" placeholder="Ej: Tomates" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="category">Categoría</Label>
-                  <Input id="category" placeholder="Ej: Verduras" />
+                  <Label htmlFor="categoria">Categoría</Label>
+                  <Input id="categoria" placeholder="Ej: Verduras" />
                 </div>
               </div>
               <div className="grid gap-4 md:grid-cols-3">
@@ -125,19 +125,19 @@ export function InventoryTab() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {inventory.map((item) => {
-          const status = getStockStatus(item)
+        {inventario.map((item) => {
+          const estado = getStockStatus(item)
           return (
             <Card key={item.id} className="border-(--md-accent) bg-(--md-surface)">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-lg text-(--md-heading)">{item.name}</CardTitle>
-                    <CardDescription className="text-(--md-body)">{item.category}</CardDescription>
+                    <CardTitle className="text-lg text-(--md-heading)">{item.nombre}</CardTitle>
+                    <CardDescription className="text-(--md-body)">{item.categoria}</CardDescription>
                   </div>
-                  <Badge className={status.color}>
-                    {status.icon && <AlertCircle className="mr-1 h-3 w-3" />}
-                    {status.label}
+                  <Badge className={estado.color}>
+                    {estado.icon && <AlertCircle className="mr-1 h-3 w-3" />}
+                    {estado.label}
                   </Badge>
                 </div>
               </CardHeader>
@@ -146,13 +146,13 @@ export function InventoryTab() {
                   <div className="flex justify-between text-sm">
                     <span className="text-(--md-body)">Cantidad actual:</span>
                     <span className="font-semibold text-(--md-heading)">
-                      {item.quantity} {item.unit}
+                      {item.cantidad} {item.unidad}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-(--md-body)">Stock mínimo:</span>
                     <span className="text-(--md-heading)">
-                      {item.minStock} {item.unit}
+                      {item.stockMinimo} {item.unidad}
                     </span>
                   </div>
                 </div>
@@ -163,10 +163,10 @@ export function InventoryTab() {
                   </Button>
                   <Input
                     type="number"
-                    value={item.quantity}
+                    value={item.cantidad}
                     onChange={(e) => {
                       const newQuantity = Number.parseInt(e.target.value) || 0
-                      updateInventoryItem(item.id, newQuantity)
+                      actualizarArticuloInventario(item.id, newQuantity)
                     }}
                     className="h-8 text-center"
                   />

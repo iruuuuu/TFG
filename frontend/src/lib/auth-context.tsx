@@ -1,27 +1,26 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import type { User } from "./types"
-import { fetchApi } from "./api"
+import type { Usuario } from "./types"
+import { peticionApi } from "./api"
 
-interface AuthContextType {
-  user: User | null
-  login: (email: string, password: string) => Promise<User | null>
-  logout: () => void
-  isLoading: boolean
-  allUsers: (User & { password?: string })[]
-  updateUser: (id: string, updates: Partial<User> & { password?: string }) => void
-  addUser: (user: Omit<User, "id" | "createdAt"> & { password?: string }) => void
-  deleteUser: (id: string) => void
+interface TipoContextoAutenticacion {
+  usuario: Usuario | null
+  iniciarSesion: (email: string, password: string) => Promise<Usuario | null>
+  cerrarSesion: () => void
+  cargando: boolean
+  todosLosUsuarios: (Usuario & { password?: string })[]
+  actualizarUsuario: (id: string, actualizaciones: Partial<Usuario> & { password?: string }) => void
+  añadirUsuario: (usuario: Omit<Usuario, "id" | "creadoEn"> & { password?: string }) => void
+  eliminarUsuario: (id: string) => void
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const ContextoAutenticacion = createContext<TipoContextoAutenticacion | undefined>(undefined)
 
-const mapDbRole = (roleStr: any): "admin" | "cocina" | "maestro" | "alumno-cocina" | "alumno-cocina-titular" => {
+const mapearRolDb = (roleStr: any): "admin" | "cocina" | "maestro" | "alumno-cocina" | "alumno-cocina-titular" => {
   if (!roleStr) return 'alumno-cocina';
   let r = String(roleStr);
   
-  // Parse stringified JSON array if needed
   if (r.startsWith('[') && r.endsWith(']')) {
     try {
       const parsed = JSON.parse(r);
@@ -31,7 +30,6 @@ const mapDbRole = (roleStr: any): "admin" | "cocina" | "maestro" | "alumno-cocin
     } catch(e) {}
   }
 
-  // Remove quotes if present
   r = r.replace(/^"|"$/g, '');
 
   if (r === 'ROLE_ADMIN' || r === 'admin') return 'admin';
@@ -41,154 +39,151 @@ const mapDbRole = (roleStr: any): "admin" | "cocina" | "maestro" | "alumno-cocin
   return 'alumno-cocina';
 }
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [usersList, setUsersList] = useState<(User & { password?: string })[]>([])
+export function ProveedorAutenticacion({ children }: { children: ReactNode }) {
+  const [usuario, setUsuario] = useState<Usuario | null>(null)
+  const [cargando, setCargando] = useState(true)
+  const [listaUsuarios, setListaUsuarios] = useState<(Usuario & { password?: string })[]>([])
 
-  // Load users from Flask on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      try { setUser(JSON.parse(storedUser)) } catch {}
+    const usuarioGuardado = localStorage.getItem("usuario")
+    if (usuarioGuardado) {
+      try { setUsuario(JSON.parse(usuarioGuardado)) } catch {}
     }
 
-    fetchApi<any[]>('/auth/users')
-      .then(data => {
-        const mapped = data.map(u => ({
+    peticionApi<any[]>('/auth/users')
+      .then(datos => {
+        const mapeados = datos.map(u => ({
           id: u.id.toString(),
           email: u.email,
-          name: u.name,
-          role: Array.isArray(u.roles) ? mapDbRole(u.roles[0]) : mapDbRole(u.roles),
-          createdAt: new Date(),
+          nombre: u.nombre || u.name,
+          rol: Array.isArray(u.roles) ? mapearRolDb(u.roles[0]) : mapearRolDb(u.roles),
+          creadoEn: new Date(),
         }))
-        setUsersList(mapped)
+        setListaUsuarios(mapeados)
       })
       .catch(() => {})
-      .finally(() => setIsLoading(false))
+      .finally(() => setCargando(false))
   }, [])
 
-  // Auto-reset alumno-cocina-titular roles at 14:30 on weekdays
   useEffect(() => {
-    const checkAndResetRoles = () => {
-      const now = new Date()
-      const lastResetStr = localStorage.getItem('lastRoleReset')
-      const lastReset = lastResetStr ? parseInt(lastResetStr) : 0
-      const target = new Date(now)
-      target.setHours(14, 30, 0, 0)
-      if (now.getTime() < target.getTime()) target.setDate(target.getDate() - 1)
-      while (target.getDay() === 0 || target.getDay() === 6) target.setDate(target.getDate() - 1)
+    const comprobarYResetearRoles = () => {
+      const ahora = new Date()
+      const ultimoReinicioStr = localStorage.getItem('ultimoReinicioRol')
+      const ultimoReinicio = ultimoReinicioStr ? parseInt(ultimoReinicioStr) : 0
+      const objetivo = new Date(ahora)
+      objetivo.setHours(14, 30, 0, 0)
+      if (ahora.getTime() < objetivo.getTime()) objetivo.setDate(objetivo.getDate() - 1)
+      while (objetivo.getDay() === 0 || objetivo.getDay() === 6) objetivo.setDate(objetivo.getDate() - 1)
 
-      if (lastReset < target.getTime()) {
-        setUsersList(prev => {
-          const updated = prev.map(u =>
-            u.role === "alumno-cocina-titular" ? { ...u, role: "alumno-cocina" as const } : u
+      if (ultimoReinicio < objetivo.getTime()) {
+        setListaUsuarios(prev => {
+          const actualizados = prev.map(u =>
+            u.rol === "alumno-cocina-titular" ? { ...u, rol: "alumno-cocina" as const } : u
           )
-          setUser(prevUser => {
-            if (prevUser?.role === "alumno-cocina-titular") {
-              const updatedUser = { ...prevUser, role: "alumno-cocina" as const }
-              localStorage.setItem("user", JSON.stringify(updatedUser))
-              return updatedUser
+          setUsuario(usuarioPrev => {
+            if (usuarioPrev?.rol === "alumno-cocina-titular") {
+              const usuarioActualizado = { ...usuarioPrev, rol: "alumno-cocina" as const }
+              localStorage.setItem("usuario", JSON.stringify(usuarioActualizado))
+              return usuarioActualizado
             }
-            return prevUser
+            return usuarioPrev
           })
-          return updated
+          return actualizados
         })
-        localStorage.setItem('lastRoleReset', now.getTime().toString())
+        localStorage.setItem('ultimoReinicioRol', ahora.getTime().toString())
       }
     }
-    checkAndResetRoles()
-    const interval = setInterval(checkAndResetRoles, 60000)
-    return () => clearInterval(interval)
+    comprobarYResetearRoles()
+    const intervalo = setInterval(comprobarYResetearRoles, 60000)
+    return () => clearInterval(intervalo)
   }, [])
 
-  const login = async (email: string, password: string): Promise<User | null> => {
+  const iniciarSesion = async (email: string, password: string): Promise<Usuario | null> => {
     try {
-      const res = await fetchApi<any>('/auth/login', {
+      const res = await peticionApi<any>('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password })
       })
-      const u = res.user
-      const loggedIn: User = {
+      const u = res.usuario || res.user
+      const usuarioLogueado: Usuario = {
         id: u.id.toString(),
         email: u.email,
-        name: u.name,
-        role: Array.isArray(u.roles) ? mapDbRole(u.roles[0]) : mapDbRole(u.roles),
-        createdAt: new Date(),
+        nombre: u.nombre || u.name,
+        rol: Array.isArray(u.roles) ? mapearRolDb(u.roles[0]) : mapearRolDb(u.roles),
+        creadoEn: new Date(),
       }
-      setUser(loggedIn)
-      localStorage.setItem("user", JSON.stringify(loggedIn))
-      return loggedIn
+      setUsuario(usuarioLogueado)
+      localStorage.setItem("usuario", JSON.stringify(usuarioLogueado))
+      return usuarioLogueado
     } catch {
       return null
     }
   }
 
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem("user")
+  const cerrarSesion = () => {
+    setUsuario(null)
+    localStorage.removeItem("usuario")
   }
 
-  const updateUser = async (id: string, updates: Partial<User> & { password?: string }) => {
+  const actualizarUsuario = async (id: string, actualizaciones: Partial<Usuario> & { password?: string }) => {
     try {
-      const body: any = {}
-      if (updates.name) body.name = updates.name
-      if (updates.email) body.email = updates.email
-      if (updates.password) body.password = updates.password
-      if (updates.role) body.roles = [updates.role]
-      await fetchApi(`/auth/users/${id}`, { method: 'PUT', body: JSON.stringify(body) })
-      setUsersList(prev => prev.map(u => u.id === id ? { ...u, ...updates } : u))
-      if (user && user.id === id) {
-        const updated = { ...user, ...updates }
-        setUser(updated as User)
-        localStorage.setItem("user", JSON.stringify(updated))
+      const cuerpo: any = {}
+      if (actualizaciones.nombre) cuerpo.name = actualizaciones.nombre
+      if (actualizaciones.email) cuerpo.email = actualizaciones.email
+      if (actualizaciones.password) cuerpo.password = actualizaciones.password
+      if (actualizaciones.rol) cuerpo.roles = [actualizaciones.rol]
+      await peticionApi(`/auth/users/${id}`, { method: 'PUT', body: JSON.stringify(cuerpo) })
+      setListaUsuarios(prev => prev.map(u => u.id === id ? { ...u, ...actualizaciones } : u))
+      if (usuario && usuario.id === id) {
+        const usuarioActualizado = { ...usuario, ...actualizaciones }
+        setUsuario(usuarioActualizado as Usuario)
+        localStorage.setItem("usuario", JSON.stringify(usuarioActualizado))
       }
     } catch (e) { console.error(e) }
   }
 
-  const addUser = async (newUser: Omit<User, "id" | "createdAt"> & { password?: string }) => {
+  const añadirUsuario = async (nuevoUsuario: Omit<Usuario, "id" | "creadoEn"> & { password?: string }) => {
     try {
-      const res = await fetchApi<any>('/auth/users', {
+      const res = await peticionApi<any>('/auth/users', {
         method: 'POST',
         body: JSON.stringify({
-          email: newUser.email,
-          name: newUser.name,
-          password: newUser.password || '123456',
-          roles: [newUser.role]
+          email: nuevoUsuario.email,
+          name: nuevoUsuario.nombre,
+          password: nuevoUsuario.password || '123456',
+          roles: [nuevoUsuario.rol]
         })
       })
-      const created: User = {
+      const creado: Usuario = {
         id: res.id.toString(),
         email: res.email,
-        name: res.name,
-        role: Array.isArray(res.roles) ? mapDbRole(res.roles[0]) : mapDbRole(res.roles),
-        createdAt: new Date(),
+        nombre: res.nombre || res.name,
+        rol: Array.isArray(res.roles) ? mapearRolDb(res.roles[0]) : mapearRolDb(res.roles),
+        creadoEn: new Date(),
       }
-      setUsersList(prev => [...prev, created])
+      setListaUsuarios(prev => [...prev, creado])
     } catch (e) { console.error(e) }
   }
 
-  const deleteUser = async (id: string) => {
+  const eliminarUsuario = async (id: string) => {
     try {
-      await fetchApi(`/auth/users/${id}`, { method: 'DELETE' })
-      setUsersList(prev => prev.filter(u => u.id !== id))
+      await peticionApi(`/auth/users/${id}`, { method: 'DELETE' })
+      setListaUsuarios(prev => prev.filter(u => u.id !== id))
     } catch (e) { console.error(e) }
   }
 
   return (
-    <AuthContext.Provider value={{
-      user, login, logout, isLoading,
-      allUsers: usersList,
-      updateUser, addUser, deleteUser
+    <ContextoAutenticacion.Provider value={{
+      usuario, iniciarSesion, cerrarSesion, cargando,
+      todosLosUsuarios: listaUsuarios,
+      actualizarUsuario, añadirUsuario, eliminarUsuario
     }}>
       {children}
-    </AuthContext.Provider>
+    </ContextoAutenticacion.Provider>
   )
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) throw new Error("useAuth must be used within an AuthProvider")
-  return context
+  const contexto = useContext(ContextoAutenticacion)
+  if (contexto === undefined) throw new Error("useAuth debe usarse dentro de un ProveedorAutenticacion")
+  return contexto
 }
-

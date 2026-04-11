@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useState, useMemo } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/lib/auth-context"
-import { useData } from "@/lib/data-context"
+import { useDatos } from "@/lib/data-context"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,22 +35,22 @@ import { Star, UserPlus, Users, Pencil, Trash2, AlertTriangle } from "lucide-rea
 
 export function AlumnosTab() {
   const { toast } = useToast()
-  const { allUsers, updateUser, addUser, deleteUser, user: currentUser } = useAuth()
-  const { ratings, menuItems } = useData()
+  const {todosLosUsuarios, actualizarUsuario, añadirUsuario, eliminarUsuario, usuario: usuarioActual} = useAuth()
+  const { valoraciones, platosMenu } = useDatos()
   
   // Filter for students (id > 3 ensures we don't list admin/maestro/main cocina in the students tab)
   const alumnos = useMemo(() => {
-    return allUsers.filter(u => parseInt(u.id) > 3)
-  }, [allUsers])
+    return todosLosUsuarios.filter(u => parseInt(u.id) > 3)
+  }, [todosLosUsuarios])
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   
-  const [editingUser, setEditingUser] = useState<{ id: string; name: string; email: string; role: string; password?: string } | null>(null)
-  const [newUser, setNewUser] = useState({ name: "", email: "", password: "" })
+  const [editingUser, setEditingUser] = useState<{ id: string; nombre: string; email: string; rol: string; password?: string } | null>(null)
+  const [newUser, setNewUser] = useState({ nombre: "", email: "", password: "" })
 
-  const handleDeleteUser = (id: string, name: string) => {
-    deleteUser(id)
+  const handleDeleteUser = (id: string, nombre: string) => {
+    eliminarUsuario(id)
     toast({
       title: "Alumno eliminado",
       description: `El alumno ${name} ha sido dado de baja correctamente.`,
@@ -59,18 +59,18 @@ export function AlumnosTab() {
   }
 
   const getStudentRating = (studentId: string) => {
-    const studentDishIds = menuItems.filter(item => item.authorId === studentId).map(item => item.id)
+    const studentDishIds = platosMenu.filter(item => item.idAutor === studentId).map(item => item.id)
     if (studentDishIds.length === 0) return null
     
-    const studentRatings = ratings.filter(r => studentDishIds.includes(r.menuItemId))
+    const studentRatings = valoraciones.filter(r => studentDishIds.includes(r.idPlatoMenu))
     if (studentRatings.length === 0) return null
     
-    const avg = studentRatings.reduce((acc, r) => acc + r.rating, 0) / studentRatings.length
+    const avg = studentRatings.reduce((acc, r) => acc + r.puntuacion, 0) / studentRatings.length
     return { avg, count: studentRatings.length }
   }
 
-  const handleEditUser = (user: typeof alumnos[0]) => {
-    setEditingUser({ ...user, password: "" })
+  const handleEditUser = (usuario: typeof alumnos[0]) => {
+    setEditingUser({ ...usuario, password: "" })
     setIsEditDialogOpen(true)
   }
 
@@ -79,42 +79,42 @@ export function AlumnosTab() {
     if (!editingUser) return
 
     const updates: any = {
-      name: editingUser.name,
+      nombre: editingUser.nombre,
       email: editingUser.email,
-      role: editingUser.role,
+      rol: editingUser.rol,
     }
     
     if (editingUser.password && editingUser.password.trim() !== "") {
       updates.password = editingUser.password
     }
 
-    updateUser(editingUser.id, updates)
+    actualizarUsuario(editingUser.id, updates)
     
     setIsEditDialogOpen(false)
     setEditingUser(null)
 
     toast({
       title: "Alumno actualizado",
-      description: `Los datos de ${editingUser.name} han sido actualizados.`,
+      description: `Los datos de ${editingUser.nombre} han sido actualizados.`,
     })
   }
 
   const handleAddUser = (e: React.FormEvent) => {
     e.preventDefault()
     
-    addUser({
-      name: newUser.name,
+    añadirUsuario({
+      nombre: newUser.nombre,
       email: newUser.email,
       password: newUser.password,
-      role: "alumno-cocina",
+      rol: "alumno-cocina",
     })
 
     setIsAddDialogOpen(false)
-    setNewUser({ name: "", email: "", password: "" })
+    setNewUser({ nombre: "", email: "", password: "" })
 
     toast({
       title: "Alumno registrado",
-      description: `${newUser.name} ahora tiene acceso como alumno de cocina.`,
+      description: `${newUser.nombre} ahora tiene acceso como alumno de cocina.`,
     })
   }
 
@@ -146,8 +146,8 @@ export function AlumnosTab() {
                   <Label htmlFor="add-name" className="text-(--md-heading)">Nombre Completo</Label>
                   <Input 
                     id="add-name" 
-                    value={newUser.name} 
-                    onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                    value={newUser.nombre} 
+                    onChange={(e) => setNewUser({ ...newUser, nombre: e.target.value })}
                     className="border-(--md-accent) focus-visible:ring-(--md-coral)/20"
                     placeholder="Ej: Laura Gómez"
                     required
@@ -213,11 +213,11 @@ export function AlumnosTab() {
               <TableBody>
                 {alumnos.map((alumno) => (
                   <TableRow key={alumno.id} className="border-(--md-accent)/30 hover:bg-(--md-accent-light)/10 transition-colors">
-                    <TableCell className="font-medium text-(--md-heading)">{alumno.name}</TableCell>
+                    <TableCell className="font-medium text-(--md-heading)">{alumno.nombre}</TableCell>
                     <TableCell className="text-(--md-body)">{alumno.email}</TableCell>
                     <TableCell>
-                      <Badge className={alumno.role === 'alumno-cocina-titular' ? "bg-(--md-accent) text-(--md-body) shadow-none border-none" : "bg-(--md-muted-bg) text-(--md-body) shadow-none border-none"}>
-                        <span className="capitalize">{alumno.role === 'alumno-cocina-titular' ? "Cocinero Titular" : "Alumno Cocina"}</span>
+                      <Badge className={alumno.rol === 'alumno-cocina-titular' ? "bg-(--md-accent) text-(--md-body) shadow-none border-none" : "bg-(--md-muted-bg) text-(--md-body) shadow-none border-none"}>
+                        <span className="capitalize">{alumno.rol === 'alumno-cocina-titular' ? "Cocinero Titular" : "Alumno Cocina"}</span>
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -264,8 +264,8 @@ export function AlumnosTab() {
                                   <Label htmlFor="edit-name" className="text-(--md-heading)">Nombre Completo</Label>
                                   <Input 
                                     id="edit-name" 
-                                    value={editingUser.name} 
-                                    onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                                    value={editingUser.nombre} 
+                                    onChange={(e) => setEditingUser({ ...editingUser, nombre: e.target.value })}
                                     className="border-(--md-accent) focus-visible:ring-(--md-coral)/20"
                                     required
                                   />
@@ -284,8 +284,8 @@ export function AlumnosTab() {
                                 <div className="space-y-2">
                                   <Label htmlFor="edit-role" className="text-(--md-heading)">Permisos (Rol)</Label>
                                   <Select 
-                                    value={editingUser.role} 
-                                    onValueChange={(value) => setEditingUser(prev => prev ? { ...prev, role: value } : null)}
+                                    value={editingUser.rol} 
+                                    onValueChange={(value) => setEditingUser(prev => prev ? { ...prev, rol: value } : null)}
                                   >
                                     <SelectTrigger id="edit-role" className="border-(--md-accent) focus:ring-(--md-coral)/20">
                                       <SelectValue placeholder="Seleccionar rol" />
@@ -333,13 +333,13 @@ export function AlumnosTab() {
                                 <AlertDialogTitle>¿Eliminar acceso?</AlertDialogTitle>
                               </div>
                               <AlertDialogDescription className="text-(--md-body)">
-                                Esta acción retirará el acceso a la cocina para <span className="font-bold text-(--md-heading)">{alumno.name}</span>.
+                                Esta acción retirará el acceso a la cocina para <span className="font-bold text-(--md-heading)">{alumno.nombre}</span>.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel className="border-(--md-accent) text-(--md-body) hover:bg-(--md-accent)/50">Cancelar</AlertDialogCancel>
                               <AlertDialogAction 
-                                onClick={() => handleDeleteUser(alumno.id, alumno.name)}
+                                onClick={() => handleDeleteUser(alumno.id, alumno.nombre)}
                                 className="bg-(--md-coral) text-white hover:bg-(--md-coral-hover)"
                               >
                                 Revocar Permiso

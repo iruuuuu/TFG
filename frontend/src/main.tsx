@@ -1,8 +1,8 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
 import { BrowserRouter } from "react-router-dom"
-import { AuthProvider } from "./lib/auth-context"
-import { DataProvider } from "./lib/data-context"
+import { ProveedorAutenticacion } from "./lib/auth-context"
+import { ProveedorDatos } from "./lib/data-context"
 import { Toaster } from "./components/ui/toaster"
 import App from "./App"
 import "./globals.css"
@@ -10,12 +10,12 @@ import "./globals.css"
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <DataProvider>
+      <ProveedorAutenticacion>
+        <ProveedorDatos>
           <App />
           <Toaster />
-        </DataProvider>
-      </AuthProvider>
+        </ProveedorDatos>
+      </ProveedorAutenticacion>
     </BrowserRouter>
   </React.StrictMode>,
 )

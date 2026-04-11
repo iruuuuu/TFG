@@ -9,12 +9,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ChefHat } from "lucide-react"
 
-export function LoginPage() {
+export function PaginaLogin() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const { login } = useAuth()
+  const [cargando, setIsLoading] = useState(false)
+  const { iniciarSesion } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,14 +22,14 @@ export function LoginPage() {
     setError("")
     setIsLoading(true)
 
-    const user = await login(email, password)
+    const usuario = await iniciarSesion(email, password)
 
-    if (user) {
-      if (user.role === "admin") {
+    if (usuario) {
+      if (usuario.rol === "admin") {
         navigate("/admin")
-      } else if (user.role === "cocina" || user.role.startsWith("alumno-cocina")) {
+      } else if (usuario.rol === "cocina" || usuario.rol.startsWith("alumno-cocina")) {
         navigate("/cocina")
-      } else if (user.role === "maestro") {
+      } else if (usuario.rol === "maestro") {
         navigate("/menu")
       } else {
         navigate("/")
@@ -40,7 +40,7 @@ export function LoginPage() {
     }
   }
 
-  if (isLoading) {
+  if (cargando) {
     return (
       <div className="flex min-h-screen items-center justify-center p-6 bg-gradient-to-br from-[var(--gm-page-bg)] to-[var(--gm-accent-light)]/20">
         <div className="text-center">
@@ -95,8 +95,8 @@ export function LoginPage() {
               </Alert>
             )}
 
-            <Button type="submit" className="w-full bg-[var(--gm-accent)] text-[var(--gm-heading)] font-semibold hover:bg-[var(--gm-accent-hover)] shadow-sm" disabled={isLoading}>
-              {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
+            <Button type="submit" className="w-full bg-[var(--gm-accent)] text-[var(--gm-heading)] font-semibold hover:bg-[var(--gm-accent-hover)] shadow-sm" disabled={cargando}>
+              {cargando ? "Iniciando sesión..." : "Iniciar sesión"}
             </Button>
           </form>
 

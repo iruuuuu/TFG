@@ -7,32 +7,32 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { CheckCircle2, XCircle, Clock } from "lucide-react"
 
 export function ReservationsTab() {
-  const reservations = [
+  const reservas = [
     {
       id: "1",
-      userName: "Profesor García",
-      date: "2026-01-12",
+      nombreUsuario: "Profesor García",
+      fecha: "2026-01-12",
       items: ["Pollo al Horno", "Ensalada", "Flan"],
-      status: "confirmada" as const,
+      estado: "confirmada" as const,
     },
     {
       id: "2",
-      userName: "Profesor Martínez",
-      date: "2026-01-12",
+      nombreUsuario: "Profesor Martínez",
+      fecha: "2026-01-12",
       items: ["Paella de Verduras", "Gazpacho"],
-      status: "pendiente" as const,
+      estado: "pendiente" as const,
     },
     {
       id: "3",
-      userName: "Profesor López",
-      date: "2026-01-13",
+      nombreUsuario: "Profesor López",
+      fecha: "2026-01-13",
       items: ["Pollo al Horno", "Fruta"],
-      status: "confirmada" as const,
+      estado: "confirmada" as "pendiente" | "confirmada" | "cancelada",
     },
   ]
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
+  const getStatusIcon = (estado: string) => {
+    switch (estado) {
       case "confirmada":
         return <CheckCircle2 className="h-4 w-4" />
       case "cancelada":
@@ -42,8 +42,8 @@ export function ReservationsTab() {
     }
   }
 
-  const getStatusVariant = (status: string) => {
-    switch (status) {
+  const getStatusVariant = (estado: string) => {
+    switch (estado) {
       case "confirmada":
         return "default"
       case "cancelada":
@@ -71,29 +71,29 @@ export function ReservationsTab() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {reservations.map((reservation) => (
+            {reservas.map((reservation) => (
               <TableRow key={reservation.id}>
-                <TableCell className="font-bold text-md-heading">{reservation.userName}</TableCell>
-                <TableCell className="text-md-body">{new Date(reservation.date).toLocaleDateString("es-ES")}</TableCell>
+                <TableCell className="font-bold text-md-heading">{reservation.nombreUsuario}</TableCell>
+                <TableCell className="text-md-body">{new Date(reservation.fecha).toLocaleDateString("es-ES")}</TableCell>
                 <TableCell>
                   <div className="max-w-xs truncate text-sm text-md-body/80 font-medium">{reservation.items.join(", ")}</div>
                 </TableCell>
                 <TableCell>
                   <Badge 
-                    variant={getStatusVariant(reservation.status)} 
+                    variant={getStatusVariant(reservation.estado)} 
                     className={`flex w-fit items-center gap-1 shadow-sm font-bold ${
-                      reservation.status === 'confirmada' ? 'bg-md-accent text-md-heading' : 
-                      reservation.status === 'cancelada' ? 'bg-md-coral/20 text-md-coral border-md-coral/30' : 
+                      reservation.estado === 'confirmada' ? 'bg-md-accent text-md-heading' : 
+                      reservation.estado === 'cancelada' ? 'bg-md-coral/20 text-md-coral border-md-coral/30' : 
                       'bg-md-surface text-md-body'
                     }`}
                   >
-                    {getStatusIcon(reservation.status)}
-                    <span className="capitalize">{reservation.status}</span>
+                    {getStatusIcon(reservation.estado)}
+                    <span className="capitalize">{reservation.estado}</span>
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    {reservation.status === "pendiente" && (
+                    {reservation.estado === "pendiente" && (
                       <>
                         <Button size="sm" variant="outline" className="text-green-600 bg-transparent">
                           Confirmar

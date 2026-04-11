@@ -1,30 +1,30 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/lib/auth-context"
-import { Navbar } from "@/components/navbar"
+import { BarraNavegacion } from "@/components/barra-navegacion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { UsersTab } from "@/components/admin/users-tab"
-import { MenusTab } from "@/components/admin/menus-tab"
-import { ReservationsTab } from "@/components/admin/reservations-tab"
-import { StatsTab } from "@/components/admin/stats-tab"
-import { ActivityLogsTab } from "@/components/cocina/activity-logs-tab"
+import { UsersTab } from "@/components/admin/pestaña-usuarios"
+import { MenusTab } from "@/components/admin/pestaña-menus"
+import { ReservationsTab } from "@/components/admin/pestaña-reservas"
+import { StatsTab } from "@/components/admin/pestaña-estadisticas"
+import { ActivityLogsTab } from "@/components/cocina/pestaña-registros-actividad"
 import { Menu, BarChart3, Utensils, CalendarDays, Users, Activity } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 
-export function AdminPage() {
-  const { user, isLoading } = useAuth()
+export function PaginaAdmin() {
+  const { usuario, cargando } = useAuth()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState("stats")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== "admin")) {
+    if (!cargando && (!usuario || usuario.rol !== "admin")) {
       navigate("/")
     }
-  }, [user, isLoading, navigate])
+  }, [usuario, cargando, navigate])
 
-  if (isLoading || !user) {
+  if (cargando || !usuario) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
@@ -37,7 +37,7 @@ export function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-(--md-page-bg) to-(--md-accent-light)/20">
-      <Navbar />
+      <BarraNavegacion />
       <main className="px-6 py-6 md:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col md:flex-row gap-8">
           
@@ -63,8 +63,8 @@ export function AdminPage() {
                     {[
                       { value: "stats", label: "Estadísticas", icon: BarChart3 },
                       { value: "menus", label: "Menús", icon: Utensils },
-                      { value: "reservations", label: "Reservas", icon: CalendarDays },
-                      { value: "users", label: "Usuarios", icon: Users },
+                      { value: "reservas", label: "Reservas", icon: CalendarDays },
+                      { value: "usuarios", label: "Usuarios", icon: Users },
                       { value: "activity", label: "Actividad", icon: Activity },
                     ].map(({ value, label, icon: Icon }) => (
                       <button
@@ -92,8 +92,8 @@ export function AdminPage() {
               {[
                 { value: "stats", label: "Estadísticas", icon: BarChart3 },
                 { value: "menus", label: "Menús", icon: Utensils },
-                { value: "reservations", label: "Reservas", icon: CalendarDays },
-                { value: "users", label: "Usuarios", icon: Users },
+                { value: "reservas", label: "Reservas", icon: CalendarDays },
+                { value: "usuarios", label: "Usuarios", icon: Users },
                 { value: "activity", label: "Actividad", icon: Activity },
               ].map(({ value, label, icon: Icon }) => (
                 <TabsTrigger key={value} value={value} className="w-full justify-start data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2.5 gap-3">
@@ -107,8 +107,8 @@ export function AdminPage() {
           <div className="flex-1 w-full min-w-0">
             <TabsContent value="stats" className="mt-0"><StatsTab /></TabsContent>
             <TabsContent value="menus" className="mt-0"><MenusTab /></TabsContent>
-            <TabsContent value="reservations" className="mt-0"><ReservationsTab /></TabsContent>
-            <TabsContent value="users" className="mt-0"><UsersTab /></TabsContent>
+            <TabsContent value="reservas" className="mt-0"><ReservationsTab /></TabsContent>
+            <TabsContent value="usuarios" className="mt-0"><UsersTab /></TabsContent>
             <TabsContent value="activity" className="mt-0"><ActivityLogsTab /></TabsContent>
           </div>
         </Tabs>

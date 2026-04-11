@@ -1,94 +1,94 @@
-export type UserRole = "admin" | "cocina" | "maestro" | "alumno-cocina" | "alumno-cocina-titular"
+export type RolUsuario = "admin" | "cocina" | "maestro" | "alumno-cocina" | "alumno-cocina-titular"
 
-export interface User {
+export interface Usuario {
   id: string
   email: string
-  name: string
-  role: UserRole
-  createdAt: Date
+  nombre: string
+  rol: RolUsuario
+  creadoEn: Date
 }
 
-export interface MenuItem {
+export interface PlatoMenu {
   id: string
-  name: string
-  description: string
-  category: "entrante" | "principal" | "postre"
-  allergens: string[]
-  imageUrl?: string
-  authorId?: string
-  authorName?: string
-  available: boolean
+  nombre: string
+  descripcion: string
+  categoria: "entrante" | "principal" | "postre"
+  alergenos: string[]
+  urlImagen?: string
+  idAutor?: string
+  nombreAutor?: string
+  disponible: boolean
 }
 
-export interface WeeklyMenu {
-  [day: string]: {
+export interface MenuSemanal {
+  [dia: string]: {
     entrante: string[]
     principal: string[]
     postre: string[]
   }
 }
 
-export interface Reservation {
+export interface Reserva {
   id: string
-  shortCode?: string
-  userId: string
-  userName: string
-  date: Date
-  menuItems: string[]
-  status: "pending" | "confirmed" | "cancelled"
-  kitchenStatus?: "pending" | "preparing" | "completed"
-  createdAt: Date
+  codigoCorto?: string
+  idUsuario: string
+  nombreUsuario: string
+  fecha: Date
+  platosMenu: string[]
+  estado: "pendiente" | "confirmada" | "cancelada"
+  estadoCocina?: "pendiente" | "preparando" | "completada"
+  creadoEn: Date
 }
 
-export interface Rating {
+export interface Valoracion {
   id: string
-  userId: string
-  userName: string
-  menuItemId: string
-  rating: number
-  comment: string
-  date: Date
+  idUsuario: string
+  nombreUsuario: string
+  idPlatoMenu: string
+  puntuacion: number
+  comentario: string
+  fecha: Date
 }
 
-export interface InventoryItem {
+export interface ArticuloInventario {
   id: string
-  name: string
-  quantity: number
-  unit: string
-  minStock: number
-  category: string
-  lastUpdated: Date
+  nombre: string
+  cantidad: number
+  unidad: string
+  stockMinimo: number
+  categoria: string
+  ultimaActualizacion: Date
 }
 
-export interface GastroEvent {
+export interface EventoGastro {
   id: string
-  name: string
-  description: string
-  date: Date
-  maxCapacity: number
-  currentAttendees: number
-  dishes: string[] // Array of dish descriptions
-  status: "active" | "modified" | "cancelled" | "full"
-  createdBy: string
-  createdAt: Date
-  lastModified?: Date
+  nombre: string
+  descripcion: string
+  fecha: Date
+  capacidadMaxima: number
+  asistentesActuales: number
+  platos: string[] // Lista de descripciones de platos
+  estado: "activo" | "modificado" | "cancelado" | "lleno"
+  creadoPor: string
+  creadoEn: Date
+  ultimaModificacion?: Date
 }
 
-export interface EventReservation {
+export interface ReservaEvento {
   id: string
-  eventId: string
-  userId: string
-  userName: string
-  reservedAt: Date
-  status: "confirmed" | "cancelled"
-  attended?: boolean
+  idEvento: string
+  idUsuario: string
+  nombreUsuario: string
+  reservadoEn: Date
+  estado: "confirmada" | "cancelada"
+  asistio?: boolean
 }
 
-export interface ActivityLog {
+export interface RegistroActividad {
   id: string
-  action: string
-  details: string
-  userName: string
-  userRole: string
-  timestamp: Date
+  accion: string
+  detalles: string
+  nombreUsuario: string
+  rolUsuario: string
+  marcaTemporal: Date
 }

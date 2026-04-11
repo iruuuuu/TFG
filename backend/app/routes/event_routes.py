@@ -45,6 +45,12 @@ def update_event(id):
     if 'status' in data: ev.status = data['status']
     if 'dishes' in data: ev.dishes = data['dishes']
     
+    if 'date' in data:
+        try:
+            ev.date = datetime.strptime(data['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
+        except:
+            pass
+    
     db.session.commit()
     return jsonify(ev.to_dict())
 

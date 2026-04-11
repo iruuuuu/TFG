@@ -7,18 +7,18 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { Calendar, AlertCircle, ChevronLeft, ChevronRight, ChefHat } from "lucide-react"
-import { useData } from "@/lib/data-context"
+import { useDatos } from "@/lib/data-context"
 import { useAuth } from "@/lib/auth-context"
 import { Link } from "react-router-dom"
-import type { MenuItem } from "@/lib/types"
+import type { PlatoMenu } from "@/lib/types"
 
 function getStaticInitialDays() {
   return [
-    { key: "lunes", label: "Lunes", date: "" },
-    { key: "martes", label: "Martes", date: "" },
-    { key: "miercoles", label: "Miércoles", date: "" },
-    { key: "jueves", label: "Jueves", date: "" },
-    { key: "viernes", label: "Viernes", date: "" },
+    { key: "lunes", label: "Lunes", fecha: "" },
+    { key: "martes", label: "Martes", fecha: "" },
+    { key: "miercoles", label: "Miércoles", fecha: "" },
+    { key: "jueves", label: "Jueves", fecha: "" },
+    { key: "viernes", label: "Viernes", fecha: "" },
   ]
 }
 
@@ -47,7 +47,7 @@ export function WeeklyMenuView() {
       return {
         key: keys[index],
         label,
-        date: `${d.getDate()} ${months[d.getMonth()]}`,
+        fecha: `${d.getDate()} ${months[d.getMonth()]}`,
       }
     })
     
@@ -75,40 +75,40 @@ export function WeeklyMenuView() {
     }
   }
 
-  const { user } = useAuth()
-  const { menuItems, weeklyMenu: globalWeeklyMenu, addReservation } = useData()
+  const { usuario } = useAuth()
+  const { platosMenu, menuSemanal: globalWeeklyMenu, añadirReserva } = useDatos()
 
-  const weeklyMenu = {
+  const menuSemanal = {
     lunes: {
-      entrantes: menuItems.filter(item => globalWeeklyMenu.Lunes.entrante.includes(item.id)),
-      principales: menuItems.filter(item => globalWeeklyMenu.Lunes.principal.includes(item.id)),
-      postres: menuItems.filter(item => globalWeeklyMenu.Lunes.postre.includes(item.id)),
+      entrantes: platosMenu.filter(item => globalWeeklyMenu.Lunes.entrante.includes(item.id)),
+      principales: platosMenu.filter(item => globalWeeklyMenu.Lunes.principal.includes(item.id)),
+      postres: platosMenu.filter(item => globalWeeklyMenu.Lunes.postre.includes(item.id)),
     },
     martes: {
-      entrantes: menuItems.filter(item => globalWeeklyMenu.Martes.entrante.includes(item.id)),
-      principales: menuItems.filter(item => globalWeeklyMenu.Martes.principal.includes(item.id)),
-      postres: menuItems.filter(item => globalWeeklyMenu.Martes.postre.includes(item.id)),
+      entrantes: platosMenu.filter(item => globalWeeklyMenu.Martes.entrante.includes(item.id)),
+      principales: platosMenu.filter(item => globalWeeklyMenu.Martes.principal.includes(item.id)),
+      postres: platosMenu.filter(item => globalWeeklyMenu.Martes.postre.includes(item.id)),
     },
     miercoles: {
-      entrantes: menuItems.filter(item => globalWeeklyMenu.Miércoles.entrante.includes(item.id)),
-      principales: menuItems.filter(item => globalWeeklyMenu.Miércoles.principal.includes(item.id)),
-      postres: menuItems.filter(item => globalWeeklyMenu.Miércoles.postre.includes(item.id)),
+      entrantes: platosMenu.filter(item => globalWeeklyMenu.Miércoles.entrante.includes(item.id)),
+      principales: platosMenu.filter(item => globalWeeklyMenu.Miércoles.principal.includes(item.id)),
+      postres: platosMenu.filter(item => globalWeeklyMenu.Miércoles.postre.includes(item.id)),
     },
     jueves: {
-      entrantes: menuItems.filter(item => globalWeeklyMenu.Jueves.entrante.includes(item.id)),
-      principales: menuItems.filter(item => globalWeeklyMenu.Jueves.principal.includes(item.id)),
-      postres: menuItems.filter(item => globalWeeklyMenu.Jueves.postre.includes(item.id)),
+      entrantes: platosMenu.filter(item => globalWeeklyMenu.Jueves.entrante.includes(item.id)),
+      principales: platosMenu.filter(item => globalWeeklyMenu.Jueves.principal.includes(item.id)),
+      postres: platosMenu.filter(item => globalWeeklyMenu.Jueves.postre.includes(item.id)),
     },
     viernes: {
-      entrantes: menuItems.filter(item => globalWeeklyMenu.Viernes.entrante.includes(item.id)),
-      principales: menuItems.filter(item => globalWeeklyMenu.Viernes.principal.includes(item.id)),
-      postres: menuItems.filter(item => globalWeeklyMenu.Viernes.postre.includes(item.id)),
+      entrantes: platosMenu.filter(item => globalWeeklyMenu.Viernes.entrante.includes(item.id)),
+      principales: platosMenu.filter(item => globalWeeklyMenu.Viernes.principal.includes(item.id)),
+      postres: platosMenu.filter(item => globalWeeklyMenu.Viernes.postre.includes(item.id)),
     },
   }
 
-  const toggleItem = (day: string, category: string, itemId: string) => {
+  const toggleItem = (day: string, categoria: string, itemId: string) => {
     setSelectedItems((prev) => {
-      const dayKey = `${day}-${category}`
+      const dayKey = `${day}-${categoria}`
       const current = prev[dayKey] || []
       if (current.includes(itemId)) {
         return { ...prev, [dayKey]: current.filter((id) => id !== itemId) }
@@ -117,8 +117,8 @@ export function WeeklyMenuView() {
     })
   }
 
-  const isSelected = (day: string, category: string, itemId: string) => {
-    const dayKey = `${day}-${category}`
+  const isSelected = (day: string, categoria: string, itemId: string) => {
+    const dayKey = `${day}-${categoria}`
     return selectedItems[dayKey]?.includes(itemId) || false
   }
 
@@ -150,14 +150,14 @@ export function WeeklyMenuView() {
     const reservationDate = new Date(today)
     reservationDate.setDate(today.getDate() - currentDayOfWeek + targetDayNum)
 
-    addReservation({
-      userId: user?.id || "",
-      userName: user?.name || "Desconocido",
-      date: reservationDate,
-      menuItems: allSelectedItems,
-      status: "pending",
-      kitchenStatus: "pending",
-      createdAt: new Date(),
+    añadirReserva({
+      idUsuario: usuario?.id || "",
+      nombreUsuario: usuario?.nombre || "Desconocido",
+      fecha: reservationDate,
+      platosMenu: allSelectedItems,
+      estado: "pendiente",
+      estadoCocina: "pendiente",
+      creadoEn: new Date(),
     })
 
     toast({
@@ -178,38 +178,38 @@ export function WeeklyMenuView() {
   const MenuItemCard = ({
     item,
     day,
-    category,
+    categoria,
   }: {
-    item: MenuItem
+    item: PlatoMenu
     day: string
-    category: string
+    categoria: string
   }) => {
-    const selected = isSelected(day, category, item.id)
+    const selected = isSelected(day, categoria, item.id)
 
     return (
       <Card
         className={`transition-all border-(--md-accent) bg-(--md-surface) ${
           selected ? "ring-2 ring-(--md-accent) bg-(--md-accent-light)/50" : ""
-        } ${user ? "cursor-pointer hover:bg-(--md-accent-light)/30" : "opacity-80"}`}
-        onClick={() => user && toggleItem(day, category, item.id)}
+        } ${usuario ? "cursor-pointer hover:bg-(--md-accent-light)/30" : "opacity-80"}`}
+        onClick={() => usuario && toggleItem(day, categoria, item.id)}
       >
         <CardContent className="p-4">
           <div className="space-y-2">
             <div className="flex items-start justify-between">
-              <h4 className="font-semibold text-(--md-heading)">{item.name}</h4>
+              <h4 className="font-semibold text-(--md-heading)">{item.nombre}</h4>
               {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold">Seleccionado</Badge>}
             </div>
-            <p className="text-sm text-(--md-body)">{item.description}</p>
-            {item.authorName && (
+            <p className="text-sm text-(--md-body)">{item.descripcion}</p>
+            {item.nombreAutor && (
               <div className="flex items-center gap-1.5 pt-1">
                 <ChefHat className="h-3.5 w-3.5 text-(--md-coral)" />
-                <span className="text-xs font-medium text-(--md-body)">Creado por: <span className="text-(--md-heading)">{item.authorName}</span></span>
+                <span className="text-xs font-medium text-(--md-body)">Creado por: <span className="text-(--md-heading)">{item.nombreAutor}</span></span>
               </div>
             )}
-            {item.allergens.length > 0 && (
+            {item.alergenos.length > 0 && (
               <div className="flex flex-wrap gap-1 pt-2">
                 <span className="text-xs text-(--md-coral) font-medium">Alérgenos:</span>
-                {item.allergens.map((allergen) => (
+                {item.alergenos.map((allergen) => (
                   <Badge key={allergen} variant="outline" className="text-xs border-(--md-accent) text-(--md-body)">
                     {allergen}
                   </Badge>
@@ -256,7 +256,7 @@ export function WeeklyMenuView() {
                 className="flex-1 min-w-[110px] h-full flex flex-col gap-1 data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2 rounded-md whitespace-nowrap"
               >
                 <span className="font-medium text-[15px] leading-none">{day.label}</span>
-                <span className="text-xs">{day.date}</span>
+                <span className="text-xs">{day.fecha}</span>
               </TabsTrigger>
             ))}
           </TabsList>
@@ -281,11 +281,11 @@ export function WeeklyMenuView() {
                 </CardHeader>
                 <CardContent className="pt-6">
                   <div className="grid gap-4 md:grid-cols-2">
-                    {weeklyMenu[day.key as keyof typeof weeklyMenu]?.entrantes.map((item) => (
-                      <MenuItemCard key={item.id} item={item} day={day.key} category="entrantes" />
+                    {menuSemanal[day.key as keyof typeof menuSemanal]?.entrantes.map((item) => (
+                      <MenuItemCard key={item.id} item={item} day={day.key} categoria="entrantes" />
                     ))}
                   </div>
-                  {(!weeklyMenu[day.key as keyof typeof weeklyMenu]?.entrantes || weeklyMenu[day.key as keyof typeof weeklyMenu]?.entrantes.length === 0) && (
+                  {(!menuSemanal[day.key as keyof typeof menuSemanal]?.entrantes || menuSemanal[day.key as keyof typeof menuSemanal]?.entrantes.length === 0) && (
                     <p className="text-(--md-body) text-sm italic py-2">No hay entrantes programados para este día.</p>
                   )}
                 </CardContent>
@@ -298,11 +298,11 @@ export function WeeklyMenuView() {
                 </CardHeader>
                 <CardContent className="pt-6">
                   <div className="grid gap-4 md:grid-cols-2">
-                    {weeklyMenu[day.key as keyof typeof weeklyMenu]?.principales.map((item) => (
-                      <MenuItemCard key={item.id} item={item} day={day.key} category="principales" />
+                    {menuSemanal[day.key as keyof typeof menuSemanal]?.principales.map((item) => (
+                      <MenuItemCard key={item.id} item={item} day={day.key} categoria="principales" />
                     ))}
                   </div>
-                  {(!weeklyMenu[day.key as keyof typeof weeklyMenu]?.principales || weeklyMenu[day.key as keyof typeof weeklyMenu]?.principales.length === 0) && (
+                  {(!menuSemanal[day.key as keyof typeof menuSemanal]?.principales || menuSemanal[day.key as keyof typeof menuSemanal]?.principales.length === 0) && (
                     <p className="text-(--md-body) text-sm italic py-2">No hay platos principales programados para este día.</p>
                   )}
                 </CardContent>
@@ -315,11 +315,11 @@ export function WeeklyMenuView() {
                 </CardHeader>
                 <CardContent className="pt-6">
                   <div className="grid gap-4 md:grid-cols-2">
-                    {weeklyMenu[day.key as keyof typeof weeklyMenu]?.postres.map((item) => (
-                      <MenuItemCard key={item.id} item={item} day={day.key} category="postres" />
+                    {menuSemanal[day.key as keyof typeof menuSemanal]?.postres.map((item) => (
+                      <MenuItemCard key={item.id} item={item} day={day.key} categoria="postres" />
                     ))}
                   </div>
-                  {(!weeklyMenu[day.key as keyof typeof weeklyMenu]?.postres || weeklyMenu[day.key as keyof typeof weeklyMenu]?.postres.length === 0) && (
+                  {(!menuSemanal[day.key as keyof typeof menuSemanal]?.postres || menuSemanal[day.key as keyof typeof menuSemanal]?.postres.length === 0) && (
                     <p className="text-(--md-body) text-sm italic py-2">No hay postres programados para este día.</p>
                   )}
                 </CardContent>
@@ -343,19 +343,19 @@ export function WeeklyMenuView() {
                 </Button>
                 <Button 
                   onClick={makeReservation} 
-                  disabled={!user}
+                  disabled={!usuario}
                   className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent-hover) shadow-sm disabled:opacity-50 disabled:grayscale"
                 >
                   <Calendar className="mr-2 h-4 w-4" />
-                  {user ? "Hacer Reserva" : "Inicia sesión para reservar"}
+                  {usuario ? "Hacer Reserva" : "Inicia sesión para reservar"}
                 </Button>
               </div>
-              {!user && (
+              {!usuario && (
                 <div className="bg-(--md-accent)/10 border border-(--md-accent) rounded-lg p-3 flex items-center gap-3 mt-4">
                   <AlertCircle className="h-5 w-5 text-(--md-coral) shrink-0" />
                   <p className="text-sm text-(--md-heading)">
                     Estás viendo el menú como <span className="font-bold">invitado</span>. 
-                    <Link to="/login" className="ml-1 underline font-bold hover:text-(--md-coral) transition-colors">Inicia sesión</Link> para poder seleccionar platos y realizar tu reserva.
+                    <Link to="/iniciarSesion" className="ml-1 underline font-bold hover:text-(--md-coral) transition-colors">Inicia sesión</Link> para poder seleccionar platos y realizar tu reserva.
                   </p>
                 </div>
               )}

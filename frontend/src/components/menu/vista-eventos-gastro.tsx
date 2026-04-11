@@ -1,30 +1,30 @@
 "use client"
 
 import { useState } from "react"
-import { useData } from "@/lib/data-context"
+import { useDatos } from "@/lib/data-context"
 import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Users, ChefHat, CheckCircle2, XCircle, Clock } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import type { GastroEvent } from "@/lib/types"
+import type { EventoGastro } from "@/lib/types"
 
 export function GastroEventsView() {
-  const { gastroEvents, eventReservations, reserveEventSpot, cancelEventReservation } = useData()
-  const { user } = useAuth()
+  const { eventosGastro, reservasEventos, reservarPuestoEvento, cancelarReservaEvento } = useDatos()
+  const { usuario } = useAuth()
   const { toast } = useToast()
   const [filter, setFilter] = useState<"all" | "upcoming" | "available">("upcoming")
 
-  const handleReserve = (event: GastroEvent) => {
-    if (!user) return
+  const handleReserve = (event: EventoGastro) => {
+    if (!usuario) return
 
-    const success = reserveEventSpot(event.id, user.id, user.name)
+    const success = reservarPuestoEvento(event.id, usuario.id, usuario.nombre)
 
     if (success) {
       toast({
         title: "¡Plaza Garantizada!",
-        description: `Tu reserva para "${event.name}" ha sido confirmada`,
+        description: `Tu reserva para "${event.nombre}" ha sido confirmada`,
         variant: "default",
       })
     } else {
@@ -36,11 +36,11 @@ export function GastroEventsView() {
     }
   }
 
-  const handleCancelReservation = (eventId: string, eventName: string) => {
-    if (!user) return
+  const handleCancelReservation = (idEvento: string, eventName: string) => {
+    if (!usuario) return
 
     if (confirm(`¿Deseas cancelar tu reserva para "${eventName}"?`)) {
-      cancelEventReservation(eventId, user.id)
+      cancelarReservaEvento(idEvento, usuario.id)
       toast({
         title: "Reserva cancelada",
         description: "Tu plaza ha sido liberada",
@@ -48,40 +48,40 @@ export function GastroEventsView() {
     }
   }
 
-  const hasUserReserved = (eventId: string): boolean => {
-    if (!user) return false
-    return eventReservations.some((r) => r.eventId === eventId && r.userId === user.id && r.status === "confirmed")
+  const hasUserReserved = (idEvento: string): boolean => {
+    if (!usuario) return false
+    return reservasEventos.some((r) => r.idEvento === idEvento && r.idUsuario === usuario.id && r.estado === "confirmada")
   }
 
-  const filteredEvents = gastroEvents
+  const filteredEvents = eventosGastro
     .filter((event) => {
       const now = new Date()
-      const eventDate = new Date(event.date)
+      const eventDate = new Date(event.fecha)
 
       if (filter === "upcoming") {
-        return eventDate > now && event.status !== "cancelled"
+        return eventDate > now && event.estado !== "cancelado"
       }
       if (filter === "available") {
-        return eventDate > now && event.status === "active" && event.currentAttendees < event.maxCapacity
+        return eventDate > now && (event.estado === "activo" || event.estado === "modificado") && event.asistentesActuales < event.capacidadMaxima
       }
       return true
     })
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
 
-  const getStatusBadge = (status: GastroEvent["status"]) => {
+  const getStatusBadge = (estado: EventoGastro["estado"]) => {
     const styles = {
-      active: "bg-(--md-accent-light) text-(--md-body)",
-      full: "bg-(--md-accent) text-(--md-body)",
-      modified: "bg-(--md-coral-hover)/20 text-(--md-coral-hover)",
-      cancelled: "bg-(--md-coral)/10 text-(--md-coral)",
+      activo: "bg-(--md-accent-light) text-(--md-body)",
+      lleno: "bg-(--md-accent) text-(--md-body)",
+      modificado: "bg-(--md-accent-light) text-(--md-body)",
+      cancelado: "bg-(--md-coral)/10 text-(--md-coral)",
     }
     const labels = {
-      active: "Activo",
-      full: "Completo",
-      modified: "Modificado",
-      cancelled: "Cancelado",
+      activo: "Activo",
+      lleno: "Completo",
+      modificado: "Activo",
+      cancelado: "Cancelado",
     }
-    return <Badge className={styles[status]}>{labels[status]}</Badge>
+    return <Badge className={styles[estado]}>{labels[estado]}</Badge>
   }
 
   return (
@@ -129,21 +129,21 @@ export function GastroEventsView() {
         <div className="grid gap-4 md:grid-cols-2">
           {filteredEvents.map((event) => {
             const hasReserved = hasUserReserved(event.id)
-            const availableSpots = event.maxCapacity - event.currentAttendees
-            const isFull = event.status === "full" || availableSpots <= 0
-            const isPast = new Date(event.date) < new Date()
-            const canReserve = !hasReserved && !isFull && !isPast && event.status === "active"
+            const availableSpots = event.capacidadMaxima - event.asistentesActuales
+            const isFull = event.estado === "lleno" || availableSpots <= 0
+            const isPast = new Date(event.fecha) < new Date()
+            const canReserve = !hasReserved && !isFull && !isPast && (event.estado === "activo" || event.estado === "modificado")
 
             return (
               <Card key={event.id} className={hasReserved ? "border-(--md-coral) border-2" : ""}>
                 <CardHeader>
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="space-y-1 flex-1">
-                      <CardTitle className="text-xl text-(--md-body)">{event.name}</CardTitle>
-                      <CardDescription className="text-(--md-body)/70">{event.description}</CardDescription>
+                      <CardTitle className="text-xl text-(--md-body)">{event.nombre}</CardTitle>
+                      <CardDescription className="text-(--md-body)/70">{event.descripcion}</CardDescription>
                     </div>
                     <div className="flex flex-row sm:flex-col gap-2 items-center sm:items-end flex-wrap">
-                      {getStatusBadge(event.status)}
+                      {getStatusBadge(event.estado)}
                       {hasReserved && (
                         <Badge className="bg-(--md-accent) text-(--md-body)">
                           <CheckCircle2 className="mr-1 h-3 w-3" />
@@ -158,7 +158,7 @@ export function GastroEventsView() {
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">
-                        {new Date(event.date).toLocaleDateString("es-ES", {
+                        {new Date(event.fecha).toLocaleDateString("es-ES", {
                           weekday: "short",
                           day: "numeric",
                           month: "short",
@@ -169,7 +169,7 @@ export function GastroEventsView() {
                     <div className="flex items-center gap-1">
                       <Clock className="h-4 w-4 text-muted-foreground" />
                       <span>
-                        {new Date(event.date).toLocaleTimeString("es-ES", {
+                        {new Date(event.fecha).toLocaleTimeString("es-ES", {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
@@ -178,7 +178,7 @@ export function GastroEventsView() {
                     <div className="flex items-center gap-1">
                       <Users className="h-4 w-4 text-muted-foreground" />
                       <span className="font-semibold">
-                        {event.currentAttendees}/{event.maxCapacity}
+                        {event.asistentesActuales}/{event.capacidadMaxima}
                       </span>
                       {availableSpots > 0 && !isFull ? (
                         <span className="text-green-600">({availableSpots} libres)</span>
@@ -194,7 +194,7 @@ export function GastroEventsView() {
                       Menú degustación:
                     </div>
                     <ul className="text-sm space-y-1 ml-6 list-disc">
-                      {event.dishes.map((dish, idx) => (
+                      {event.platos.map((dish, idx) => (
                         <li key={idx}>{dish}</li>
                       ))}
                     </ul>
@@ -205,7 +205,7 @@ export function GastroEventsView() {
                       <Button
                         variant="outline"
                         className="w-full border-red-500 text-red-600 hover:bg-red-50 bg-transparent"
-                        onClick={() => handleCancelReservation(event.id, event.name)}
+                        onClick={() => handleCancelReservation(event.id, event.nombre)}
                       >
                         <XCircle className="mr-2 h-4 w-4" />
                         Cancelar mi Reserva

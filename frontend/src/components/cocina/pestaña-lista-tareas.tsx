@@ -1,37 +1,37 @@
 "use client"
 
-import { useData } from "@/lib/data-context"
+import { useDatos } from "@/lib/data-context"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Trash2 } from "lucide-react"
 
 export function TodoListTab() {
-  const { reservations, menuItems, updateReservationKitchenStatus, clearCompletedReservations } = useData()
+  const { reservas, platosMenu, actualizarEstadoCocinaReserva, limpiarReservasCompletadas } = useDatos()
 
-  // Mapped reservations to include item names
-  const KanbanCards = reservations.map((res) => {
+  // Mapped reservas to include item names
+  const KanbanCards = reservas.map((res) => {
     return {
       id: res.id,
-      userName: res.userName,
-      time: new Date(res.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      items: res.menuItems.map((itemId) => menuItems.find((m) => m.id === itemId)?.name || "Plato desconocido"),
-      status: res.kitchenStatus || "pending",
+      nombreUsuario: res.nombreUsuario,
+      time: new Date(res.fecha).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      items: res.platosMenu.map((itemId) => platosMenu.find((m) => m.id === itemId)?.nombre || "Plato desconocido"),
+      estado: res.estadoCocina || "pendiente",
     }
   })
 
-  const pending = KanbanCards.filter((c) => c.status === "pending")
-  const preparing = KanbanCards.filter((c) => c.status === "preparing")
-  const completed = KanbanCards.filter((c) => c.status === "completed")
+  const pending = KanbanCards.filter((c) => c.estado === "pendiente")
+  const preparing = KanbanCards.filter((c) => c.estado === "preparando")
+  const completed = KanbanCards.filter((c) => c.estado === "completada")
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
     e.dataTransfer.setData("reservationId", id)
   }
 
-  const handleDrop = (e: React.DragEvent, targetStatus: "pending" | "preparing" | "completed") => {
+  const handleDrop = (e: React.DragEvent, targetStatus: "pendiente" | "preparando" | "completada") => {
     e.preventDefault()
     const id = e.dataTransfer.getData("reservationId")
     if (id) {
-      updateReservationKitchenStatus(id, targetStatus)
+      actualizarEstadoCocinaReserva(id, targetStatus)
     }
   }
 
@@ -47,7 +47,7 @@ export function TodoListTab() {
       className="bg-background cursor-grab active:cursor-grabbing border rounded-lg p-4 shadow-sm flex flex-col gap-3 hover:border-(--md-accent) transition-colors"
     >
       <div className="flex justify-between items-start">
-        <p className="font-semibold text-sm text-(--md-heading)">{card.userName}</p>
+        <p className="font-semibold text-sm text-(--md-heading)">{card.nombreUsuario}</p>
         <span className="text-xs font-medium text-(--md-body) bg-(--md-accent)/40 px-2 py-0.5 rounded">{card.time}</span>
       </div>
       <ul className="space-y-1.5">
@@ -57,9 +57,9 @@ export function TodoListTab() {
           </li>
         ))}
       </ul>
-      {card.status !== "completed" ? (
+      {card.estado !== "completada" ? (
         <button
-          onClick={() => updateReservationKitchenStatus(card.id, "completed")}
+          onClick={() => actualizarEstadoCocinaReserva(card.id, "completada")}
           className="mt-2 text-xs font-medium w-full bg-(--md-surface) border border-(--md-accent) hover:bg-(--md-accent)/50 text-(--md-heading) py-2 rounded transition-colors"
         >
           Marcar como Completado
@@ -76,7 +76,7 @@ export function TodoListTab() {
       <div
         className="flex flex-col bg-gray-50/50 rounded-xl p-4 border border-gray-100 min-h-[400px]"
         onDragOver={handleDragOver}
-        onDrop={(e) => handleDrop(e, "pending")}
+        onDrop={(e) => handleDrop(e, "pendiente")}
       >
         <div className="mb-4 flex items-center justify-between">
           <h3 className="font-bold text-(--md-heading)">Pendientes</h3>
@@ -94,7 +94,7 @@ export function TodoListTab() {
       <div
         className="flex flex-col bg-blue-50/30 rounded-xl p-4 border border-blue-100/50 min-h-[400px]"
         onDragOver={handleDragOver}
-        onDrop={(e) => handleDrop(e, "preparing")}
+        onDrop={(e) => handleDrop(e, "preparando")}
       >
         <div className="mb-4 flex items-center justify-between">
           <h3 className="font-bold text-(--md-heading)">Preparando</h3>
@@ -114,7 +114,7 @@ export function TodoListTab() {
       <div
         className="flex flex-col bg-green-50/30 rounded-xl p-4 border border-green-100/50 min-h-[400px]"
         onDragOver={handleDragOver}
-        onDrop={(e) => handleDrop(e, "completed")}
+        onDrop={(e) => handleDrop(e, "completada")}
       >
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -125,7 +125,7 @@ export function TodoListTab() {
           </div>
           {completed.length > 0 && (
             <Button 
-              onClick={clearCompletedReservations} 
+              onClick={limpiarReservasCompletadas} 
               variant="ghost" 
               size="icon" 
               className="h-8 w-8 text-green-700 hover:bg-green-200/50 hover:text-green-800"

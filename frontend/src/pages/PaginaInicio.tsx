@@ -1,16 +1,16 @@
 import { useAuth } from "@/lib/auth-context"
-import { LandingHero } from "@/components/landing/landing-hero"
-import { Navbar } from "@/components/navbar"
+import { LandingHero } from "@/components/landing/hero-inicio"
+import { BarraNavegacion } from "@/components/barra-navegacion"
 import { useNavigate } from "react-router-dom"
 import { useEffect } from "react"
 
-export function HomePage() {
-  const { user, isLoading } = useAuth()
+export function PaginaInicio() {
+  const { usuario, cargando } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!isLoading && user) {
-      switch (user.role) {
+    if (!cargando && usuario) {
+      switch (usuario.rol) {
         case "admin":
           navigate("/admin")
           break
@@ -24,9 +24,9 @@ export function HomePage() {
           break
       }
     }
-  }, [user, isLoading, navigate])
+  }, [usuario, cargando, navigate])
 
-  if (isLoading) {
+  if (cargando) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-md-page-bg">
         <div className="text-center">
@@ -37,12 +37,12 @@ export function HomePage() {
     )
   }
 
-  let primaryHref = "/login"
+  let primaryHref = "/iniciarSesion"
   let primaryLabel = "Acceder al Panel"
 
-  if (user) {
+  if (usuario) {
     primaryLabel = "Ir a mi Panel"
-    switch (user.role) {
+    switch (usuario.rol) {
       case "admin":
         primaryHref = "/admin"
         break
@@ -59,7 +59,7 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen">
-      {user && <Navbar />}
+      {usuario && <BarraNavegacion />}
       <LandingHero primaryHref={primaryHref} primaryLabel={primaryLabel} />
 
       <footer className="bg-md-surface py-12 border-t border-md-accent/30">
