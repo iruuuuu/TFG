@@ -171,12 +171,14 @@ export function SearchReservationsTab() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {userReservations.map(res => {
                       const prepared = res.estadoCocina === "completada"
+                      const actualUser = todosLosUsuarios.find(u => String(u.id) === String(res.idUsuario))
+                      const displayName = actualUser?.nombre || res.nombreUsuario
                       return (
                         <Card key={res.id} className={prepared ? "bg-green-50/50 border-green-200" : ""}>
                           <CardHeader className="py-4">
                             <div className="flex justify-between items-start">
                               <div>
-                                <CardTitle className="text-base">{res.nombreUsuario}</CardTitle>
+                                <CardTitle className="text-base">{displayName}</CardTitle>
                                 <CardDescription>Fecha: {new Date(res.fecha).toLocaleDateString("es-ES")} <span className="ml-2">Código: <span className="font-mono bg-(--md-accent)/20 px-1 rounded">{res.codigoCorto || "N/A"}</span></span></CardDescription>
                               </div>
                               <Badge className={prepared ? "bg-green-600 hover:bg-green-700" : "bg-(--md-accent) text-(--md-body)"}>
@@ -218,6 +220,8 @@ export function SearchReservationsTab() {
                     {userEvents.map(er => {
                       const event = eventosGastro.find(ge => ge.id === er.idEvento)!
                       const checkedIn = er.asistio
+                      const actualUser = todosLosUsuarios.find(u => String(u.id) === String(er.idUsuario))
+                      const displayName = actualUser?.nombre || er.nombreUsuario
                       return (
                         <Card key={er.id} className={checkedIn ? "bg-blue-50/50 border-blue-200" : ""}>
                           <CardHeader className="py-4">
@@ -232,7 +236,7 @@ export function SearchReservationsTab() {
                             </div>
                           </CardHeader>
                           <CardContent className="py-0 pb-4">
-                            <p className="text-sm text-muted-foreground mb-4">A nombre de: {er.nombreUsuario}</p>
+                            <p className="text-sm text-muted-foreground mb-4">A nombre de: {displayName}</p>
                             <Button 
                               variant={checkedIn ? "outline" : "default"}
                               className={checkedIn ? "w-full" : "w-full bg-blue-600 hover:bg-blue-700 text-white"} 

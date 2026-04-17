@@ -306,7 +306,8 @@ export function GastroEventsTab() {
       <div className="grid gap-4 md:grid-cols-2">
         {eventosGastro.map((event) => {
           const attendees = obtenerAsistentesEvento(event.id)
-          const availableSpots = event.capacidadMaxima - event.asistentesActuales
+          const actualAttendeesCount = attendees.length
+          const availableSpots = event.capacidadMaxima - actualAttendeesCount
 
           return (
             <Card key={event.id}>
@@ -336,7 +337,7 @@ export function GastroEventsTab() {
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4 text-muted-foreground" />
                     <span className="font-semibold">
-                      {event.asistentesActuales}/{event.capacidadMaxima}
+                      {actualAttendeesCount}/{event.capacidadMaxima}
                     </span>
                     {availableSpots > 0 ? (
                       <span className="text-green-600">({availableSpots} disponibles)</span>

@@ -38,9 +38,9 @@ export function AlumnosTab() {
   const {todosLosUsuarios, actualizarUsuario, añadirUsuario, eliminarUsuario, usuario: usuarioActual} = useAuth()
   const { valoraciones, platosMenu } = useDatos()
   
-  // Filter for students (id > 3 ensures we don't list admin/maestro/main cocina in the students tab)
+  // Filter for students based on their roles
   const alumnos = useMemo(() => {
-    return todosLosUsuarios.filter(u => parseInt(u.id) > 3)
+    return todosLosUsuarios.filter(u => u.rol === 'alumno-cocina' || u.rol === 'alumno-cocina-titular')
   }, [todosLosUsuarios])
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)

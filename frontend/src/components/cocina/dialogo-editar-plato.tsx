@@ -1,17 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, X } from "lucide-react"
+import { Edit, X } from "lucide-react"
 import { useDatos } from "@/lib/data-context"
 import { useAuth } from "@/lib/auth-context"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
+import type { PlatoMenu } from "@/lib/types"
 
 const COMMON_ALLERGENS = [
   "Gluten", "Crustáceos", "Huevos", "Pescado", "Cacahuetes", 
@@ -19,8 +20,8 @@ const COMMON_ALLERGENS = [
   "Sésamo", "Sulfitos", "Altramuces", "Moluscos"
 ]
 
-export function CreateDishDialog() {
-  const { añadirPlatoMenu, registrarActividad } = useDatos()
+export function EditDishDialog({ plato }: { plato: PlatoMenu }) {
+  const { actualizarPlatoMenu, registrarActividad } = useDatos()
   const { usuario, todosLosUsuarios } = useAuth()
   const { toast } = useToast()
   const [open, setOpen] = useState(false)
@@ -31,14 +32,27 @@ export function CreateDishDialog() {
     alergenos: string[];
     idAutor?: string;
   }>({
-    nombre: "",
-    descripcion: "",
-    categoria: "entrante",
-    alergenos: [],
+    nombre: plato.nombre,
+    descripcion: plato.descripcion,
+    categoria: plato.categoria,
+    alergenos: plato.alergenos || [],
+    idAutor: plato.idAutor,
   })
 
   // Students available for attribution
   const students = todosLosUsuarios.filter(u => u.rol === 'alumno-cocina' || u.rol === 'alumno-cocina-titular')
+
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        nombre: plato.nombre,
+        descripcion: plato.descripcion,
+        categoria: plato.categoria,
+        alergenos: plato.alergenos || [],
+        idAutor: plato.idAutor,
+      })
+    }
+  }, [open, plato])
 
   const toggleAllergen = (allergen: string) => {
     setFormData(prev => ({
@@ -56,19 +70,18 @@ export function CreateDishDialog() {
       ? todosLosUsuarios.find(u => u.id === formData.idAutor)?.nombre 
       : undefined
 
-    añadirPlatoMenu({
+    actualizarPlatoMenu(plato.id, {
       nombre: formData.nombre,
       descripcion: formData.descripcion,
       categoria: formData.categoria as "entrante" | "principal" | "postre",
       alergenos: formData.alergenos,
       idAutor: formData.idAutor,
       nombreAutor: authorName,
-      disponible: true,
     })
 
     if (usuario) {
       registrarActividad(
-        "Añadió Plato al Catálogo", 
+        "Editó Plato del Catálogo", 
         `Plato: ${formData.nombre} (${formData.categoria})`, 
         usuario.nombre, 
         usuario.rol
@@ -76,27 +89,25 @@ export function CreateDishDialog() {
     }
 
     toast({
-      title: "Plato creado",
-      description: `Se ha añadido "${formData.nombre}" al catálogo.`,
+      title: "Plato actualizado",
+      description: `Se han guardado los cambios en "${formData.nombre}".`,
     })
 
-    setFormData({ nombre: "", descripcion: "", categoria: "entrante", alergenos: [], idAutor: undefined })
     setOpen(false)
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent-hover) shadow-sm">
-          <Plus className="mr-2 h-4 w-4" />
-          Añadir Plato al Catálogo
+        <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+          <Edit className="h-4 w-4 text-blue-500" />
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-(--md-heading)">Añadir Nuevo Plato</DialogTitle>
+          <DialogTitle className="text-(--md-heading)">Editar Plato</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" onClick={(e) => e.stopPropagation()}>
           <div className="space-y-2">
             <Label htmlFor="name" className="text-(--md-heading)">Nombre del plato</Label>
             <Input 
@@ -154,7 +165,7 @@ export function CreateDishDialog() {
               {formData.alergenos.map(a => (
                 <Badge key={a} variant="secondary" className="bg-(--md-accent) text-(--md-heading) hover:bg-(--md-accent-hover) flex items-center gap-1 px-3 py-1">
                   {a}
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => toggleAllergen(a)} />
+                  <X className="h-3 w-3 cursor-pointer" onClick={(e) => { e.stopPropagation(); toggleAllergen(a); }} />
                 </Badge>
               ))}
               {formData.alergenos.length === 0 && (
@@ -182,11 +193,10 @@ export function CreateDishDialog() {
           </div>
           <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button type="submit" className="bg-(--md-coral) text-white hover:bg-(--md-coral-hover)">Crear Plato</Button>
+            <Button type="submit" className="bg-(--md-coral) text-white hover:bg-(--md-coral-hover)">Guardar Cambios</Button>
           </div>
         </form>
       </DialogContent>
     </Dialog>
   )
 }
-

@@ -16,7 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
-import { Calendar, Clock, UtensilsCrossed, Trash2, Star, Plus } from "lucide-react"
+import { Calendar, Clock, UtensilsCrossed, Trash2, Star, Plus, Check } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { useDatos } from "@/lib/data-context"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -26,7 +26,11 @@ import { Label } from "@/components/ui/label"
 export function MyReservations() {
   const { toast } = useToast()
   const { usuario } = useAuth()
-  const { reservas: globalReservations, cancelarReserva: globalCancel, platosMenu, añadirValoracion } = useDatos()
+  const { reservas: globalReservations, cancelarReserva: globalCancel, platosMenu, añadirValoracion, valoraciones: globalValoraciones } = useDatos()
+  
+  const [ratingDialogRes, setRatingDialogRes] = useState<any>(null)
+  const [dishRatings, setDishRatings] = useState<Record<string, { puntuacion: number; comentario: string }>>({})
+  const [reservasValoradasLocal, setReservasValoradasLocal] = useState<string[]>([])
 
   // Ensure usuarios only see their own reservas
   const reservas = globalReservations.filter(r => r.idUsuario === usuario?.id).map(r => {
@@ -40,6 +44,11 @@ export function MyReservations() {
       return { id, nombre: item ? item.nombre : "Plato Desconocido" }
     })
 
+    // Check if any of these items has been rated by the user (globally or locally in this session)
+    const estaValorada = reservasValoradasLocal.includes(r.id) || items.some(it => 
+      globalValoraciones.some(v => String(v.idUsuario) === String(usuario?.id) && String(v.idPlatoMenu) === String(it.id))
+    )
+
     return {
       id: r.id,
       codigoCorto: r.codigoCorto,
@@ -47,13 +56,13 @@ export function MyReservations() {
       day,
       items,
       rawStatus: r.estado,
-      estado: (r.estado === "pendiente" || r.estado === "pending") ? "pendiente" : (r.estado === "confirmada" || r.estado === "confirmed" || r.estado === "completed" || r.estado === "completada") ? "confirmada" : "cancelada",
+      estado: (r.estado?.toLowerCase() === "pendiente" || r.estado?.toLowerCase() === "pending") ? "pendiente" : (r.estado?.toLowerCase() === "confirmada" || r.estado?.toLowerCase() === "confirmed" || r.estado?.toLowerCase() === "completed" || r.estado?.toLowerCase() === "completada") ? "confirmada" : "cancelada",
       time: "14:00",
+      estaValorada
     }
   })
 
-  const [ratingDialogRes, setRatingDialogRes] = useState<any>(null)
-  const [dishRatings, setDishRatings] = useState<Record<string, { puntuacion: number; comentario: string }>>({})
+
 
   const cancelarReserva = (id: string) => {
     globalCancel(id)
@@ -95,6 +104,9 @@ export function MyReservations() {
     })
 
     if (ratingsCount > 0) {
+      if (ratingDialogRes) {
+        setReservasValoradasLocal(prev => [...prev, ratingDialogRes.id])
+      }
       toast({
         title: "Valoración enviada",
         description: `Se han registrado ${ratingsCount} valoraciones de tus platos.`,
@@ -221,10 +233,14 @@ export function MyReservations() {
                             variant="outline"
                             size="sm"
                             disabled={reservation.estado !== "confirmada"}
-                            className="flex-1 border-(--md-accent) bg-(--md-accent-light)/50 text-(--md-heading) hover:bg-(--md-accent)"
+                            className={`flex-1 border-(--md-accent) ${reservation.estaValorada ? "bg-green-50 text-green-700 border-green-300" : "bg-(--md-accent-light)/50 text-(--md-heading)"} hover:opacity-80 transition-all`}
                           >
-                            <Star className="mr-1 h-3 w-3" />
-                            {reservation.estado === "confirmada" ? "Valorar Platos" : "Esperando Cocina..."}
+                            {reservation.estaValorada ? <Check className="mr-1 h-3 w-3" /> : <Star className="mr-1 h-3 w-3" />}
+                            {reservation.estado !== "confirmada" 
+                              ? "Esperando Cocina..." 
+                              : reservation.estaValorada 
+                                ? "valorado" 
+                                : "Valorar Platos"}
                           </Button>
                         </DialogTrigger>
                         <DialogContent>

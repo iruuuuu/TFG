@@ -7,11 +7,12 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { Calendar, Plus, ChevronLeft, ChevronRight } from "lucide-react"
+import { Calendar, Plus, ChevronLeft, ChevronRight, Trash2 } from "lucide-react"
 import { useDatos } from "@/lib/data-context"
 import { useAuth } from "@/lib/auth-context"
 import { useToast } from "@/hooks/use-toast"
 import { CreateDishDialog } from "./dialogo-crear-plato"
+import { EditDishDialog } from "./dialogo-editar-plato"
 
 const daysOfWeek = [
   { key: "Lunes", label: "Lunes" },
@@ -24,7 +25,7 @@ const daysOfWeek = [
 type Category = "entrante" | "principal" | "postre"
 
 export function WeeklyMenuTab() {
-  const { platosMenu, menuSemanal, alternarPlatoMenuSemanal, limpiarMenuSemanal, registrarActividad } = useDatos()
+  const { platosMenu, menuSemanal, alternarPlatoMenuSemanal, limpiarMenuSemanal, registrarActividad, eliminarPlatoMenu } = useDatos()
   const { usuario } = useAuth()
   const { toast } = useToast()
   const [openDialog, setOpenDialog] = useState<{ day: string; categoria: Category } | null>(null)
@@ -185,20 +186,26 @@ export function WeeklyMenuTab() {
                             {getItemsByCategory("entrante").map((item) => {
                               const selected = isItemSelected(day.key, "entrante", item.id);
                               return (
-                                <Button
-                                  key={item.id}
-                                  variant="outline"
-                                  className={`w-full justify-start h-auto p-3 ${selected ? 'bg-(--md-accent)/50 ring-2 ring-(--md-accent)' : 'bg-transparent'}`}
-                                  onClick={() => handleSelectItem(day.key, "entrante", item.id)}
-                                >
-                                  <div className="text-left w-full flex justify-between items-center">
-                                    <div>
-                                      <p className="font-medium text-(--md-heading)">{item.nombre}</p>
-                                      <p className="text-xs text-(--md-body)">{item.descripcion}</p>
+                                <div key={item.id} className={`flex items-center gap-2 w-full p-2 border rounded-md hover:bg-accent/50 ${selected ? 'bg-(--md-accent)/50 ring-2 ring-(--md-accent)' : 'bg-transparent'}`}>
+                                  <div 
+                                    className="flex-1 cursor-pointer py-1"
+                                    onClick={() => handleSelectItem(day.key, "entrante", item.id)}
+                                  >
+                                    <div className="text-left w-full flex justify-between items-center">
+                                      <div>
+                                        <p className="font-medium text-(--md-heading)">{item.nombre}</p>
+                                        <p className="text-xs text-(--md-body)">{item.descripcion}</p>
+                                      </div>
+                                      {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent)">Añadido</Badge>}
                                     </div>
-                                    {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent)">Añadido</Badge>}
                                   </div>
-                                </Button>
+                                  <div className="flex gap-1">
+                                    <EditDishDialog plato={item} />
+                                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); eliminarPlatoMenu(item.id); }}>
+                                      <Trash2 className="h-4 w-4 text-red-500" />
+                                    </Button>
+                                  </div>
+                                </div>
                               )
                             })}
                           </div>
@@ -259,20 +266,26 @@ export function WeeklyMenuTab() {
                             {getItemsByCategory("principal").map((item) => {
                               const selected = isItemSelected(day.key, "principal", item.id);
                               return (
-                                <Button
-                                  key={item.id}
-                                  variant="outline"
-                                  className={`w-full justify-start h-auto p-3 ${selected ? 'bg-(--md-accent)/50 ring-2 ring-(--md-accent)' : 'bg-transparent'}`}
-                                  onClick={() => handleSelectItem(day.key, "principal", item.id)}
-                                >
-                                  <div className="text-left w-full flex justify-between items-center">
-                                    <div>
-                                      <p className="font-medium text-(--md-heading)">{item.nombre}</p>
-                                      <p className="text-xs text-(--md-body)">{item.descripcion}</p>
+                                <div key={item.id} className={`flex items-center gap-2 w-full p-2 border rounded-md hover:bg-accent/50 ${selected ? 'bg-(--md-accent)/50 ring-2 ring-(--md-accent)' : 'bg-transparent'}`}>
+                                  <div 
+                                    className="flex-1 cursor-pointer py-1"
+                                    onClick={() => handleSelectItem(day.key, "principal", item.id)}
+                                  >
+                                    <div className="text-left w-full flex justify-between items-center">
+                                      <div>
+                                        <p className="font-medium text-(--md-heading)">{item.nombre}</p>
+                                        <p className="text-xs text-(--md-body)">{item.descripcion}</p>
+                                      </div>
+                                      {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent)">Añadido</Badge>}
                                     </div>
-                                    {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent)">Añadido</Badge>}
                                   </div>
-                                </Button>
+                                  <div className="flex gap-1">
+                                    <EditDishDialog plato={item} />
+                                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); eliminarPlatoMenu(item.id); }}>
+                                      <Trash2 className="h-4 w-4 text-red-500" />
+                                    </Button>
+                                  </div>
+                                </div>
                               )
                             })}
                           </div>
@@ -335,20 +348,26 @@ export function WeeklyMenuTab() {
                             {getItemsByCategory("postre").map((item) => {
                               const selected = isItemSelected(day.key, "postre", item.id);
                               return (
-                                <Button
-                                  key={item.id}
-                                  variant="outline"
-                                  className={`w-full justify-start h-auto p-3 ${selected ? 'bg-(--md-accent)/50 ring-2 ring-(--md-accent)' : 'bg-transparent'}`}
-                                  onClick={() => handleSelectItem(day.key, "postre", item.id)}
-                                >
-                                  <div className="text-left w-full flex justify-between items-center">
-                                    <div>
-                                      <p className="font-medium text-(--md-heading)">{item.nombre}</p>
-                                      <p className="text-xs text-(--md-body)">{item.descripcion}</p>
+                                <div key={item.id} className={`flex items-center gap-2 w-full p-2 border rounded-md hover:bg-accent/50 ${selected ? 'bg-(--md-accent)/50 ring-2 ring-(--md-accent)' : 'bg-transparent'}`}>
+                                  <div 
+                                    className="flex-1 cursor-pointer py-1"
+                                    onClick={() => handleSelectItem(day.key, "postre", item.id)}
+                                  >
+                                    <div className="text-left w-full flex justify-between items-center">
+                                      <div>
+                                        <p className="font-medium text-(--md-heading)">{item.nombre}</p>
+                                        <p className="text-xs text-(--md-body)">{item.descripcion}</p>
+                                      </div>
+                                      {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent)">Añadido</Badge>}
                                     </div>
-                                    {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent)">Añadido</Badge>}
                                   </div>
-                                </Button>
+                                  <div className="flex gap-1">
+                                    <EditDishDialog plato={item} />
+                                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); eliminarPlatoMenu(item.id); }}>
+                                      <Trash2 className="h-4 w-4 text-red-500" />
+                                    </Button>
+                                  </div>
+                                </div>
                               )
                             })}
                           </div>

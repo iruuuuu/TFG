@@ -13,7 +13,7 @@ export function TodoListTab() {
     return {
       id: res.id,
       nombreUsuario: res.nombreUsuario,
-      time: new Date(res.fecha).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      time: new Date(res.creadoEn).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       items: res.platosMenu.map((itemId) => platosMenu.find((m) => m.id === itemId)?.nombre || "Plato desconocido"),
       estado: res.estadoCocina || "pendiente",
     }

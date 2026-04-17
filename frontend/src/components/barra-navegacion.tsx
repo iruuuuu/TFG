@@ -35,7 +35,7 @@ export function BarraNavegacion() {
           </div>
           <div>
             <h1 className="text-lg font-bold text-md-heading leading-none mb-0.5">Mendos</h1>
-            <p className="text-[10px] text-md-body uppercase tracking-wider font-extrabold">IES Mendoza</p>
+            <p className="text-[10px] text-md-body uppercase tracking-wider font-extrabold">IES Antonio de Mendoza</p>
           </div>
         </Link>
 

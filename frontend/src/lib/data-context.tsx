@@ -159,8 +159,8 @@ export function ProveedorDatos({ children }: { children: ReactNode }) {
               nombreUsuario: mappedUsers.find(u => u.id === curr.id_usuario.toString())?.nombre || "Usuario",
               fecha: new Date(curr.fecha_reserva),
               platosMenu: [],
-              estado: curr.estado,
-              estadoCocina: (curr.estado === "completed" || curr.estado === "completada") ? 'completada' : (curr.estado === 'confirmed' || curr.estado === 'preparando') ? 'preparando' : 'pendiente',
+              estado: (curr.estado?.toLowerCase() === 'pending') ? 'pendiente' : (curr.estado?.toLowerCase() === 'confirmed') ? 'confirmada' : (curr.estado?.toLowerCase() === 'completed') ? 'completada' : (curr.estado?.toLowerCase() === 'cancelled') ? 'cancelada' : (curr.estado?.toLowerCase() || 'pendiente'),
+              estadoCocina: (curr.estado?.toLowerCase() === "completed" || curr.estado?.toLowerCase() === "completada") ? 'completada' : (curr.estado?.toLowerCase() === 'confirmed' || curr.estado?.toLowerCase() === 'preparando' || curr.estado?.toLowerCase() === 'confirmada') ? 'preparando' : 'pendiente',
               creadoEn: new Date(curr.creado_en),
               codigoCorto: curr.id.toString().padStart(6, '0')
             };
@@ -182,12 +182,12 @@ export function ProveedorDatos({ children }: { children: ReactNode }) {
 
         setValoraciones(ratRes.map(r => ({
           id: r.id.toString(),
-          idUsuario: r.user_id?.toString() || "0",
+          idUsuario: (r.user_id || r.userId)?.toString() || "0",
           nombreUsuario: "Usuario",
-          idPlatoMenu: r.dish_id?.toString() || "0",
-          puntuacion: r.puntuacion,
+          idPlatoMenu: (r.dish_id || r.dishId)?.toString() || "0",
+          puntuacion: r.rating || r.puntuacion || 0,
           comentario: r.comment || "",
-          fecha: new Date(r.created_at || new Date())
+          fecha: new Date(r.date || r.created_at || new Date())
         })));
 
         setEventosGastro(evtRes.map(e => ({
@@ -203,6 +203,25 @@ export function ProveedorDatos({ children }: { children: ReactNode }) {
           creadoEn: new Date(e.createdAt),
           ultimaModificacion: e.lastModified ? new Date(e.lastModified) : new Date(e.createdAt)
         })));
+
+        if (evtRes.length > 0) {
+          const eventReservationsPromises = evtRes.map(e => 
+            peticionApi<any[]>(`/events/${e.id}/reservations`).catch(() => [])
+          );
+          const allReservationsArrays = await Promise.all(eventReservationsPromises);
+          
+          const mappedEventReservations: ReservaEvento[] = allReservationsArrays.flat().map((er: any) => ({
+            id: er.id.toString(),
+            idEvento: er.event_id?.toString() || "",
+            idUsuario: er.user_id?.toString() || "",
+            nombreUsuario: er.user_name || mappedUsers.find(u => u.id === er.user_id?.toString())?.nombre || "Usuario",
+            reservadoEn: new Date(er.created_at || new Date()),
+            estado: er.status || "confirmada",
+            asistio: !!er.attended
+          }));
+          
+          setReservasEventos(mappedEventReservations);
+        }
 
         setRegistrosActividad(logRes.map(l => ({
           id: l.id.toString(),
@@ -369,11 +388,11 @@ export function ProveedorDatos({ children }: { children: ReactNode }) {
         body: JSON.stringify({
           userId: valoracion.idUsuario,
           dishId: valoracion.idPlatoMenu,
-          puntuacion: valoracion.puntuacion,
+          rating: valoracion.puntuacion,
           comment: valoracion.comentario
         })
       });
-      setValoraciones([...valoraciones, { ...valoracion, id: res.id.toString(), fecha: new Date() }]);
+      setValoraciones(prev => [...prev, { ...valoracion, id: res.id.toString(), fecha: new Date() }]);
     } catch(e) { console.error(e) }
   }
 

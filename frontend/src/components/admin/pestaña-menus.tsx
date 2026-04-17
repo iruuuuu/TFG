@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Pencil, Trash2 } from "lucide-react"
+import { Plus, Pencil, Trash2, Search } from "lucide-react"
 import { useDatos } from "@/lib/data-context"
 import { useToast } from "@/hooks/use-toast"
 import type { PlatoMenu } from "@/lib/types"
@@ -28,6 +28,7 @@ export function MenusTab() {
   const { toast } = useToast()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<PlatoMenu | null>(null)
+  const [busqueda, setBusqueda] = useState("")
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
@@ -35,8 +36,29 @@ export function MenusTab() {
     alergenos: "",
   })
 
+  const platosFiltrados = platosMenu.filter((plato) => 
+    plato.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+    plato.descripcion.toLowerCase().includes(busqueda.toLowerCase())
+  )
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Comprobar duplicados por nombre
+    const nombreNormalizado = formData.nombre.trim().toLowerCase()
+    const esDuplicado = platosMenu.some(p => 
+      p.nombre.trim().toLowerCase() === nombreNormalizado && 
+      p.id !== editingItem?.id
+    )
+
+    if (esDuplicado) {
+      toast({
+        title: "Plato duplicado",
+        description: `Ya existe un plato con el nombre "${formData.nombre}".`,
+        variant: "destructive",
+      })
+      return
+    }
 
     const itemData = {
       nombre: formData.nombre,
@@ -176,8 +198,18 @@ export function MenusTab() {
         </Dialog>
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-md-body" />
+        <Input
+          placeholder="Buscar platos por nombre o descripción..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          className="pl-10 border-md-accent bg-md-surface focus:ring-md-accent"
+        />
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {platosMenu.map((item) => (
+        {platosFiltrados.map((item) => (
           <Card key={item.id} className="border-(--md-accent) bg-(--md-surface)">
             <CardHeader>
               <div className="flex items-start justify-between">

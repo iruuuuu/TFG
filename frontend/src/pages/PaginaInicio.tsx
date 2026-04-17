@@ -58,11 +58,11 @@ export function PaginaInicio() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="h-screen flex flex-col overflow-hidden bg-md-page-bg">
       {usuario && <BarraNavegacion />}
       <LandingHero primaryHref={primaryHref} primaryLabel={primaryLabel} />
 
-      <footer className="bg-md-surface py-12 border-t border-md-accent/30">
+      <footer className="bg-md-surface py-4 border-t border-md-accent/30 flex-shrink-0">
         <div className="container mx-auto px-6 text-center">
           <p className="text-md-body text-sm">
             © {new Date().getFullYear()} Mendos - IES Antonio de Mendoza (Alcalá la Real)

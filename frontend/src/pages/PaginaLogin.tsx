@@ -60,7 +60,7 @@ export function PaginaLogin() {
               <ChefHat className="h-10 w-10 text-[var(--gm-heading)]" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-[var(--gm-heading)] text-center">Mendos - IES Mendoza</CardTitle>
+          <CardTitle className="text-2xl font-bold text-[var(--gm-heading)] text-center">Mendos - IES Antonio de Mendoza</CardTitle>
           <CardDescription className="text-[var(--gm-body)]">Sistema de Gestión de Cocina Escolar</CardDescription>
         </CardHeader>
         <CardContent>
@@ -100,7 +100,7 @@ export function PaginaLogin() {
             </Button>
           </form>
 
-          <div className="mt-6 space-y-2 rounded-lg bg-[var(--gm-accent-light)]/50 border border-[var(--gm-accent)] p-4 text-sm">
+          <div className="mt-6 space-y-2 rounded-lg bg-[var(--gm-accent-light)]/50 border border-[var(--gm-accent)] p-4 text-sm select-text cursor-auto">
             <p className="font-semibold text-[var(--gm-heading)]">Usuarios de demostración:</p>
             <div className="space-y-1 text-[var(--gm-body)]">
               <p><span className="text-[var(--gm-coral)] font-medium">Admin:</span> admin@iesmendoza.es / admin123</p>

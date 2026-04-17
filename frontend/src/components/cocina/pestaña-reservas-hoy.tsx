@@ -6,16 +6,19 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Calendar, Users, UtensilsCrossed } from "lucide-react"
 import { useDatos } from "@/lib/data-context"
+import { useAuth } from "@/lib/auth-context"
 
 export function TodayReservationsTab() {
   const { reservas, platosMenu } = useDatos()
+  const { todosLosUsuarios } = useAuth()
 
   // Filter reservas for today. In a real app we'd compare dates properly
   const todayReservations = reservas.map(res => {
+    const actualUser = todosLosUsuarios.find(u => String(u.id) === String(res.idUsuario))
     return {
       id: res.id,
-      nombreUsuario: res.nombreUsuario,
-      time: new Date(res.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      nombreUsuario: actualUser?.nombre || res.nombreUsuario,
+      time: new Date(res.creadoEn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       items: res.platosMenu.map(itemId => platosMenu.find(m => m.id === itemId)?.nombre || "Plato desconocido"),
       prepared: res.estadoCocina === "completada",
     }
