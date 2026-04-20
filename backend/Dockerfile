@@ -21,5 +21,5 @@ COPY . .
 # Expuso el puerto 8000
 EXPOSE 8000
 
-# Lanza la aplicación (usamos python run.py)
-CMD ["python", "run.py"]
+# Lanza la aplicación y crea la BD
+CMD sh -c "python init_db.py && python run.py"
