@@ -1,4 +1,4 @@
-const URL_BASE_API = 'http://127.0.0.1:8000/api';
+const URL_BASE_API = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
 export async function peticionApi<T>(endpoint: string, opciones: RequestInit = {}): Promise<T> {
   const url = `${URL_BASE_API}${endpoint}`;
