@@ -14,7 +14,11 @@ def create_app():
     app = Flask(__name__)
     
     # Configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///mendoza.db')
+    db_url = os.getenv('DATABASE_URL', 'sqlite:///mendoza.db')
+    if db_url.startswith('mysql://'):
+        db_url = db_url.replace('mysql://', 'mysql+pymysql://', 1)
+    
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
 
