@@ -58,7 +58,7 @@ export function PaginaInicio() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-md-page-bg">
+    <div className="min-h-[100dvh] flex flex-col overflow-y-auto bg-md-page-bg">
       {usuario && <BarraNavegacion />}
       <LandingHero primaryHref={primaryHref} primaryLabel={primaryLabel} />
 

@@ -22,14 +22,37 @@ function getStaticInitialDays() {
   ]
 }
 
+// Map day keys to their weekday index (Monday=1 ... Friday=5, matching getDay())
+const DAY_INDEX_MAP: Record<string, number> = {
+  lunes: 1, martes: 2, miercoles: 3, jueves: 4, viernes: 5,
+}
+
+function getTodayDayKey(): string {
+  const todayIndex = new Date().getDay() // 0=Sun, 1=Mon...5=Fri, 6=Sat
+  const keys = ["lunes", "martes", "miercoles", "jueves", "viernes"]
+  // If weekend (0 or 6) or outside range, no valid day — default to lunes
+  if (todayIndex >= 1 && todayIndex <= 5) return keys[todayIndex - 1]
+  return "lunes"
+}
+
 export function WeeklyMenuView() {
   const { toast } = useToast()
-  const [selectedDay, setSelectedDay] = useState("lunes")
+  const [selectedDay, setSelectedDay] = useState(getTodayDayKey)
   const [selectedItems, setSelectedItems] = useState<{ [key: string]: string[] }>({})
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   
   const [daysOfWeek, setDaysOfWeek] = useState(getStaticInitialDays())
   const [weekRange, setWeekRange] = useState("")
+
+  // Determine which days are in the past (before today)
+  const todayIndex = new Date().getDay() // 0=Sun, 1=Mon...6=Sat
+  const isDayPast = (dayKey: string): boolean => {
+    const dayNum = DAY_INDEX_MAP[dayKey]
+    if (!dayNum) return false
+    // If today is weekend (Sat=6 or Sun=0), all weekdays are past
+    if (todayIndex === 0 || todayIndex === 6) return true
+    return dayNum < todayIndex
+  }
 
   useEffect(() => {
     const currentDate = new Date()
@@ -190,8 +213,8 @@ export function WeeklyMenuView() {
       <Card
         className={`transition-all border-(--md-accent) bg-(--md-surface) ${
           selected ? "ring-2 ring-(--md-accent) bg-(--md-accent-light)/50" : ""
-        } ${usuario ? "cursor-pointer hover:bg-(--md-accent-light)/30" : "opacity-80"}`}
-        onClick={() => usuario && toggleItem(day, categoria, item.id)}
+        } ${isDayPast(day) ? "opacity-50 cursor-not-allowed" : (usuario ? "cursor-pointer hover:bg-(--md-accent-light)/30" : "opacity-80")}`}
+        onClick={() => usuario && !isDayPast(day) && toggleItem(day, categoria, item.id)}
       >
         <CardContent className="p-4">
           <div className="space-y-2">
@@ -234,7 +257,7 @@ export function WeeklyMenuView() {
         </CardHeader>
       </Card>
 
-      <Tabs value={selectedDay} onValueChange={setSelectedDay} className="space-y-4">
+      <Tabs value={selectedDay} onValueChange={(val) => { if (!isDayPast(val)) setSelectedDay(val) }} className="space-y-4">
         <div className="relative flex items-center w-full">
           <Button 
             variant="outline" 
@@ -249,16 +272,25 @@ export function WeeklyMenuView() {
             ref={scrollContainerRef}
             className="flex w-full overflow-x-auto justify-start h-fit min-h-[56px] items-stretch bg-(--md-surface) border border-(--md-accent) p-1 gap-1 rounded-lg px-10 md:px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
-            {daysOfWeek.map((day) => (
-              <TabsTrigger 
-                key={day.key} 
-                value={day.key} 
-                className="flex-1 min-w-[110px] h-full flex flex-col gap-1 data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2 rounded-md whitespace-nowrap"
-              >
-                <span className="font-medium text-[15px] leading-none">{day.label}</span>
-                <span className="text-xs">{day.fecha}</span>
-              </TabsTrigger>
-            ))}
+            {daysOfWeek.map((day) => {
+              const past = isDayPast(day.key)
+              const isToday = DAY_INDEX_MAP[day.key] === todayIndex
+              return (
+                <TabsTrigger 
+                  key={day.key} 
+                  value={day.key}
+                  disabled={past}
+                  className={`flex-1 min-w-[110px] h-full flex flex-col gap-1 data-[state=active]:bg-(--md-accent) data-[state=active]:text-(--md-heading) text-(--md-body) hover:bg-(--md-accent)/50 hover:text-(--md-heading) transition-colors py-2 rounded-md whitespace-nowrap ${
+                    past ? "opacity-40 cursor-not-allowed line-through pointer-events-none" : ""
+                  } ${isToday && !past ? "ring-2 ring-(--md-coral) ring-offset-1" : ""}`}
+                >
+                  <span className="font-medium text-[15px] leading-none">{day.label}</span>
+                  <span className="text-xs">{day.fecha}</span>
+                  {past && <span className="text-[10px] text-(--md-coral) font-semibold leading-none">Cerrado</span>}
+                  {isToday && !past && <span className="text-[10px] text-(--md-coral) font-semibold leading-none">Hoy</span>}
+                </TabsTrigger>
+              )
+            })}
           </TabsList>
 
           <Button 
@@ -325,10 +357,19 @@ export function WeeklyMenuView() {
                 </CardContent>
               </Card>
 
+              {isDayPast(day.key) && (
+                <div className="bg-(--md-coral)/10 border border-(--md-coral)/30 rounded-lg p-4 flex items-center gap-3">
+                  <AlertCircle className="h-5 w-5 text-(--md-coral) shrink-0" />
+                  <p className="text-sm text-(--md-heading) font-medium">
+                    Este día ya ha pasado. No es posible realizar reservas para fechas anteriores.
+                  </p>
+                </div>
+              )}
               <div className="flex justify-end gap-2 pt-4">
                 <Button
                   variant="outline"
                   className="border-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)/50 bg-transparent"
+                  disabled={isDayPast(day.key)}
                   onClick={() => {
                     setSelectedItems((prev) => {
                       const newState = { ...prev }
@@ -343,11 +384,11 @@ export function WeeklyMenuView() {
                 </Button>
                 <Button 
                   onClick={makeReservation} 
-                  disabled={!usuario}
+                  disabled={!usuario || isDayPast(day.key)}
                   className="bg-(--md-accent) text-(--md-heading) font-semibold hover:bg-(--md-accent-hover) shadow-sm disabled:opacity-50 disabled:grayscale"
                 >
                   <Calendar className="mr-2 h-4 w-4" />
-                  {usuario ? "Hacer Reserva" : "Inicia sesión para reservar"}
+                  {isDayPast(day.key) ? "Día no disponible" : (usuario ? "Hacer Reserva" : "Inicia sesión para reservar")}
                 </Button>
               </div>
               {!usuario && (
