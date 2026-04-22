@@ -34,9 +34,9 @@ services:
       - DATABASE_URL=mysql+pymysql://root:mysecretpassword@db:3306/mendos_db
       - SECRET_KEY=supersecretkey-for-tfg-mendoza
       - FLASK_ENV=development
-    volumes:
+    # volumes:
       # Sincronizamos cambios en tiempo real
-      - ./backend:/app
+      # - ./backend:/app
     depends_on:
       db:
         condition: service_healthy
@@ -53,10 +53,10 @@ services:
     environment:
       # Le decimos al frontend dónde encontrar al backend en local
       - NEXT_PUBLIC_API_URL=http://localhost:8000
-    volumes:
+    # volumes:
       # Sincronizamos código del host con el contenedor
-      - .:/app
-      - /app/node_modules
+      # - .:/app
+      # - /app/node_modules
     depends_on:
       - backend
 
