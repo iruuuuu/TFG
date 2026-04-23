@@ -5,4 +5,3 @@ from .inventory import Inventario
 from .rating import Valoracion
 from .event import EventoGastro, ReservaEvento
 from .log import RegistroActividad
-from .additional import InventarioMovimiento, SugerenciaIA

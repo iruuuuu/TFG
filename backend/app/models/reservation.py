@@ -8,7 +8,6 @@ class Reserva(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     reservation_date = db.Column(db.Date, nullable=False)
     dish_id = db.Column(db.Integer, db.ForeignKey('dishes.id', ondelete='CASCADE'), nullable=False)
-    quantity = db.Column(db.Integer, nullable=False, default=1)
     status = db.Column(db.Enum('pending', 'confirmed', 'cancelled', 'completed'), default='pending')
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -23,7 +22,6 @@ class Reserva(db.Model):
             'id_usuario': str(self.user_id),
             'id_plato': str(self.dish_id),
             'fecha_reserva': self.reservation_date.isoformat() if self.reservation_date else None,
-            'cantidad': self.quantity,
             'estado': self.status,
             'notas': self.notes,
             'creado_en': self.created_at.isoformat(),

@@ -24,21 +24,14 @@ CREATE TABLE dishes (
     description TEXT,
     category VARCHAR(20) NULL COMMENT 'Opcional: solo informativo (starter, main, dessert)',
     allergens JSON,
-    nutritional_info JSON,
     price DECIMAL(5,2) NOT NULL DEFAULT 0.00,
     image_url VARCHAR(255),
     is_active BOOLEAN DEFAULT TRUE,
-    -- NUEVOS CAMPOS: Gestión de Stock y Disponibilidad
     available_date DATE NOT NULL COMMENT 'Fecha específica de disponibilidad del plato',
-    stock_total INT NOT NULL DEFAULT 10 COMMENT 'Stock total disponible para esa fecha',
-    stock_reserved INT NOT NULL DEFAULT 0 COMMENT 'Unidades ya reservadas',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_active (is_active),
-    INDEX idx_available_date (available_date),
-    INDEX idx_stock (stock_total, stock_reserved),
-    CHECK (stock_reserved >= 0),
-    CHECK (stock_total >= stock_reserved)
+    INDEX idx_available_date (available_date)
 ) ENGINE=InnoDB;
 
 -- TABLA ELIMINADA: weekly_menus
@@ -51,7 +44,6 @@ CREATE TABLE reservations (
     user_id INT NOT NULL,
     reservation_date DATE NOT NULL,
     dish_id INT NOT NULL,
-    quantity INT NOT NULL DEFAULT 1 COMMENT 'Cantidad de unidades reservadas',
     status ENUM('pending', 'confirmed', 'cancelled', 'completed') DEFAULT 'pending',
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -60,8 +52,7 @@ CREATE TABLE reservations (
     FOREIGN KEY (dish_id) REFERENCES dishes(id) ON DELETE CASCADE,
     INDEX idx_user (user_id),
     INDEX idx_date (reservation_date),
-    INDEX idx_status (status),
-    CHECK (quantity >= 1)
+    INDEX idx_status (status)
 ) ENGINE=InnoDB;
 
 -- Tabla de Valoraciones
@@ -91,31 +82,3 @@ CREATE TABLE inventory (
     INDEX idx_stock (quantity, minimum_stock)
 ) ENGINE=InnoDB;
 
--- Tabla de Historial de Inventario
-CREATE TABLE inventory_movements (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    inventory_id INT NOT NULL,
-    movement_type ENUM('in', 'out') NOT NULL,
-    quantity DECIMAL(10,2) NOT NULL,
-    reason VARCHAR(255),
-    created_by INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (inventory_id) REFERENCES inventory(id) ON DELETE CASCADE,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
-    INDEX idx_inventory (inventory_id),
-    INDEX idx_date (created_at)
-) ENGINE=InnoDB;
-
--- Tabla de Sugerencias IA
-CREATE TABLE ai_suggestions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    suggestion_type ENUM('menu', 'inventory', 'optimization') NOT NULL,
-    content JSON NOT NULL,
-    status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    reviewed_by INT,
-    reviewed_at TIMESTAMP NULL,
-    FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL,
-    INDEX idx_status (status),
-    INDEX idx_type (suggestion_type)
-) ENGINE=InnoDB;

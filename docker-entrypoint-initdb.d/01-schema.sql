@@ -91,31 +91,3 @@ CREATE TABLE inventory (
     INDEX idx_stock (quantity, minimum_stock)
 ) ENGINE=InnoDB;
 
--- Tabla de Historial de Inventario
-CREATE TABLE inventory_movements (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    inventory_id INT NOT NULL,
-    movement_type ENUM('in', 'out') NOT NULL,
-    quantity DECIMAL(10,2) NOT NULL,
-    reason VARCHAR(255),
-    created_by INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (inventory_id) REFERENCES inventory(id) ON DELETE CASCADE,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
-    INDEX idx_inventory (inventory_id),
-    INDEX idx_date (created_at)
-) ENGINE=InnoDB;
-
--- Tabla de Sugerencias IA
-CREATE TABLE ai_suggestions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    suggestion_type ENUM('menu', 'inventory', 'optimization') NOT NULL,
-    content JSON NOT NULL,
-    status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    reviewed_by INT,
-    reviewed_at TIMESTAMP NULL,
-    FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL,
-    INDEX idx_status (status),
-    INDEX idx_type (suggestion_type)
-) ENGINE=InnoDB;
