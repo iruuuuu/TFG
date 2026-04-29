@@ -35,10 +35,9 @@ def create_dish():
         category=data.get('categoria'),
         price=data.get('precio', 0.0),
         available_date=available_date,
-        stock_total=data.get('stock_total', 10),
+        stock=data.get('stock', 0),
         image_url=data.get('url_imagen'),
-        allergens=data.get('alergenos', []),
-        nutritional_info=data.get('informacion_nutricional', {})
+        allergens=data.get('alergenos', [])
     )
     db.session.add(new_dish)
     db.session.commit()
@@ -55,9 +54,8 @@ def update_dish(id):
     if 'precio' in data: dish.price = data['precio']
     if 'url_imagen' in data: dish.image_url = data['url_imagen']
     if 'alergenos' in data: dish.allergens = data['alergenos']
-    if 'informacion_nutricional' in data: dish.nutritional_info = data['informacion_nutricional']
     if 'esta_activo' in data: dish.is_active = data['esta_activo']
-    if 'stock_total' in data: dish.stock_total = data['stock_total']
+    if 'stock' in data: dish.stock = data['stock']
     
     if 'fecha_disponibilidad' in data:
         try:

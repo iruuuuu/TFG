@@ -38,10 +38,14 @@ export function MyReservations() {
     const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
     const day = days[new Date(r.fecha).getDay()]
     
-    // Map items from IDs to Names
-    const items = r.platosMenu.map(id => {
+    const counts: Record<string, number> = {}
+    r.platosMenu.forEach(id => { counts[id] = (counts[id] || 0) + 1 })
+    
+    let totalPrice = 0
+    const items = Object.entries(counts).map(([id, cantidad]) => {
       const item = platosMenu.find(m => m.id === id)
-      return { id, nombre: item ? item.nombre : "Plato Desconocido" }
+      if (item && item.precio) totalPrice += item.precio * cantidad
+      return { id, nombre: item ? item.nombre : "Plato Desconocido", cantidad }
     })
 
     // Check if any of these items has been rated by the user (globally or locally in this session)
@@ -55,9 +59,9 @@ export function MyReservations() {
       fecha: new Date(r.fecha).toISOString().split('T')[0],
       day,
       items,
-      rawStatus: r.estado,
       estado: (r.estado?.toLowerCase() === "pendiente" || r.estado?.toLowerCase() === "pending") ? "pendiente" : (r.estado?.toLowerCase() === "confirmada" || r.estado?.toLowerCase() === "confirmed" || r.estado?.toLowerCase() === "completed" || r.estado?.toLowerCase() === "completada") ? "confirmada" : "cancelada",
       time: "14:00",
+      totalPrice,
       estaValorada
     }
   })
@@ -83,8 +87,8 @@ export function MyReservations() {
     }
   }
 
-  const upcomingReservations = reservas.filter((r) => r.estado !== "cancelada")
-  const pastReservations = reservas.filter((r) => r.estado === "cancelada")
+  const upcomingReservations = reservas.filter((r) => r.estado !== "cancelada" && !r.estaValorada)
+  const pastReservations = reservas.filter((r) => r.estado === "cancelada" || r.estaValorada)
 
   const submitRatings = (e: React.FormEvent) => {
     e.preventDefault()
@@ -96,6 +100,7 @@ export function MyReservations() {
           idUsuario: usuario?.id || "",
           nombreUsuario: usuario?.nombre || "",
           idPlatoMenu,
+          idReserva: ratingDialogRes?.id,
           puntuacion: data.puntuacion,
           comentario: data.comentario,
         })
@@ -194,6 +199,11 @@ export function MyReservations() {
                             {reservation.codigoCorto}
                           </span>
                         )}
+                        {reservation.totalPrice > 0 && (
+                          <span className="px-2 py-0.5 bg-green-100/50 border border-green-200 rounded text-xs font-bold text-green-700">
+                            Total a pagar: {reservation.totalPrice.toFixed(2)} €
+                          </span>
+                        )}
                       </CardDescription>
                     </div>
                     <Badge className={`${getStatusColor(reservation.estado)} w-fit`}>
@@ -210,6 +220,9 @@ export function MyReservations() {
                           <li key={idx} className="flex items-center gap-2 text-sm text-(--md-heading)">
                             <div className="h-1.5 w-1.5 rounded-full bg-(--md-accent)" />
                             {item.nombre}
+                            {item.cantidad > 1 && (
+                              <span className="ml-1 font-bold text-(--md-coral)">x{item.cantidad}</span>
+                            )}
                           </li>
                         ))}
                       </ul>
@@ -248,33 +261,40 @@ export function MyReservations() {
                             <DialogTitle>Valorar platos: {reservation.day}</DialogTitle>
                             <DialogDescription>¿Qué te han parecido los platos de tu reserva?</DialogDescription>
                           </DialogHeader>
-                          <form onSubmit={submitRatings} className="space-y-4">
-                            {ratingDialogRes?.items.map((item: any) => (
-                              <div key={item.id} className="space-y-2 p-3 border rounded-lg bg-(--md-accent-light)/20">
-                                <Label className="font-semibold text-md text-(--md-coral)">{item.nombre}</Label>
-                                <div className="space-y-1">
-                                  <Label className="text-xs text-(--md-body)">Puntuación</Label>
-                                  <InteractiveStars 
-                                    value={dishRatings[item.id]?.puntuacion || 0} 
-                                    onChange={(v) => setDishRatings(prev => ({...prev, [item.id]: {...prev[item.id], puntuacion: v}}))} 
-                                  />
+                          <div className="max-h-[60vh] overflow-y-auto pr-2 py-2">
+                            <form onSubmit={submitRatings} className="space-y-4">
+                              {ratingDialogRes?.items.map((item: any) => (
+                                <div key={item.id} className="space-y-2 p-3 border rounded-lg bg-(--md-accent-light)/20">
+                                  <div className="flex justify-between items-center">
+                                    <Label className="font-semibold text-md text-(--md-coral)">{item.nombre}</Label>
+                                    {item.cantidad > 1 && (
+                                      <Badge variant="outline" className="text-xs font-bold border-(--md-coral) text-(--md-coral)">x{item.cantidad}</Badge>
+                                    )}
+                                  </div>
+                                  <div className="space-y-1">
+                                    <Label className="text-xs text-(--md-body)">Puntuación</Label>
+                                    <InteractiveStars 
+                                      value={dishRatings[item.id]?.puntuacion || 0} 
+                                      onChange={(v) => setDishRatings(prev => ({...prev, [item.id]: {...prev[item.id], puntuacion: v}}))} 
+                                    />
+                                  </div>
+                                  <div className="space-y-1 mt-2">
+                                    <Label className="text-xs text-(--md-body)">Comentario (Opcional)</Label>
+                                    <Textarea 
+                                      placeholder="¡Estaba riquísimo!" 
+                                      value={dishRatings[item.id]?.comentario || ""}
+                                      onChange={(e) => setDishRatings(prev => ({...prev, [item.id]: {...prev[item.id], comentario: e.target.value}}))}
+                                      className="h-16 resize-none"
+                                    />
+                                  </div>
                                 </div>
-                                <div className="space-y-1 mt-2">
-                                  <Label className="text-xs text-(--md-body)">Comentario (Opcional)</Label>
-                                  <Textarea 
-                                    placeholder="¡Estaba riquísimo!" 
-                                    value={dishRatings[item.id]?.comentario || ""}
-                                    onChange={(e) => setDishRatings(prev => ({...prev, [item.id]: {...prev[item.id], comentario: e.target.value}}))}
-                                    className="h-16 resize-none"
-                                  />
-                                </div>
+                              ))}
+                              <div className="flex justify-end gap-2 pt-2 sticky bottom-0 bg-background py-2">
+                                <Button type="button" variant="outline" onClick={() => setRatingDialogRes(null)}>Cancelar</Button>
+                                <Button type="submit" className="bg-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)">Enviar Valoraciones</Button>
                               </div>
-                            ))}
-                            <div className="flex justify-end gap-2 pt-2">
-                              <Button type="button" variant="outline" onClick={() => setRatingDialogRes(null)}>Cancelar</Button>
-                              <Button type="submit" className="bg-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)">Enviar Valoraciones</Button>
-                            </div>
-                          </form>
+                            </form>
+                          </div>
                         </DialogContent>
                       </Dialog>
 
@@ -314,7 +334,7 @@ export function MyReservations() {
 
       {pastReservations.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Reservas Canceladas</h2>
+          <h2 className="text-xl font-semibold text-(--md-heading)">Historial de <span className="text-(--md-coral)">Reservas</span></h2>
           <div className="grid gap-4">
             {pastReservations.map((reservation) => (
               <Card key={reservation.id} className="opacity-60">
@@ -326,8 +346,8 @@ export function MyReservations() {
                         {reservation.day}, {new Date(reservation.fecha).toLocaleDateString("es-ES")}
                       </CardTitle>
                     </div>
-                    <Badge className={`${getStatusColor(reservation.estado)} w-fit text-xs`}>
-                      <span className="capitalize">{reservation.estado}</span>
+                    <Badge className={`${reservation.estaValorada ? "bg-green-100 text-green-700 border-green-200" : getStatusColor(reservation.estado)} w-fit text-xs`}>
+                      <span className="capitalize">{reservation.estaValorada ? "Valorada" : reservation.estado}</span>
                     </Badge>
                   </div>
                 </CardHeader>

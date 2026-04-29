@@ -11,6 +11,7 @@ class Plato(db.Model):
     allergens = db.Column(db.JSON)
     price = db.Column(db.Numeric(5, 2), nullable=False, default=0.00)
     image_url = db.Column(db.String(255))
+    stock = db.Column(db.Integer, default=0)
     is_active = db.Column(db.Boolean, default=True)
     available_date = db.Column(db.Date, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -28,6 +29,7 @@ class Plato(db.Model):
             'precio': float(self.price),
             'url_imagen': self.image_url,
             'alergenos': self.allergens,
+            'stock': self.stock,
             'esta_activo': self.is_active,
             'fecha_disponibilidad': self.available_date.isoformat() if self.available_date else None
         }

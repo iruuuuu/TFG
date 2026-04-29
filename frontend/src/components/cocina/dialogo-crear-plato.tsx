@@ -29,12 +29,16 @@ export function CreateDishDialog() {
     descripcion: string;
     categoria: string;
     alergenos: string[];
+    precio: number;
+    stock: number;
     idAutor?: string;
   }>({
     nombre: "",
     descripcion: "",
     categoria: "entrante",
     alergenos: [],
+    precio: 0,
+    stock: 0,
   })
 
   // Students available for attribution
@@ -51,6 +55,15 @@ export function CreateDishDialog() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (formData.stock <= 0) {
+      toast({
+        title: "Cantidad no válida",
+        description: "El plato debe tener al menos 1 unidad existente.",
+        variant: "destructive",
+      })
+      return
+    }
     
     const authorName = formData.idAutor 
       ? todosLosUsuarios.find(u => u.id === formData.idAutor)?.nombre 
@@ -63,6 +76,8 @@ export function CreateDishDialog() {
       alergenos: formData.alergenos,
       idAutor: formData.idAutor,
       nombreAutor: authorName,
+      precio: formData.precio,
+      stock: formData.stock,
       disponible: true,
     })
 
@@ -80,7 +95,7 @@ export function CreateDishDialog() {
       description: `Se ha añadido "${formData.nombre}" al catálogo.`,
     })
 
-    setFormData({ nombre: "", descripcion: "", categoria: "entrante", alergenos: [], idAutor: undefined })
+    setFormData({ nombre: "", descripcion: "", categoria: "entrante", alergenos: [], precio: 0, stock: 0, idAutor: undefined })
     setOpen(false)
   }
 
@@ -130,6 +145,31 @@ export function CreateDishDialog() {
                 <SelectItem value="postre">Postre</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="precio" className="text-(--md-heading)">Precio por Unidad (€)</Label>
+              <Input 
+                id="precio" 
+                type="number" 
+                step="0.01" 
+                min="0"
+                required 
+                value={formData.precio}
+                onChange={(e) => setFormData(prev => ({ ...prev, precio: parseFloat(e.target.value) || 0 }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="stock" className="text-(--md-heading)">Unidades Existentes</Label>
+              <Input 
+                id="stock" 
+                type="number" 
+                min="0"
+                required 
+                value={formData.stock}
+                onChange={(e) => setFormData(prev => ({ ...prev, stock: parseInt(e.target.value) || 0 }))}
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <Label className="text-(--md-heading)">Alérgenos</Label>

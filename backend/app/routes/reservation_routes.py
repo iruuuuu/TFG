@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from datetime import datetime
 from ..models.reservation import Reserva
+from ..models.dish import Plato
 from .. import db
 
 reservation_bp = Blueprint('reservations', __name__)
@@ -32,10 +33,15 @@ def create_reservation():
         user_id=data.get('id_usuario'),
         dish_id=data.get('id_plato'),
         reservation_date=reservation_date,
-        quantity=data.get('cantidad', 1),
         notes=data.get('notas'),
         status=data.get('estado', 'pending')
     )
+    
+    # Reducir stock del plato
+    dish = Plato.query.get(data.get('id_plato'))
+    if dish and dish.stock > 0:
+        dish.stock -= 1
+
     db.session.add(new_res)
     db.session.commit()
     return jsonify(new_res.to_dict()), 201
@@ -46,7 +52,6 @@ def update_reservation(id):
     data = request.get_json()
     
     if 'estado' in data: res.status = data['estado']
-    if 'cantidad' in data: res.quantity = data['cantidad']
     if 'notas' in data: res.notes = data['notas']
     
     db.session.commit()

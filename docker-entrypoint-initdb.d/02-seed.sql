@@ -1,4 +1,6 @@
 -- Mendos Database Seed Data (Completo - mínimo 10 registros por tabla)
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
 USE mendos_db;
 
 -- =============================================
@@ -20,33 +22,33 @@ INSERT INTO users (email, password, roles, name) VALUES
 -- =============================================
 -- 2. PLATOS (14 registros) - con gestión de stock
 -- =============================================
-INSERT INTO dishes (name, description, category, allergens, nutritional_info, price, available_date, stock_total, stock_reserved, is_active) VALUES
+INSERT INTO dishes (name, description, category, allergens, nutritional_info, price, available_date, stock_total, stock, stock_reserved, is_active) VALUES
 -- Platos para hoy
-('Ensalada Mixta', 'Lechuga, tomate, zanahoria, maíz y aceitunas', 'starter', '[]', '{"calories": 120, "protein": 3, "carbs": 15, "fat": 5}', 3.50, CURDATE(), 20, 0, TRUE),
-('Pollo Asado con Patatas', 'Pollo asado al horno con patatas panaderas', 'main', '[]', '{"calories": 450, "protein": 35, "carbs": 40, "fat": 15}', 6.50, CURDATE(), 15, 2, TRUE),
-('Flan Casero', 'Flan de huevo elaborado en cocina', 'dessert', '["lactose", "eggs"]', '{"calories": 150, "protein": 4, "carbs": 22, "fat": 5}', 2.50, CURDATE(), 25, 0, TRUE),
+('Ensalada Mixta', 'Lechuga, tomate, zanahoria, maíz y aceitunas', 'starter', '[]', '{"calories": 120, "protein": 3, "carbs": 15, "fat": 5}', 3.50, CURDATE(), 20, 20, 0, TRUE),
+('Pollo Asado con Patatas', 'Pollo asado al horno con patatas panaderas', 'main', '[]', '{"calories": 450, "protein": 35, "carbs": 40, "fat": 15}', 6.50, CURDATE(), 15, 15, 2, TRUE),
+('Flan Casero', 'Flan de huevo elaborado en cocina', 'dessert', '["Lácteos", "Huevos"]', '{"calories": 150, "protein": 4, "carbs": 22, "fat": 5}', 2.50, CURDATE(), 25, 25, 0, TRUE),
 
 -- Platos para mañana
-('Sopa de Verduras', 'Sopa casera con verduras de temporada', 'starter', '["gluten"]', '{"calories": 85, "protein": 2, "carbs": 12, "fat": 3}', 3.00, DATE_ADD(CURDATE(), INTERVAL 1 DAY), 18, 1, TRUE),
-('Pescado a la Plancha', 'Filete de merluza con verduras salteadas', 'main', '["fish"]', '{"calories": 320, "protein": 28, "carbs": 20, "fat": 12}', 7.00, DATE_ADD(CURDATE(), INTERVAL 1 DAY), 12, 0, TRUE),
-('Yogur Natural', 'Yogur natural sin azúcar', 'dessert', '["lactose"]', '{"calories": 90, "protein": 5, "carbs": 12, "fat": 2}', 1.50, DATE_ADD(CURDATE(), INTERVAL 1 DAY), 30, 1, TRUE),
+('Sopa de Verduras', 'Sopa casera con verduras de temporada', 'starter', '["Gluten"]', '{"calories": 85, "protein": 2, "carbs": 12, "fat": 3}', 3.00, DATE_ADD(CURDATE(), INTERVAL 1 DAY), 18, 18, 1, TRUE),
+('Pescado a la Plancha', 'Filete de merluza con verduras salteadas', 'main', '["Pescado"]', '{"calories": 320, "protein": 28, "carbs": 20, "fat": 12}', 7.00, DATE_ADD(CURDATE(), INTERVAL 1 DAY), 12, 12, 0, TRUE),
+('Yogur Natural', 'Yogur natural sin azúcar', 'dessert', '["Lácteos"]', '{"calories": 90, "protein": 5, "carbs": 12, "fat": 2}', 1.50, DATE_ADD(CURDATE(), INTERVAL 1 DAY), 30, 30, 1, TRUE),
 
 -- Platos para pasado mañana
-('Crema de Calabaza', 'Crema suave de calabaza con especias', 'starter', '["lactose"]', '{"calories": 110, "protein": 2, "carbs": 18, "fat": 4}', 3.50, DATE_ADD(CURDATE(), INTERVAL 2 DAY), 20, 0, TRUE),
-('Macarrones Boloñesa', 'Pasta con salsa de carne casera', 'main', '["gluten", "lactose"]', '{"calories": 520, "protein": 22, "carbs": 65, "fat": 18}', 5.50, DATE_ADD(CURDATE(), INTERVAL 2 DAY), 25, 0, TRUE),
-('Natillas de Chocolate', 'Natillas suaves de chocolate', 'dessert', '["lactose"]', '{"calories": 180, "protein": 5, "carbs": 28, "fat": 6}', 2.50, DATE_ADD(CURDATE(), INTERVAL 2 DAY), 20, 0, TRUE),
+('Crema de Calabaza', 'Crema suave de calabaza con especias', 'starter', '["Lácteos"]', '{"calories": 110, "protein": 2, "carbs": 18, "fat": 4}', 3.50, DATE_ADD(CURDATE(), INTERVAL 2 DAY), 20, 20, 0, TRUE),
+('Macarrones Boloñesa', 'Pasta con salsa de carne casera', 'main', '["Gluten", "Lácteos"]', '{"calories": 520, "protein": 22, "carbs": 65, "fat": 18}', 5.50, DATE_ADD(CURDATE(), INTERVAL 2 DAY), 25, 25, 0, TRUE),
+('Natillas de Chocolate', 'Natillas suaves de chocolate', 'dessert', '["Lácteos"]', '{"calories": 180, "protein": 5, "carbs": 28, "fat": 6}', 2.50, DATE_ADD(CURDATE(), INTERVAL 2 DAY), 20, 20, 0, TRUE),
 
 -- Platos para dentro de 3 días
-('Gazpacho Andaluz', 'Gazpacho frío de tomate', 'starter', '["gluten"]', '{"calories": 95, "protein": 2, "carbs": 14, "fat": 3}', 3.00, DATE_ADD(CURDATE(), INTERVAL 3 DAY), 15, 0, TRUE),
-('Arroz con Verduras', 'Arroz salteado con verduras variadas', NULL, '[]', '{"calories": 380, "protein": 8, "carbs": 72, "fat": 6}', 5.00, DATE_ADD(CURDATE(), INTERVAL 3 DAY), 18, 0, TRUE),
-('Fruta del Día', 'Pieza de fruta de temporada', NULL, '[]', '{"calories": 80, "protein": 1, "carbs": 20, "fat": 0}', 2.00, DATE_ADD(CURDATE(), INTERVAL 3 DAY), 40, 0, TRUE),
+('Gazpacho Andaluz', 'Gazpacho frío de tomate', 'starter', '["Gluten"]', '{"calories": 95, "protein": 2, "carbs": 14, "fat": 3}', 3.00, DATE_ADD(CURDATE(), INTERVAL 3 DAY), 15, 15, 0, TRUE),
+('Arroz con Verduras', 'Arroz salteado con verduras variadas', NULL, '[]', '{"calories": 380, "protein": 8, "carbs": 72, "fat": 6}', 5.00, DATE_ADD(CURDATE(), INTERVAL 3 DAY), 18, 18, 0, TRUE),
+('Fruta del Día', 'Pieza de fruta de temporada', NULL, '[]', '{"calories": 80, "protein": 1, "carbs": 20, "fat": 0}', 2.00, DATE_ADD(CURDATE(), INTERVAL 3 DAY), 40, 40, 0, TRUE),
 
 -- Platos para dentro de 4 días
-('Lentejas Guisadas', 'Lentejas estofadas con verduras', 'main', '[]', '{"calories": 340, "protein": 18, "carbs": 54, "fat": 4}', 5.00, DATE_ADD(CURDATE(), INTERVAL 4 DAY), 20, 0, TRUE),
+('Lentejas Guisadas', 'Lentejas estofadas con verduras', 'main', '[]', '{"calories": 340, "protein": 18, "carbs": 54, "fat": 4}', 5.00, DATE_ADD(CURDATE(), INTERVAL 4 DAY), 20, 20, 0, TRUE),
 
 -- Platos repetidos en diferentes fechas
-('Ensalada Mixta', 'Lechuga, tomate, zanahoria, maíz y aceitunas', 'starter', '[]', '{"calories": 120, "protein": 3, "carbs": 15, "fat": 5}', 3.50, DATE_ADD(CURDATE(), INTERVAL 2 DAY), 20, 0, TRUE),
-('Pollo Asado con Patatas', 'Pollo asado al horno con patatas panaderas', 'main', '[]', '{"calories": 450, "protein": 35, "carbs": 40, "fat": 15}', 6.50, DATE_ADD(CURDATE(), INTERVAL 3 DAY), 15, 0, TRUE);
+('Ensalada Mixta', 'Lechuga, tomate, zanahoria, maíz y aceitunas', 'starter', '[]', '{"calories": 120, "protein": 3, "carbs": 15, "fat": 5}', 3.50, DATE_ADD(CURDATE(), INTERVAL 2 DAY), 20, 20, 0, TRUE),
+('Pollo Asado con Patatas', 'Pollo asado al horno con patatas panaderas', 'main', '[]', '{"calories": 450, "protein": 35, "carbs": 40, "fat": 15}', 6.50, DATE_ADD(CURDATE(), INTERVAL 3 DAY), 15, 15, 0, TRUE);
 
 -- =============================================
 -- 3. RESERVAS DE PLATOS (12 registros)

@@ -143,7 +143,9 @@ export function ProveedorDatos({ children }: { children: ReactNode }) {
             categoria: categoria,
             urlImagen: d.url_imagen || "/placeholder.jpg",
             alergenos: d.alergenos || [],
-            disponible: d.esta_activo
+            disponible: d.esta_activo,
+            precio: d.precio ? parseFloat(d.precio) : 0,
+            stock: d.stock || 0
           }
         });
 
@@ -185,6 +187,7 @@ export function ProveedorDatos({ children }: { children: ReactNode }) {
           idUsuario: (r.user_id || r.userId)?.toString() || "0",
           nombreUsuario: "Usuario",
           idPlatoMenu: (r.dish_id || r.dishId)?.toString() || "0",
+          idReserva: (r.reservation_id || r.reservationId)?.toString() || undefined,
           puntuacion: r.rating || r.puntuacion || 0,
           comentario: r.comment || "",
           fecha: new Date(r.date || r.created_at || new Date())
@@ -265,7 +268,8 @@ export function ProveedorDatos({ children }: { children: ReactNode }) {
           nombre: item.nombre,
           descripcion: item.descripcion,
           categoria: item.categoria,
-          precio: 0,
+          precio: item.precio || 0,
+          stock: item.stock || 0,
           url_imagen: item.urlImagen,
           alergenos: item.alergenos,
           informacion_nutricional: {},
@@ -283,7 +287,9 @@ export function ProveedorDatos({ children }: { children: ReactNode }) {
           nombre: actualizaciones.nombre,
           descripcion: actualizaciones.descripcion,
           categoria: actualizaciones.categoria,
-          esta_activo: actualizaciones.disponible
+          esta_activo: actualizaciones.disponible,
+          precio: actualizaciones.precio,
+          stock: actualizaciones.stock
         })
       });
       setPlatosMenu(platosMenu.map(item => (item.id === id ? { ...item, ...actualizaciones } : item)));
@@ -318,6 +324,15 @@ export function ProveedorDatos({ children }: { children: ReactNode }) {
           id: results[0].id.toString(), 
           codigoCorto: results[0].id.toString().padStart(6, '0') 
         }]);
+
+        // Reducir stock localmente
+        setPlatosMenu(prevPlatos => prevPlatos.map(plato => {
+          const count = reserva.platosMenu.filter(id => id === plato.id).length;
+          if (count > 0) {
+            return { ...plato, stock: Math.max(0, plato.stock - count) };
+          }
+          return plato;
+        }));
       }
     } catch(e) { console.error(e) }
   }
@@ -388,6 +403,7 @@ export function ProveedorDatos({ children }: { children: ReactNode }) {
         body: JSON.stringify({
           userId: valoracion.idUsuario,
           dishId: valoracion.idPlatoMenu,
+          reservationId: valoracion.idReserva,
           rating: valoracion.puntuacion,
           comment: valoracion.comentario
         })

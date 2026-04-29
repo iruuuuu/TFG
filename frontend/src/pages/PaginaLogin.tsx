@@ -7,13 +7,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ChefHat } from "lucide-react"
+import { ChefHat, Eye, EyeOff } from "lucide-react"
 
 export function PaginaLogin() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [cargando, setIsLoading] = useState(false)
+  const [mostrarPassword, setMostrarPassword] = useState(false)
   const { iniciarSesion } = useAuth()
   const navigate = useNavigate()
 
@@ -61,7 +62,7 @@ export function PaginaLogin() {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-[var(--gm-heading)] text-center">Mendos - IES Antonio de Mendoza</CardTitle>
-          <CardDescription className="text-[var(--gm-body)]">Sistema de Gestión de Cocina Escolar</CardDescription>
+          <CardDescription className="text-[var(--gm-body)] text-center">Sistema de Gestión de Cocina Escolar</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -79,14 +80,24 @@ export function PaginaLogin() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password" className="text-[var(--gm-heading)]">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="border-[var(--gm-accent)] bg-[var(--gm-surface)] text-[var(--gm-heading)] focus:border-[var(--gm-accent)] focus:ring-[var(--gm-accent)]"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={mostrarPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="border-[var(--gm-accent)] bg-[var(--gm-surface)] text-[var(--gm-heading)] focus:border-[var(--gm-accent)] focus:ring-[var(--gm-accent)] pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setMostrarPassword(!mostrarPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-[var(--gm-body)] hover:text-[var(--gm-heading)] transition-colors"
+                  tabIndex={-1}
+                >
+                  {mostrarPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
 
             {error && (
@@ -95,20 +106,21 @@ export function PaginaLogin() {
               </Alert>
             )}
 
-            <Button type="submit" className="w-full bg-[var(--gm-accent)] text-[var(--gm-heading)] font-semibold hover:bg-[var(--gm-accent-hover)] shadow-sm" disabled={cargando}>
-              {cargando ? "Iniciando sesión..." : "Iniciar sesión"}
-            </Button>
-          </form>
-
-          <div className="mt-6 space-y-2 rounded-lg bg-[var(--gm-accent-light)]/50 border border-[var(--gm-accent)] p-4 text-sm select-text cursor-auto">
-            <p className="font-semibold text-[var(--gm-heading)]">Usuarios de demostración:</p>
-            <div className="space-y-1 text-[var(--gm-body)]">
-              <p><span className="text-[var(--gm-coral)] font-medium">Admin:</span> admin@iesmendoza.es / admin123</p>
-              <p><span className="text-[var(--gm-coral)] font-medium">Cocina:</span> cocina@iesmendoza.es / cocina123</p>
-              <p><span className="text-[var(--gm-coral)] font-medium">Maestro:</span> maestro@iesmendoza.es / maestro123</p>
-              <p><span className="text-[var(--gm-coral)] font-medium">Alumno:</span> alumno@iesmendoza.es / alumno123</p>
+            <div className="flex flex-col gap-3">
+              <Button type="submit" className="w-full bg-[var(--gm-accent)] text-[var(--gm-heading)] font-semibold hover:bg-[var(--gm-accent-hover)] shadow-sm" disabled={cargando}>
+                {cargando ? "Iniciando sesión..." : "Iniciar sesión"}
+              </Button>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => navigate(-1)} 
+                className="w-full border-[var(--gm-accent)] text-[var(--gm-body)] hover:bg-[var(--gm-accent-light)]/50 hover:text-[var(--gm-heading)]"
+                disabled={cargando}
+              >
+                Volver
+              </Button>
             </div>
-          </div>
+          </form>
         </CardContent>
       </Card>
     </div>

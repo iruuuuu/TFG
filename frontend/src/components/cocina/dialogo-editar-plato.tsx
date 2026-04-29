@@ -30,12 +30,16 @@ export function EditDishDialog({ plato }: { plato: PlatoMenu }) {
     descripcion: string;
     categoria: string;
     alergenos: string[];
+    precio: number;
+    stock: number;
     idAutor?: string;
   }>({
     nombre: plato.nombre,
     descripcion: plato.descripcion,
     categoria: plato.categoria,
     alergenos: plato.alergenos || [],
+    precio: plato.precio || 0,
+    stock: plato.stock || 0,
     idAutor: plato.idAutor,
   })
 
@@ -49,6 +53,8 @@ export function EditDishDialog({ plato }: { plato: PlatoMenu }) {
         descripcion: plato.descripcion,
         categoria: plato.categoria,
         alergenos: plato.alergenos || [],
+        precio: plato.precio || 0,
+        stock: plato.stock || 0,
         idAutor: plato.idAutor,
       })
     }
@@ -75,6 +81,8 @@ export function EditDishDialog({ plato }: { plato: PlatoMenu }) {
       descripcion: formData.descripcion,
       categoria: formData.categoria as "entrante" | "principal" | "postre",
       alergenos: formData.alergenos,
+      precio: formData.precio,
+      stock: formData.stock,
       idAutor: formData.idAutor,
       nombreAutor: authorName,
     })
@@ -141,6 +149,31 @@ export function EditDishDialog({ plato }: { plato: PlatoMenu }) {
                 <SelectItem value="postre">Postre</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="precio" className="text-(--md-heading)">Precio por Unidad (€)</Label>
+              <Input 
+                id="precio" 
+                type="number" 
+                step="0.01" 
+                min="0"
+                required 
+                value={formData.precio}
+                onChange={(e) => setFormData(prev => ({ ...prev, precio: parseFloat(e.target.value) || 0 }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="stock" className="text-(--md-heading)">Unidades Existentes</Label>
+              <Input 
+                id="stock" 
+                type="number" 
+                min="0"
+                required 
+                value={formData.stock}
+                onChange={(e) => setFormData(prev => ({ ...prev, stock: parseInt(e.target.value) || 0 }))}
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <Label className="text-(--md-heading)">Alérgenos</Label>

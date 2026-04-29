@@ -17,6 +17,7 @@ def create_rating():
         # Flexibilidad en los nombres de los campos
         user_id = data.get('userId') or data.get('user_id')
         dish_id = data.get('dishId') or data.get('menuItemId') or data.get('dish_id')
+        reservation_id = data.get('reservationId') or data.get('reservation_id')
         rating_value = data.get('rating')
         comment = data.get('comment')
 
@@ -26,6 +27,7 @@ def create_rating():
         new_rating = Valoracion(
             user_id=int(user_id),
             dish_id=int(dish_id),
+            reservation_id=int(reservation_id) if reservation_id else None,
             rating=int(rating_value),
             comment=comment
         )

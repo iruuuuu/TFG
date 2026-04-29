@@ -38,7 +38,7 @@ function getTodayDayKey(): string {
 export function WeeklyMenuView() {
   const { toast } = useToast()
   const [selectedDay, setSelectedDay] = useState(getTodayDayKey)
-  const [selectedItems, setSelectedItems] = useState<{ [key: string]: string[] }>({})
+  const [selectedItems, setSelectedItems] = useState<{ [day: string]: { [itemId: string]: number } }>({})
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   
   const [daysOfWeek, setDaysOfWeek] = useState(getStaticInitialDays())
@@ -129,28 +129,41 @@ export function WeeklyMenuView() {
     },
   }
 
-  const toggleItem = (day: string, categoria: string, itemId: string) => {
+  const updateQuantity = (day: string, itemId: string, delta: number) => {
     setSelectedItems((prev) => {
-      const dayKey = `${day}-${categoria}`
-      const current = prev[dayKey] || []
-      if (current.includes(itemId)) {
-        return { ...prev, [dayKey]: current.filter((id) => id !== itemId) }
+      const daySelections = prev[day] || {}
+      const currentCount = daySelections[itemId] || 0
+      
+      const item = platosMenu.find(p => p.id === itemId)
+      const maxStock = item?.stock || 0
+      
+      const newCount = Math.max(0, Math.min(currentCount + delta, maxStock))
+      
+      return {
+        ...prev,
+        [day]: {
+          ...daySelections,
+          [itemId]: newCount
+        }
       }
-      return { ...prev, [dayKey]: [itemId] }
     })
   }
 
-  const isSelected = (day: string, categoria: string, itemId: string) => {
-    const dayKey = `${day}-${categoria}`
-    return selectedItems[dayKey]?.includes(itemId) || false
+  const getQuantity = (day: string, itemId: string) => {
+    return selectedItems[day]?.[itemId] || 0
   }
 
   const makeReservation = () => {
-    const daySelections = selectedItems[`${selectedDay}-entrantes`]?.length || 0
-    const mainSelections = selectedItems[`${selectedDay}-principales`]?.length || 0
-    const dessertSelections = selectedItems[`${selectedDay}-postres`]?.length || 0
+    const daySelections = selectedItems[selectedDay] || {}
+    const allSelectedItems: string[] = []
+    
+    Object.entries(daySelections).forEach(([itemId, count]) => {
+      for (let i = 0; i < count; i++) {
+        allSelectedItems.push(itemId)
+      }
+    })
 
-    if (daySelections === 0 && mainSelections === 0 && dessertSelections === 0) {
+    if (allSelectedItems.length === 0) {
       toast({
         title: "Selección vacía",
         description: "Por favor, selecciona al menos un plato para hacer la reserva.",
@@ -158,12 +171,6 @@ export function WeeklyMenuView() {
       })
       return
     }
-
-    const allSelectedItems = [
-      ...(selectedItems[`${selectedDay}-entrantes`] || []),
-      ...(selectedItems[`${selectedDay}-principales`] || []),
-      ...(selectedItems[`${selectedDay}-postres`] || [])
-    ]
 
     const today = new Date()
     const currentDayOfWeek = today.getDay() || 7
@@ -191,9 +198,7 @@ export function WeeklyMenuView() {
     // Clear selections for this day
     setSelectedItems((prev) => {
       const newState = { ...prev }
-      delete newState[`${selectedDay}-entrantes`]
-      delete newState[`${selectedDay}-principales`]
-      delete newState[`${selectedDay}-postres`]
+      delete newState[selectedDay]
       return newState
     })
   }
@@ -201,44 +206,78 @@ export function WeeklyMenuView() {
   const MenuItemCard = ({
     item,
     day,
-    categoria,
   }: {
     item: PlatoMenu
     day: string
-    categoria: string
   }) => {
-    const selected = isSelected(day, categoria, item.id)
+    const quantity = getQuantity(day, item.id)
 
     return (
       <Card
         className={`transition-all border-(--md-accent) bg-(--md-surface) ${
-          selected ? "ring-2 ring-(--md-accent) bg-(--md-accent-light)/50" : ""
-        } ${isDayPast(day) ? "opacity-50 cursor-not-allowed" : (usuario ? "cursor-pointer hover:bg-(--md-accent-light)/30" : "opacity-80")}`}
-        onClick={() => usuario && !isDayPast(day) && toggleItem(day, categoria, item.id)}
+          quantity > 0 ? "ring-2 ring-(--md-accent) bg-(--md-accent-light)/50" : ""
+        } ${isDayPast(day) ? "opacity-50 cursor-not-allowed" : (usuario ? "hover:bg-(--md-accent-light)/30" : "opacity-80")}`}
       >
         <CardContent className="p-4">
-          <div className="space-y-2">
-            <div className="flex items-start justify-between">
-              <h4 className="font-semibold text-(--md-heading)">{item.nombre}</h4>
-              {selected && <Badge className="bg-(--md-accent) text-(--md-heading) font-semibold">Seleccionado</Badge>}
+          <div className="space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="space-y-1">
+                <h4 className="font-semibold text-(--md-heading) leading-tight">{item.nombre}</h4>
+                {item.precio !== undefined && (
+                  <p className="text-sm font-bold text-(--md-coral)">{item.precio.toFixed(2)} € / ud</p>
+                )}
+                <p className="text-xs font-medium text-(--md-body)">
+                  Cantidad disponible: <span className={`font-bold ${item.stock - quantity > 0 ? "text-(--md-heading)" : "text-(--md-coral)"}`}>{item.stock - quantity}</span>
+                </p>
+              </div>
+              
+              {usuario && !isDayPast(day) && (
+                <div className="flex items-center bg-(--md-surface) border border-(--md-accent) rounded-lg overflow-hidden shrink-0 shadow-sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0 hover:bg-(--md-accent)/20 rounded-none text-(--md-heading)"
+                    onClick={() => updateQuantity(day, item.id, -1)}
+                    disabled={quantity === 0}
+                  >
+                    -
+                  </Button>
+                  <div className="w-8 text-center text-sm font-bold text-(--md-heading)">
+                    {quantity}
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0 hover:bg-(--md-accent)/20 rounded-none text-(--md-heading)"
+                    onClick={() => updateQuantity(day, item.id, 1)}
+                    disabled={quantity >= (item.stock || 0)}
+                  >
+                    +
+                  </Button>
+                </div>
+              )}
             </div>
-            <p className="text-sm text-(--md-body)">{item.descripcion}</p>
-            {item.nombreAutor && (
-              <div className="flex items-center gap-1.5 pt-1">
-                <ChefHat className="h-3.5 w-3.5 text-(--md-coral)" />
-                <span className="text-xs font-medium text-(--md-body)">Creado por: <span className="text-(--md-heading)">{item.nombreAutor}</span></span>
-              </div>
-            )}
-            {item.alergenos.length > 0 && (
-              <div className="flex flex-wrap gap-1 pt-2">
-                <span className="text-xs text-(--md-coral) font-medium">Alérgenos:</span>
-                {item.alergenos.map((allergen) => (
-                  <Badge key={allergen} variant="outline" className="text-xs border-(--md-accent) text-(--md-body)">
-                    {allergen}
-                  </Badge>
-                ))}
-              </div>
-            )}
+            
+            <p className="text-sm text-(--md-body) line-clamp-2">{item.descripcion}</p>
+            
+            <div className="flex flex-col gap-2">
+              {item.nombreAutor && (
+                <div className="flex items-center gap-1.5">
+                  <ChefHat className="h-3.5 w-3.5 text-(--md-coral)" />
+                  <span className="text-xs font-medium text-(--md-body)">Por: <span className="text-(--md-heading)">{item.nombreAutor}</span></span>
+                </div>
+              )}
+              
+              {item.alergenos.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {item.alergenos.map((allergen) => (
+                    <Badge key={allergen} variant="outline" className="text-[10px] h-4 border-(--md-accent) text-(--md-body) px-1.5">
+                      {allergen}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -314,7 +353,7 @@ export function WeeklyMenuView() {
                 <CardContent className="pt-6">
                   <div className="grid gap-4 md:grid-cols-2">
                     {menuSemanal[day.key as keyof typeof menuSemanal]?.entrantes.map((item) => (
-                      <MenuItemCard key={item.id} item={item} day={day.key} categoria="entrantes" />
+                      <MenuItemCard key={item.id} item={item} day={day.key} />
                     ))}
                   </div>
                   {(!menuSemanal[day.key as keyof typeof menuSemanal]?.entrantes || menuSemanal[day.key as keyof typeof menuSemanal]?.entrantes.length === 0) && (
@@ -331,7 +370,7 @@ export function WeeklyMenuView() {
                 <CardContent className="pt-6">
                   <div className="grid gap-4 md:grid-cols-2">
                     {menuSemanal[day.key as keyof typeof menuSemanal]?.principales.map((item) => (
-                      <MenuItemCard key={item.id} item={item} day={day.key} categoria="principales" />
+                      <MenuItemCard key={item.id} item={item} day={day.key} />
                     ))}
                   </div>
                   {(!menuSemanal[day.key as keyof typeof menuSemanal]?.principales || menuSemanal[day.key as keyof typeof menuSemanal]?.principales.length === 0) && (
@@ -348,7 +387,7 @@ export function WeeklyMenuView() {
                 <CardContent className="pt-6">
                   <div className="grid gap-4 md:grid-cols-2">
                     {menuSemanal[day.key as keyof typeof menuSemanal]?.postres.map((item) => (
-                      <MenuItemCard key={item.id} item={item} day={day.key} categoria="postres" />
+                      <MenuItemCard key={item.id} item={item} day={day.key} />
                     ))}
                   </div>
                   {(!menuSemanal[day.key as keyof typeof menuSemanal]?.postres || menuSemanal[day.key as keyof typeof menuSemanal]?.postres.length === 0) && (
@@ -365,7 +404,20 @@ export function WeeklyMenuView() {
                   </p>
                 </div>
               )}
-              <div className="flex justify-end gap-2 pt-4">
+              <div className="grid grid-cols-1 sm:flex sm:flex-row sm:justify-end gap-2 pt-4 items-center">
+                {(() => {
+                  const daySelections = selectedItems[day.key] || {}
+                  const totalPrice = Object.entries(daySelections).reduce((sum, [id, count]) => {
+                    const plato = platosMenu.find(p => p.id === id)
+                    return sum + (plato?.precio || 0) * count
+                  }, 0)
+                  
+                  return totalPrice > 0 ? (
+                    <span className="text-(--md-heading) font-semibold mr-4 text-lg bg-(--md-accent-light)/50 px-4 py-2 rounded-lg border border-(--md-accent)">
+                      Total: <span className="text-(--md-coral)">{totalPrice.toFixed(2)} €</span>
+                    </span>
+                  ) : null
+                })()}
                 <Button
                   variant="outline"
                   className="border-(--md-accent) text-(--md-body) hover:bg-(--md-accent-light)/50 bg-transparent"
@@ -373,9 +425,7 @@ export function WeeklyMenuView() {
                   onClick={() => {
                     setSelectedItems((prev) => {
                       const newState = { ...prev }
-                      delete newState[`${day.key}-entrantes`]
-                      delete newState[`${day.key}-principales`]
-                      delete newState[`${day.key}-postres`]
+                      delete newState[day.key]
                       return newState
                     })
                   }}

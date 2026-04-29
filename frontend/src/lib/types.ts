@@ -18,6 +18,8 @@ export interface PlatoMenu {
   idAutor?: string
   nombreAutor?: string
   disponible: boolean
+  precio?: number
+  stock?: number
 }
 
 export interface MenuSemanal {
@@ -45,6 +47,7 @@ export interface Valoracion {
   idUsuario: string
   nombreUsuario: string
   idPlatoMenu: string
+  idReserva?: string
   puntuacion: number
   comentario: string
   fecha: Date

@@ -179,7 +179,18 @@ export function SearchReservationsTab() {
                             <div className="flex justify-between items-start">
                               <div>
                                 <CardTitle className="text-base">{displayName}</CardTitle>
-                                <CardDescription>Fecha: {new Date(res.fecha).toLocaleDateString("es-ES")} <span className="ml-2">Código: <span className="font-mono bg-(--md-accent)/20 px-1 rounded">{res.codigoCorto || "N/A"}</span></span></CardDescription>
+                                <CardDescription>
+                                  Fecha: {new Date(res.fecha).toLocaleDateString("es-ES")} <span className="ml-2">Código: <span className="font-mono bg-(--md-accent)/20 px-1 rounded">{res.codigoCorto || "N/A"}</span></span>
+                                  {(() => {
+                                    const total = res.platosMenu.reduce((sum, id) => {
+                                      const p = platosMenu.find(x => x.id === id)
+                                      return sum + (p?.precio || 0)
+                                    }, 0)
+                                    return total > 0 ? (
+                                      <span className="block mt-1 font-bold text-(--md-coral)">A cobrar: {total.toFixed(2)} €</span>
+                                    ) : null
+                                  })()}
+                                </CardDescription>
                               </div>
                               <Badge className={prepared ? "bg-green-600 hover:bg-green-700" : "bg-(--md-accent) text-(--md-body)"}>
                                 {prepared ? "Preparada" : "Pendiente"}

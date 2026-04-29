@@ -37,7 +37,7 @@ export function PaginaMenu() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-(--md-page-bg) to-(--md-accent-light)/20">
       <BarraNavegacion />
-      <main className="px-6 py-6 md:py-8">
+      <main className="px-6 py-6 pb-32 md:pb-8 md:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col md:flex-row gap-8">
 
           {/* Mobile Sticky Header */}

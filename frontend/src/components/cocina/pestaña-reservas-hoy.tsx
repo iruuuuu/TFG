@@ -12,14 +12,22 @@ export function TodayReservationsTab() {
   const { reservas, platosMenu } = useDatos()
   const { todosLosUsuarios } = useAuth()
 
-  // Filter reservas for today. In a real app we'd compare dates properly
   const todayReservations = reservas.map(res => {
     const actualUser = todosLosUsuarios.find(u => String(u.id) === String(res.idUsuario))
+    
+    let totalPrice = 0
+    const itemsWithPrices = res.platosMenu.map(itemId => {
+      const p = platosMenu.find(m => m.id === itemId)
+      if (p && p.precio) totalPrice += p.precio
+      return p?.nombre || "Plato desconocido"
+    })
+
     return {
       id: res.id,
       nombreUsuario: actualUser?.nombre || res.nombreUsuario,
       time: new Date(res.creadoEn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      items: res.platosMenu.map(itemId => platosMenu.find(m => m.id === itemId)?.nombre || "Plato desconocido"),
+      items: itemsWithPrices,
+      totalPrice,
       prepared: res.estadoCocina === "completada",
     }
   })
@@ -88,6 +96,9 @@ export function TodayReservationsTab() {
                     <div>
                       <p className="font-semibold">{reservation.nombreUsuario}</p>
                       <p className="text-sm text-muted-foreground">Hora: {reservation.time}</p>
+                      {reservation.totalPrice > 0 && (
+                        <p className="text-sm font-bold text-(--md-coral)">Total: {reservation.totalPrice.toFixed(2)} €</p>
+                      )}
                     </div>
                     {reservation.prepared && <Badge className="bg-green-600 text-white">Preparada</Badge>}
                   </div>
